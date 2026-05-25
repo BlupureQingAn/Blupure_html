@@ -82,18 +82,51 @@
             letter-spacing: 0.15em;
             text-transform: uppercase;
         }
-        .intro-title-styled {
-            font-size: clamp(4rem, 8vw, 9rem);
-            font-weight: 800;
-            line-height: 1.1;
-            color: #111111;
-            margin-top: 1rem;
-            margin-bottom: 2.5rem;
-            letter-spacing: -0.02em;
-        }
-        .intro-title-styled span {
-            color: var(--pure-blue);
-        }
+        /* 新增：定义呼吸浮动动画 */
+@keyframes floatAnimation {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-12px); /* 向上浮动12像素 */
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.intro-title-styled {
+    font-size: clamp(4rem, 8vw, 9rem);
+    font-weight: 800;
+    line-height: 1.1;
+    color: #111111;
+    margin-top: 1rem;
+    margin-bottom: 2.5rem;
+    letter-spacing: -0.02em;
+    
+    /* 核心修改：应用浮动动画 */
+    display: inline-block; /* 确保 transform 动画生效 */
+    animation: floatAnimation 5s ease-in-out infinite; /* 5秒为一个周期的平滑循环 */
+    
+    /* 艺术字效果：加入克莱因蓝的柔和阴影，增加视觉层次 */
+    text-shadow: 0 15px 30px rgba(0, 47, 167, 0.08);
+}
+
+.intro-title-styled span {
+    color: var(--pure-blue);
+    /* 给蓝色重点字增加霓虹微光感 */
+    text-shadow: 0 0 20px rgba(0, 47, 167, 0.25);
+}
+
+/* 调整介绍段落的字体大小、颜色与间距 */
+.intro-content .intro-content__desc.lead {
+    color: #888888 !important;       /* 改为灰色 */
+    font-size: 1.45rem !important;    /* 缩小字体 (原模板通常为 1.8rem 或更大) */
+    margin-top: 4.5rem !important;    /* 增大上边距，使其向下移动 */
+    line-height: 1.8;                 /* 稍微拉开行高，提升精致感 */
+    letter-spacing: 0.05em;           /* 轻微增加字间距 */
+}
+
         .intro-scroll__line {
             background-color: var(--pure-blue) !important;
         }
