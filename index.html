@@ -173,13 +173,24 @@
             color: var(--pure-blue) !important;
         }
 
-        /* 作品网格及卡片设计 */
+        /* 作品网格基础设计（保持 PC 端多列排版） */
         .portfolio-group {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
             gap: 40px;
             width: 100%;
             margin-top: 6rem;
+        }
+
+        /* ===== 移动端适配（屏幕宽度 < 768px） ===== */
+        @media screen and (max-width: 768px) {
+            .portfolio-group {
+                /* 手机端强制单列铺满，不受 340px 限制 */
+                grid-template-columns: 1fr;
+                /* 缩小卡片之间的垂直间距，更符合手机端精致排版 */
+                gap: 24px;
+                margin-top: 4rem;
+            }
         }
         .portfolio-card {
             background: #ffffff;
