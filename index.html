@@ -21,28 +21,30 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 
-    <!-- 克莱因蓝主题定制样式表
+    <!-- 蓝色纯度·克莱因蓝定制样式表
     ================================================== -->
     <style>
         :root {
-            --klein-blue: #002FA7; /* 经典克莱因蓝 */
-            --klein-blue-hover: #001F70; /* 悬停暗蓝色 */
-            --klein-blue-light: #E6EDFF; /* 极浅蓝背景 */
-            --klein-blue-alpha: rgba(0, 47, 167, 0.08);
+            --pure-blue: #002FA7; /* 经典克莱因蓝 / 蓝色纯度核心色 */
+            --pure-blue-hover: #001F70;
+            --pure-blue-light: #E6EDFF;
+            --pure-blue-alpha: rgba(0, 47, 167, 0.08);
+            --text-dark: #111111;
+            --text-soft: #555555;
         }
 
         /* 基础元素重写 */
         ::selection {
-            background-color: var(--klein-blue);
+            background-color: var(--pure-blue);
             color: #ffffff;
         }
         ::-moz-selection {
-            background-color: var(--klein-blue);
+            background-color: var(--pure-blue);
             color: #ffffff;
         }
 
         a, a:hover, a:focus {
-            color: var(--klein-blue);
+            color: var(--pure-blue);
         }
 
         /* 头部与导航栏微调 */
@@ -50,18 +52,18 @@
             border-bottom: 1px solid rgba(0, 47, 167, 0.06);
         }
         .header-brand__text {
-            color: var(--klein-blue) !important;
+            color: var(--pure-blue) !important;
             font-weight: 700;
             letter-spacing: 0.05em;
         }
         .header-nav__links li.current a {
-            color: var(--klein-blue) !important;
+            color: var(--pure-blue) !important;
         }
         .header-nav__links li.current a::after {
-            background-color: var(--klein-blue) !important;
+            background-color: var(--pure-blue) !important;
         }
         .header-nav__links a:hover {
-            color: var(--klein-blue) !important;
+            color: var(--pure-blue) !important;
         }
 
         /* 欢迎区大字体及排版优化 */
@@ -72,7 +74,7 @@
             background: radial-gradient(circle at 90% 10%, rgba(0, 47, 167, 0.04) 0%, transparent 60%);
         }
         .intro-content__overline {
-            color: var(--klein-blue) !important;
+            color: var(--pure-blue) !important;
             font-weight: 600;
             letter-spacing: 0.15em;
             text-transform: uppercase;
@@ -87,10 +89,10 @@
             letter-spacing: -0.02em;
         }
         .intro-title-styled span {
-            color: var(--klein-blue);
+            color: var(--pure-blue);
         }
         .intro-scroll__line {
-            background-color: var(--klein-blue) !important;
+            background-color: var(--pure-blue) !important;
         }
 
         /* 动态作品展示区布局 */
@@ -104,7 +106,7 @@
             color: #111111;
         }
         .section-title::before {
-            color: var(--klein-blue) !important;
+            color: var(--pure-blue) !important;
         }
 
         /* 作品网格及卡片设计 */
@@ -135,7 +137,7 @@
             position: relative;
             aspect-ratio: 16/10;
             overflow: hidden;
-            background-color: var(--klein-blue-light);
+            background-color: var(--pure-blue-light);
         }
         .portfolio-card__img {
             width: 100%;
@@ -155,7 +157,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 47, 167, 0.85); /* 纯克莱因蓝半透明遮罩 */
+            background-color: rgba(0, 47, 167, 0.85);
             opacity: 0;
             transition: opacity 0.4s ease;
             z-index: 1;
@@ -203,7 +205,7 @@
             transition: color 0.3s ease;
         }
         .portfolio-card:hover .portfolio-card__title {
-            color: var(--klein-blue);
+            color: var(--pure-blue);
         }
         .portfolio-card__desc {
             font-size: 1.35rem;
@@ -231,7 +233,7 @@
             width: 48px;
             height: 48px;
             border: 3px solid rgba(0, 47, 167, 0.1);
-            border-top: 3px solid var(--klein-blue);
+            border-top: 3px solid var(--pure-blue);
             border-radius: 50%;
             animation: spin 1s cubic-bezier(0.5, 0.1, 0.4, 0.9) infinite;
             margin-bottom: 2rem;
@@ -244,6 +246,13 @@
             font-size: 1.5rem;
             color: #666666;
             letter-spacing: 0.05em;
+        }
+
+        /* 错误/空状态增强 */
+        .empty-state-message, .error-state-message {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.02);
         }
 
         /* 页脚极简化 */
@@ -262,7 +271,7 @@
         }
         .footer-logo {
             font-weight: 700;
-            color: var(--klein-blue);
+            color: var(--pure-blue);
             letter-spacing: 0.05em;
         }
     </style>
@@ -292,7 +301,7 @@
                 <div class="s-header__block">
                     <div class="header-brand">
                         <a class="header-brand__link" href="index.html">
-                            <span class="header-brand__text">KLEIN ROOM</span>
+                            <span class="header-brand__text">蓝色纯度会客厅</span>
                         </a>
                     </div>
                     <a class="header-menu-toggle" href="#0"><span>菜单</span></a>
@@ -316,14 +325,13 @@
 
                 <div class="row intro-content-wrap">  
                     <div class="column xl-10 intro-content">
-                        <div class="intro-content__overline">PURE DIGITAL SPACE</div>
+                        <div class="intro-content__overline">PURE BLUE · DIGITAL SPACE</div>
                         <h1 class="intro-title-styled">
                             欢迎来到<span>蓝色纯度</span>会客厅
                         </h1>
                         <p class="intro-content__desc lead">
-                            这是一个回归纯净与聚焦的数字化展示空间。
-                            摒弃多余的信息噪声，将视觉权重完全交回给内容本身。
-                            下方陈列着我近期打磨的数字化作品，点击即可直接进入专属体验。
+                            克莱因蓝为骨，纯粹表达为魂。此处摒弃冗余信息，专注呈现数字化探索的每一处笔触。<br>
+                            下方作品均由动态索引自动生成，点击任意卡片即可沉浸体验完整项目。
                         </p>
                     </div>               
                 </div>
@@ -331,7 +339,7 @@
             </div>   
             
             <a class="intro-scroll smoothscroll" href="#works">
-                <div class="intro-scroll__text" style="color: var(--klein-blue)">进入展厅</div>
+                <div class="intro-scroll__text" style="color: var(--pure-blue)">进入展厅</div>
                 <div class="intro-scroll__line"></div>
             </a>
         </section>
@@ -347,7 +355,7 @@
                     </div>
                     <div class="column xl-8 md-12 s-works__header-end">
                         <p class="lead">
-                            以下内容均自动提取自系统目录。每一个独立的单元都代表着一次对交互与视觉边界的探索。
+                            以下内容自动从 <strong style="color: var(--pure-blue);">/works</strong> 目录提取。每一个独立单元均代表一次交互或视觉边界的探索。
                         </p>
                     </div>
                 </div>       
@@ -371,8 +379,8 @@
             <div class="row">
                 <div class="column xl-12 footer-line">
                     <p class="ss-copyright" style="margin: 0;">
-                        <span>© <span class="footer-logo">KLEIN ROOM</span> 2026</span> 
-                        <span>Powered by GitHub Pages</span>
+                        <span>© <span class="footer-logo">蓝色纯度会客厅</span> 2026</span> 
+                        <span>Powered by GitHub Pages · 克莱因蓝灵感场域</span>
                     </p>
                     <p class="ss-back-to-top" style="margin: 0;">
                         <a href="#top" class="ss-back-to-top__link smoothscroll" style="display: flex; align-items: center; gap: 8px;">
@@ -391,208 +399,315 @@
     </div>
 
 
-    <!-- 引入基础依赖脚本
+    <!-- 引入基础依赖脚本 (如有缺失不妨碍核心功能, 优雅降级)
     ================================================== -->
     <script src="js/plugins.js"></script>
     <script src="js/main.js"></script>
 
-    <!-- 核心驱动脚本：实现自动检测与提取
+    <!-- 核心加载模块：重构作品抓取逻辑，修复稳定性，保留蓝色纯度格调
     ================================================== -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // ==========================================
-            // 配置区 (当本地开发预览或使用自定义域名时)
-            // ==========================================
-            const LOCAL_TEST_OWNER = ""; // 填入您的 GitHub 用户名 (例如 "yourname")
-            const LOCAL_TEST_REPO  = ""; // 填入您的 仓库名称 (例如 "my-portfolio")
-            // ==========================================
-
-            const container = document.getElementById('portfolio-container');
-            const loadingState = document.getElementById('loading-state');
-
-            // 1. 动态解析 GitHub 仓库归属与名称
-            function getRepoInfo() {
-                const hostname = window.location.hostname;
-                const pathname = window.location.pathname;
+        (function() {
+            // 确保 DOM 加载完成再执行
+            document.addEventListener('DOMContentLoaded', () => {
                 
-                let owner = LOCAL_TEST_OWNER;
-                let repo = LOCAL_TEST_REPO;
+                // ----- 配置区（本地调试或自定义域名时填写自己的 GitHub 信息）-----
+                const MANUAL_OWNER = "";    // 填入 GitHub 用户名, 例如 "PureBlueStudio"
+                const MANUAL_REPO  = "";     // 填入仓库名, 例如 "blue-purity-portfolio"
+                // -------------------------------------------------------------
+                
+                const container = document.getElementById('portfolio-container');
+                if (!container) return;
 
-                if (hostname.endsWith('.github.io')) {
-                    owner = hostname.split('.')[0];
-                    const pathParts = pathname.split('/').filter(Boolean);
-                    if (pathParts.length > 0 && !pathParts[0].endsWith('.html')) {
-                        repo = pathParts[0];
-                    } else {
-                        repo = `${owner}.github.io`;
-                    }
-                }
-                return { owner, repo };
-            }
-
-            // 生成占位封面（利用 SVG 动态拼接作品标题，完美符合克莱因蓝主题）
-            function generateFallbackCover(title) {
-                const encodedTitle = encodeURIComponent(title);
-                return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"><rect width="100%" height="100%" fill="%23002FA7"/><circle cx="700" cy="100" r="250" fill="%23001C66" opacity="0.4"/><circle cx="100" cy="400" r="150" fill="%23001C66" opacity="0.3"/><path d="M100 100 L700 400" stroke="%23FFFFFF" stroke-width="1.5" opacity="0.1"/><text x="8%" y="85%" fill="%23FFFFFF" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="36" font-weight="800" letter-spacing="0.05em" opacity="0.9">${encodedTitle}</text></svg>`;
-            }
-
-            // 2. 核心异步渲染控制流
-            async function initPortfolio() {
-                const { owner, repo } = getRepoInfo();
-
-                if (!owner || !repo) {
-                    showError("配置提示", "无法自动识别 GitHub 路径。如果您正在本地调试或绑定了自定义域名，请在 index.html 的脚本配置区（LOCAL_TEST_OWNER / LOCAL_TEST_REPO）填写您的仓库信息。");
-                    return;
+                // 辅助函数: 生成高质优雅 SVG 占位 (蓝色纯度风格)
+                function generatePureBlueCover(titleText) {
+                    const safeTitle = titleText.substring(0, 28);
+                    return `data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"><rect width="100%" height="100%" fill="%23002FA7"/><path d="M0 350 L800 280" stroke="%23FFFFFF" stroke-width="1.2" fill="none" opacity="0.15"/><circle cx="680" cy="100" r="180" fill="%23001F75" opacity="0.5"/><circle cx="120" cy="400" r="140" fill="%23001A60" opacity="0.4"/><text x="8%" y="85%" fill="%23FFFFFF" font-family="'Inter',system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" letter-spacing="0.02em" opacity="0.95">${escapeXml(safeTitle)}</text><text x="8%" y="75%" fill="%23FFFFFF" font-family="'Inter',system-ui" font-size="16" font-weight="400" opacity="0.6">蓝色纯度 · 作品集</text></svg>`;
                 }
 
-                try {
-                    // 请求 GitHub API，扫描 "/works" 文件夹
-                    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/works`;
-                    const response = await fetch(apiUrl);
+                function escapeXml(str) {
+                    if(!str) return '';
+                    return str.replace(/[<>&]/g, function(m) {
+                        if(m === '<') return '\\u003c';
+                        if(m === '>') return '\\u003e';
+                        if(m === '&') return '\\u0026';
+                        return m;
+                    }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+                        return c;
+                    });
+                }
+
+                // 获取正确的仓库信息（智能识别 github pages + 手动模式）
+                function getRepositoryInfo() {
+                    let owner = MANUAL_OWNER.trim();
+                    let repo = MANUAL_REPO.trim();
+                    const hostname = window.location.hostname;
+                    const pathname = window.location.pathname;
                     
-                    if (!response.ok) {
-                        throw new Error(`无法获取目录，API 返回状态: ${response.status}`);
+                    // 优先使用手动配置 (覆盖自动识别，更可靠)
+                    if (owner && repo) {
+                        return { owner, repo };
                     }
-
-                    const files = await response.json();
                     
-                    // 过滤出所有的 .html 文件
-                    const htmlFiles = files.filter(file => file.name.endsWith('.html') && file.type === 'file');
-
-                    if (htmlFiles.length === 0) {
-                        showEmptyState();
-                        return;
+                    // 自动识别: 适用于 *.github.io 域名
+                    if (hostname.endsWith('.github.io')) {
+                        owner = hostname.split('.')[0];
+                        const pathParts = pathname.split('/').filter(Boolean);
+                        if (pathParts.length > 0 && !pathParts[0].endsWith('.html')) {
+                            repo = pathParts[0];
+                        } else {
+                            repo = `${owner}.github.io`;
+                        }
+                        return { owner, repo };
                     }
+                    
+                    // 未提供任何有效信息时返回 null
+                    return { owner: null, repo: null };
+                }
 
-                    // 清空加载状态，准备渲染
-                    container.innerHTML = '';
-
-                    // 遍历每一个 HTML 作品文件并异步抓取解析
-                    for (const file of htmlFiles) {
-                        try {
-                            const fileRes = await fetch(file.download_url);
-                            const htmlText = await fileRes.text();
-                            
-                            // 解析 HTML 内部属性
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(htmlText, 'text/html');
-                            
-                            // 动态读取 <title> 或 文件名作为标题
-                            const title = doc.querySelector('title')?.textContent || file.name.replace('.html', '');
-                            
-                            // 动态读取 <meta name="description"> 
-                            const desc = doc.querySelector('meta[name="description"]')?.getAttribute('content') || '一个运行于独立页面的数字化互动案例。点击上方即可直接进入查看和体验完整效果。';
-                            
-                            // 动态读取首选封面图：meta[name="cover"] -> og:image -> 内部第一张图 -> 纯蓝 SVG 兜底
-                            let coverImg = doc.querySelector('meta[name="cover"]')?.getAttribute('content') || 
-                                           doc.querySelector('meta[property="og:image"]')?.getAttribute('content');
-                            
-                            if (!coverImg) {
-                                const firstImg = doc.querySelector('img');
-                                if (firstImg) {
-                                    const src = firstImg.getAttribute('src');
-                                    // 补全路径：如果 HTML 里的图用的是相对路径
-                                    coverImg = (src && !src.startsWith('http') && !src.startsWith('/')) ? `works/${src}` : src;
+                // 针对单个作品文件，深度提取标题，描述，封面图
+                async function parseWorkMetadata(fileItem) {
+                    const fileName = fileItem.name;
+                    const workPath = `works/${fileName}`;
+                    let htmlText = '';
+                    try {
+                        // 使用 download_url 获取原始内容 (支持私有库token场景不做强制)
+                        const resp = await fetch(fileItem.download_url);
+                        if (!resp.ok) throw new Error(`fetch failed ${resp.status}`);
+                        htmlText = await resp.text();
+                    } catch (err) {
+                        console.warn(`获取内容失败 ${fileName}:`, err);
+                        // 降级返回基于文件名的信息
+                        return {
+                            title: fileName.replace('.html', '').replace(/[-_]/g, ' '),
+                            description: '独立创作的数字化项目，点击卡片即刻探索沉浸空间。',
+                            coverImg: generatePureBlueCover(fileName.replace('.html', '')),
+                            valid: true
+                        };
+                    }
+                    
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, 'text/html');
+                    
+                    // 标题提取策略：title 标签优先 -> 若无则文件名作为可读标题
+                    let rawTitle = doc.querySelector('title')?.textContent?.trim();
+                    if (!rawTitle || rawTitle === '') {
+                        rawTitle = fileName.replace('.html', '').replace(/[-_]/g, ' ');
+                    }
+                    // 清理多余换行和过长的名称
+                    const title = rawTitle.length > 60 ? rawTitle.slice(0, 56) + '…' : rawTitle;
+                    
+                    // 描述提取：优先 meta name="description" ，其次 meta property="og:description"，最后默认文案
+                    let description = '';
+                    const metaDesc = doc.querySelector('meta[name="description"]')?.getAttribute('content');
+                    const ogDesc = doc.querySelector('meta[property="og:description"]')?.getAttribute('content');
+                    if (metaDesc && metaDesc.trim()) description = metaDesc.trim();
+                    else if (ogDesc && ogDesc.trim()) description = ogDesc.trim();
+                    else description = '该作品承载对蓝色纯度美学的数字化转译，交互与视觉相互渗透。点击进入完整版体验。';
+                    
+                    // 封面图智能抓取: 1) meta[name="cover"] 2) og:image 3) 文档内第一张img 4) 兜底蓝色SVG
+                    let coverImg = '';
+                    const metaCover = doc.querySelector('meta[name="cover"]')?.getAttribute('content');
+                    const ogImage = doc.querySelector('meta[property="og:image"]')?.getAttribute('content');
+                    if (metaCover && metaCover.trim()) coverImg = metaCover.trim();
+                    else if (ogImage && ogImage.trim()) coverImg = ogImage.trim();
+                    
+                    if (!coverImg) {
+                        const firstImage = doc.querySelector('img');
+                        if (firstImage && firstImage.getAttribute('src')) {
+                            let src = firstImage.getAttribute('src');
+                            if (src && !src.startsWith('http') && !src.startsWith('//') && !src.startsWith('data:')) {
+                                // 相对路径矫正: 大部分作品位于 works/ 子目录, 封面可能引用上级或同层级
+                                if (src.startsWith('./')) src = src.substring(2);
+                                if (!src.startsWith('/') && !src.includes('://')) {
+                                    src = `works/${src}`;
                                 }
                             }
-
-                            // 如果依然没有找到图片，则生成优雅的克莱因蓝主视觉卡片封面
-                            if (!coverImg) {
-                                coverImg = generateFallbackCover(title);
-                            }
-
-                            // 创建卡片元素结构
-                            const card = document.createElement('div');
-                            card.className = 'portfolio-card';
-                            
-                            card.innerHTML = `
-                                <a href="works/${file.name}" class="portfolio-card__media" target="_self">
-                                    <img src="${coverImg}" alt="${title}" class="portfolio-card__img" onerror="this.src='${generateFallbackCover(title)}'">
-                                    <div class="portfolio-card__action-hint">
-                                        进入体验 
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="9 18 15 12 9 6"></polyline>
-                                        </svg>
-                                    </div>
-                                </a>
-                                <div class="portfolio-card__content">
-                                    <h3 class="portfolio-card__title">
-                                        <a href="works/${file.name}" target="_self">${title}</a>
-                                    </h3>
-                                    <p class="portfolio-card__desc">${desc}</p>
-                                </div>
-                            `;
-                            
-                            container.appendChild(card);
-
-                        } catch (err) {
-                            console.warn(`解析单个作品异常 [${file.name}]:`, err);
-                            // 即使某一个 HTML 解析失败，也用基础卡片展示，不影响全局
-                            appendFallbackCard(file);
+                            coverImg = src;
                         }
                     }
-
-                } catch (error) {
-                    console.error('动态获取作品集出错:', error);
-                    showError("展厅加载受限", "读取 GitHub 资源目录失败。可能是因为 API 请求次数达到上限、当前仓库设为了私有，或网络连接异常。");
+                    
+                    // 最终兜底蓝色视觉
+                    if (!coverImg || coverImg === '') {
+                        coverImg = generatePureBlueCover(title);
+                    }
+                    
+                    return {
+                        title: title,
+                        description: description,
+                        coverImg: coverImg,
+                        valid: true,
+                        fileName: fileName,
+                        workUrl: workPath
+                    };
                 }
-            }
-
-            // 异常捕获卡片输出
-            function appendFallbackCard(file) {
-                const title = file.name.replace('.html', '');
-                const card = document.createElement('div');
-                card.className = 'portfolio-card';
-                card.innerHTML = `
-                    <a href="works/${file.name}" class="portfolio-card__media" target="_self">
-                        <img src="${generateFallbackCover(title)}" alt="${title}" class="portfolio-card__img">
-                        <div class="portfolio-card__action-hint">进入体验</div>
-                    </a>
-                    <div class="portfolio-card__content">
-                        <h3 class="portfolio-card__title">
-                            <a href="works/${file.name}" target="_self">${title}</a>
-                        </h3>
-                        <p class="portfolio-card__desc">点击进入查看该作品的完整呈现。</p>
-                    </div>
-                `;
-                container.appendChild(card);
-            }
-
-            // 错误提示区
-            function showError(title, message) {
-                container.innerHTML = `
-                    <div class="loading-wrapper" style="color: #c92a2a; border: 1px dashed rgba(201, 42, 42, 0.3); padding: 4rem; border-radius: 8px; width: 100%;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                        <h3 style="color: #c92a2a; margin-top: 0; font-size: 2rem;">${title}</h3>
-                        <p style="max-width: 500px; margin: 0 auto; line-height: 1.6; font-size: 1.4rem;">${message}</p>
-                    </div>
-                `;
-            }
-
-            // 空白状态区
-            function showEmptyState() {
-                container.innerHTML = `
-                    <div class="loading-wrapper" style="border: 1px dashed rgba(0, 47, 167, 0.2); padding: 5rem; border-radius: 8px; width: 100%;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--klein-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;">
-                            <rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>
-                            <line x1="12" y1="18" x2="12" y2="12"></line>
-                            <line x1="9" y1="15" x2="15" y2="15"></line>
-                        </svg>
-                        <h3 style="color: #111111; margin-top: 0; font-size: 2rem;">暂无作品</h3>
-                        <p style="max-width: 450px; margin: 0 auto; line-height: 1.6; font-size: 1.4rem;">请在根目录下创建 /works 目录，并将您的 HTML 作品文件放置于其中。系统将在扫描后自动更新并在此处展示。</p>
-                    </div>
-                `;
-            }
-
-            // 执行初始化
-            initPortfolio();
-        });
+                
+                // 渲染单个卡片
+                function renderCard(metadata) {
+                    const card = document.createElement('div');
+                    card.className = 'portfolio-card';
+                    const finalCover = metadata.coverImg;
+                    const finalTitle = metadata.title;
+                    const finalDesc = metadata.description;
+                    const linkUrl = metadata.workUrl;
+                    
+                    card.innerHTML = `
+                        <a href="${linkUrl}" class="portfolio-card__media" target="_self">
+                            <img src="${finalCover}" alt="${escapeXml(finalTitle)}" class="portfolio-card__img" onerror="this.onerror=null;this.src='${generatePureBlueCover(finalTitle)}'">
+                            <div class="portfolio-card__action-hint">
+                                进入体验 
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </div>
+                        </a>
+                        <div class="portfolio-card__content">
+                            <h3 class="portfolio-card__title">
+                                <a href="${linkUrl}" target="_self">${escapeXml(finalTitle)}</a>
+                            </h3>
+                            <p class="portfolio-card__desc">${escapeXml(finalDesc)}</p>
+                        </div>
+                    `;
+                    return card;
+                }
+                
+                // 展示加载错误 (网络/权限/限流等)
+                function showNetworkError(msg, detail = '') {
+                    container.innerHTML = `
+                        <div class="loading-wrapper error-state-message" style="background: #fff; border-radius: 24px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--pure-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <h3 style="color: #c0392b; margin: 0 0 1rem 0; font-weight: 600;">展厅检索异常</h3>
+                            <p style="font-size: 1.4rem; max-width: 550px;">${msg}</p>
+                            ${detail ? `<p style="font-size: 1.2rem; color:#777;">${detail}</p>` : ''}
+                            <button id="retry-works-btn" style="margin-top: 2rem; background: var(--pure-blue); border: none; color: white; padding: 0.8rem 2rem; border-radius: 40px; font-weight: 500; cursor: pointer;">重新加载</button>
+                        </div>
+                    `;
+                    const retryBtn = document.getElementById('retry-works-btn');
+                    if (retryBtn) retryBtn.addEventListener('click', () => { window.location.reload(); });
+                }
+                
+                function showEmptyWorks() {
+                    container.innerHTML = `
+                        <div class="loading-wrapper empty-state-message" style="background: #fff; border-radius: 24px; border: 1px dashed rgba(0,47,167,0.25);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--pure-blue)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;">
+                                <rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>
+                                <line x1="12" y1="18" x2="12" y2="12"></line>
+                                <line x1="9" y1="15" x2="15" y2="15"></line>
+                            </svg>
+                            <h3 style="color: #111; margin-top: 0;">暂无作品陈列</h3>
+                            <p style="max-width: 480px; font-size: 1.4rem;">请在仓库根目录创建 <strong style="color: var(--pure-blue);">/works</strong> 文件夹，并将您的 HTML 作品文件放入其中。系统会自动扫描并生成卡片，无需额外配置。</p>
+                            <p style="font-size: 1.2rem; margin-top: 1.2rem;">✨ 提示: 每个作品支持自定义标题(title)、描述(meta name="description") 和封面(meta name="cover")</p>
+                        </div>
+                    `;
+                }
+                
+                // 主要入口: 调用 GitHub API 获取 works 目录内容并渲染
+                async function initPortfolio() {
+                    const { owner, repo } = getRepositoryInfo();
+                    
+                    if (!owner || !repo) {
+                        showNetworkError('未检测到 GitHub 仓库信息', '如果您在本地预览或使用自定义域名，请于脚本配置区填写 MANUAL_OWNER 和 MANUAL_REPO 变量 (位于页面底部script内)。');
+                        return;
+                    }
+                    
+                    const apiEndpoint = `https://api.github.com/repos/${owner}/${repo}/contents/works`;
+                    try {
+                        // 请求 works 目录
+                        const response = await fetch(apiEndpoint, {
+                            headers: { 'Accept': 'application/vnd.github.v3+json' }
+                        });
+                        
+                        if (response.status === 404) {
+                            showEmptyWorks();
+                            return;
+                        }
+                        if (!response.ok) {
+                            if (response.status === 403) {
+                                showNetworkError('GitHub API 请求频率受限或仓库权限限制', '您可以稍后重试，或者确保仓库为公开。若仍异常，可尝试配置本地代理或稍后访问。');
+                            } else {
+                                showNetworkError(`无法获取作品目录 (${response.status})`, '请确认 /works 文件夹存在且仓库公开。');
+                            }
+                            return;
+                        }
+                        
+                        const files = await response.json();
+                        if (!Array.isArray(files) || files.length === 0) {
+                            showEmptyWorks();
+                            return;
+                        }
+                        
+                        // 过滤出 .html 文件
+                        const htmlFiles = files.filter(f => f.name && f.name.endsWith('.html') && f.type === 'file');
+                        if (htmlFiles.length === 0) {
+                            showEmptyWorks();
+                            return;
+                        }
+                        
+                        // 清空 loading 容器
+                        container.innerHTML = '';
+                        
+                        // 并发处理每一个作品的信息提取（避免串行过慢，但限制并行数量也可，这里全部并行但稳健）
+                        const worksMetadata = [];
+                        for (const fileItem of htmlFiles) {
+                            try {
+                                const meta = await parseWorkMetadata(fileItem);
+                                worksMetadata.push(meta);
+                            } catch (err) {
+                                console.warn(`处理作品 ${fileItem.name} 时出错:`, err);
+                                // 降级卡片可见
+                                worksMetadata.push({
+                                    title: fileItem.name.replace('.html', ''),
+                                    description: '点击进入查看完整数字创作内容。',
+                                    coverImg: generatePureBlueCover(fileItem.name.replace('.html', '')),
+                                    valid: true,
+                                    fileName: fileItem.name,
+                                    workUrl: `works/${fileItem.name}`
+                                });
+                            }
+                        }
+                        
+                        if (worksMetadata.length === 0) {
+                            showEmptyWorks();
+                            return;
+                        }
+                        
+                        // 渲染所有卡片 (按文件名字母排序，更有序)
+                        worksMetadata.sort((a,b) => (a.fileName || '').localeCompare(b.fileName || ''));
+                        for (const meta of worksMetadata) {
+                            const card = renderCard(meta);
+                            container.appendChild(card);
+                        }
+                        
+                        // 针对加载完成后，若某图片失效额外添加监听补救 (可选优雅)
+                        const allImgs = container.querySelectorAll('.portfolio-card__img');
+                        allImgs.forEach(img => {
+                            img.addEventListener('error', function(e) {
+                                if (!this.dataset.fallbackSet) {
+                                    this.dataset.fallbackSet = 'true';
+                                    const parentCard = this.closest('.portfolio-card');
+                                    let fallbackTitle = '蓝色纯度作品';
+                                    if (parentCard) {
+                                        const titleEl = parentCard.querySelector('.portfolio-card__title a');
+                                        if (titleEl) fallbackTitle = titleEl.innerText;
+                                    }
+                                    this.src = generatePureBlueCover(fallbackTitle);
+                                }
+                            });
+                        });
+                        
+                    } catch (err) {
+                        console.error('作品加载严重错误:', err);
+                        showNetworkError('网络请求异常或跨域问题', '请检查网络连接或 GitHub API 可用性。您也可以稍后刷新页面重试。');
+                    }
+                }
+                
+                initPortfolio();
+            });
+        })();
     </script>
-
 </body>
 </html>
