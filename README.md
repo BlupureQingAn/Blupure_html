@@ -3,7 +3,7 @@
 > 克莱因蓝为骨，纯粹表达为魂 — 我个人的由 GitHub API 驱动的自动化数字作品展示空间
 
 [![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-002FA7?style=flat-square&logo=github)](https://pages.github.com/)
-[![License](https://img.shields.io/badge/License-MIT-002FA7?style=flat-square)](LICENSE)
+
 [![Made with](https://img.shields.io/badge/Made%20with-Vanilla%20JS-002FA7?style=flat-square)](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript)
 
 ## ✨ 设计理念
