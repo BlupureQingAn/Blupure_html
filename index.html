@@ -611,8 +611,11 @@ async function initPortfolio() {
     const apiEndpoint = `https://api.github.com/repos/${owner}/${repo}/contents/works`;
     try {
         const response = await fetch(apiEndpoint, {
-            headers: { 'Accept': 'application/vnd.github.v3+json' }
-        });
+    headers: {
+        'Accept': 'application/vnd.github.v3+json',
+        'Authorization': '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'   // 替换成真实 token
+    }
+});
         
         if (response.status === 404) {
             showEmptyWorks();
