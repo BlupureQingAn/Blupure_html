@@ -599,35 +599,36 @@ async function parseWorkMetadata(fileItem, sameNameCoverUrl = '') {
         workUrl: workPath
     };
 }
-                
-                // 渲染单个卡片
-                function renderCard(metadata) {
-                    const card = document.createElement('div');
-                    card.className = 'portfolio-card';
-                    const finalCover = metadata.coverImg;
-                    const finalTitle = metadata.title;
-                    const finalDesc = metadata.description;
-                    const linkUrl = metadata.workUrl;
-                    
-                    card.innerHTML = `
-                        <a href="${linkUrl}" class="portfolio-card__media" target="_self">
-                            <img src="${finalCover}" alt="${escapeXml(finalTitle)}" class="portfolio-card__img" onerror="this.onerror=null;this.src='${generatePureBlueCover(finalTitle)}'">
-                            <div class="portfolio-card__action-hint">
-                                进入体验 
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="9 18 15 12 9 6"></polyline>
-                                </svg>
-                            </div>
-                        </a>
-                        <div class="portfolio-card__content">
-                            <h3 class="portfolio-card__title">
-                                <a href="${linkUrl}" target="_self">${escapeXml(finalTitle)}</a>
-                            </h3>
-                            <p class="portfolio-card__desc">${escapeXml(finalDesc)}</p>
-                        </div>
-                    `;
-                    return card;
-                }
+// 渲染单个卡片
+function renderCard(metadata) {
+    const card = document.createElement('div');
+    card.className = 'portfolio-card';
+    const finalCover = metadata.coverImg;
+    const finalTitle = metadata.title;
+    const finalDesc = metadata.description;
+    const linkUrl = metadata.workUrl;
+    
+    card.innerHTML = `
+        <!-- 1. 修改图片链接的 target 属性 -->
+        <a href="${linkUrl}" class="portfolio-card__media" target="_blank" rel="noopener noreferrer">
+            <img src="${finalCover}" alt="${escapeXml(finalTitle)}" class="portfolio-card__img" onerror="this.onerror=null;this.src='${generatePureBlueCover(finalTitle)}'">
+            <div class="portfolio-card__action-hint">
+                进入体验 
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </div>
+        </a>
+        <div class="portfolio-card__content">
+            <h3 class="portfolio-card__title">
+                <!-- 2. 修改文字标题链接的 target 属性 -->
+                <a href="${linkUrl}" target="_blank" rel="noopener noreferrer">${escapeXml(finalTitle)}</a>
+            </h3>
+            <p class="portfolio-card__desc">${escapeXml(finalDesc)}</p>
+        </div>
+    `;
+    return card;
+}
                 
                 // 展示加载错误 (网络/权限/限流等)
                 function showNetworkError(msg, detail = '') {
