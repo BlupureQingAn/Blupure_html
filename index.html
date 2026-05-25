@@ -304,7 +304,7 @@
                 <div class="s-header__block">
                     <div class="header-brand">
                         <a class="header-brand__link" href="index.html">
-                            <span class="header-brand__text">蓝色纯度会客厅</span>
+                            <span class="header-brand__text">Blupure会客厅</span>
                         </a>
                     </div>
                     <a class="header-menu-toggle" href="#0"><span>菜单</span></a>
@@ -382,7 +382,7 @@
             <div class="row">
                 <div class="column xl-12 footer-line">
                     <p class="ss-copyright" style="margin: 0;">
-                        <span>© <span class="footer-logo">蓝色纯度会客厅</span> 2026</span> 
+                        <span>© <span class="footer-logo">Blupure会客厅</span> 2026</span> 
                         <span>Powered by GitHub Pages · 克莱因蓝灵感场域</span>
                     </p>
                     <p class="ss-back-to-top" style="margin: 0;">
@@ -422,10 +422,10 @@
                 const container = document.getElementById('portfolio-container');
                 if (!container) return;
 
-                // 辅助函数: 生成高质优雅 SVG 占位 (蓝色纯度风格)
+                // 辅助函数: 生成高质优雅 SVG 占位 (Blupure风格)
                 function generatePureBlueCover(titleText) {
                     const safeTitle = titleText.substring(0, 28);
-                    return `data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"><rect width="100%" height="100%" fill="%23002FA7"/><path d="M0 350 L800 280" stroke="%23FFFFFF" stroke-width="1.2" fill="none" opacity="0.15"/><circle cx="680" cy="100" r="180" fill="%23001F75" opacity="0.5"/><circle cx="120" cy="400" r="140" fill="%23001A60" opacity="0.4"/><text x="8%" y="85%" fill="%23FFFFFF" font-family="'Inter',system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" letter-spacing="0.02em" opacity="0.95">${escapeXml(safeTitle)}</text><text x="8%" y="75%" fill="%23FFFFFF" font-family="'Inter',system-ui" font-size="16" font-weight="400" opacity="0.6">蓝色纯度 · 作品集</text></svg>`;
+                    return `data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"><rect width="100%" height="100%" fill="%23002FA7"/><path d="M0 350 L800 280" stroke="%23FFFFFF" stroke-width="1.2" fill="none" opacity="0.15"/><circle cx="680" cy="100" r="180" fill="%23001F75" opacity="0.5"/><circle cx="120" cy="400" r="140" fill="%23001A60" opacity="0.4"/><text x="8%" y="85%" fill="%23FFFFFF" font-family="'Inter',system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" letter-spacing="0.02em" opacity="0.95">${escapeXml(safeTitle)}</text><text x="8%" y="75%" fill="%23FFFFFF" font-family="'Inter',system-ui" font-size="16" font-weight="400" opacity="0.6">Blupure · 作品集</text></svg>`;
                 }
 
                 function escapeXml(str) {
@@ -500,7 +500,7 @@ async function parseWorkMetadata(fileItem, sameNameCoverUrl = '') {
     const ogDesc = doc.querySelector('meta[property="og:description"]')?.getAttribute('content');
     if (metaDesc && metaDesc.trim()) description = metaDesc.trim();
     else if (ogDesc && ogDesc.trim()) description = ogDesc.trim();
-    else description = '该作品承载对蓝色纯度美学的数字化转译，交互与视觉相互渗透。点击进入完整版体验。';
+    else description = '该作品承载Blupure对美学的数字化转译，交互与视觉相互渗透。点击进入完整版体验。';
     
     // 封面图逻辑：优先使用传入的同名封面，其次 meta/og:image，最后蓝色 SVG
     let coverImg = sameNameCoverUrl;
@@ -690,7 +690,7 @@ async function initPortfolio() {
                 if (!this.dataset.fallbackSet) {
                     this.dataset.fallbackSet = 'true';
                     const parentCard = this.closest('.portfolio-card');
-                    let fallbackTitle = '蓝色纯度作品';
+                    let fallbackTitle = 'Blupure作品';
                     if (parentCard) {
                         const titleEl = parentCard.querySelector('.portfolio-card__title a');
                         if (titleEl) fallbackTitle = titleEl.innerText;
