@@ -500,7 +500,7 @@ async function parseWorkMetadata(fileItem, sameNameCoverUrl = '') {
     const ogDesc = doc.querySelector('meta[property="og:description"]')?.getAttribute('content');
     if (metaDesc && metaDesc.trim()) description = metaDesc.trim();
     else if (ogDesc && ogDesc.trim()) description = ogDesc.trim();
-    else description = '该作品承载Blupure对美学的数字化转译，交互与视觉相互渗透。点击进入完整版体验。';
+    else description = '该作品为Blupure对艺术的数字化转译，交互，文本，视觉相互渗透。点击进入完整体验。';
     
     // 封面图逻辑：优先使用传入的同名封面，其次 meta/og:image，最后蓝色 SVG
     let coverImg = sameNameCoverUrl;
