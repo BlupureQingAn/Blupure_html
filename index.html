@@ -82,49 +82,68 @@
             letter-spacing: 0.15em;
             text-transform: uppercase;
         }
-        /* 新增：定义呼吸浮动动画 */
+/* 1. 浮动与流光动画定义（保持不变） */
 @keyframes floatAnimation {
     0% {
-        transform: translateY(0px);
+        transform: translateY(0px) rotate(0deg);
     }
     50% {
-        transform: translateY(-12px); /* 向上浮动12像素 */
+        transform: translateY(-15px) rotate(0.5deg);
     }
     100% {
-        transform: translateY(0px);
+        transform: translateY(0px) rotate(0deg);
     }
 }
 
+@keyframes streamGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 2. 标题整体容器样式（负责全局字体、字号和浮动动画） */
 .intro-title-styled {
-    font-size: clamp(4rem, 8vw, 9rem);
-    font-weight: 800;
-    line-height: 1.1;
-    color: #111111;
-    margin-top: 1rem;
+    font-family: "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", -apple-system, sans-serif;
+    font-size: clamp(4.5rem, 8.5vw, 9.5rem);
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin-top: 1.5rem;
     margin-bottom: 2.5rem;
-    letter-spacing: -0.02em;
     
-    /* 核心修改：应用浮动动画 */
-    display: inline-block; /* 确保 transform 动画生效 */
-    animation: floatAnimation 5s ease-in-out infinite; /* 5秒为一个周期的平滑循环 */
-    
-    /* 艺术字效果：加入克莱因蓝的柔和阴影，增加视觉层次 */
-    text-shadow: 0 15px 30px rgba(0, 47, 167, 0.08);
+    display: inline-block;
+    animation: floatAnimation 6s ease-in-out infinite;
 }
 
-.intro-title-styled span {
-    color: var(--pure-blue);
-    /* 给蓝色重点字增加霓虹微光感 */
-    text-shadow: 0 0 20px rgba(0, 47, 167, 0.25);
+/* 3. 中文部分（欢迎来到 & 会客厅）的独立渐变样式 */
+.title-text, .title-text-alt {
+    background: linear-gradient(135deg, #111111 30%, #444444 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #111111; /* 降级备用色 */
 }
 
-/* 调整介绍段落的字体大小、颜色与间距 */
-.intro-content .intro-content__desc.lead {
-    color: #888888 !important;       /* 改为灰色 */
-    font-size: 1.45rem !important;    /* 缩小字体 (原模板通常为 1.8rem 或更大) */
-    margin-top: 4.5rem !important;    /* 增大上边距，使其向下移动 */
-    line-height: 1.8;                 /* 稍微拉开行高，提升精致感 */
-    letter-spacing: 0.05em;           /* 轻微增加字间距 */
+/* 4. 专属品牌词（Blupure）流光发光样式 */
+.title-brand {
+    font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    display: inline-block;
+    margin: 0 12px;
+    padding: 0 4px;
+    
+    /* 亮眼液态流光渐变 */
+    background: linear-gradient(90deg, #002FA7 0%, #0077FF 35%, #00F0FF 70%, #002FA7 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    /* 流光渐变动画 */
+    animation: streamGradient 4s linear infinite;
+    
+    /* 霓虹发光阴影 */
+    filter: drop-shadow(0 4px 15px rgba(0, 119, 255, 0.45)) 
+            drop-shadow(0 1px 2px rgba(0, 47, 167, 0.3));
 }
 
         .intro-scroll__line {
@@ -363,7 +382,7 @@
                     <div class="column xl-10 intro-content">
                         <div class="intro-content__overline">Blupure · Digital Space</div>
                         <h1 class="intro-title-styled">
-                            欢迎来到<span>Blupure</span><br>会客厅
+                            <span class="title-text">欢迎来到</span><span class="title-brand">Blupure</span><br><span class="title-text-alt">会客厅</span>
                         </h1>
                         <p class="intro-content__desc lead">
                             旨在以数字化探索推动网络工具创新性发展<br>
