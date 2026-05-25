@@ -68,11 +68,14 @@
 
         /* 欢迎区大字体及排版优化 */
         .s-intro {
-            min-height: 80vh;
-            display: flex;
-            align-items: center;
-            background: radial-gradient(circle at 90% 10%, rgba(0, 47, 167, 0.04) 0%, transparent 60%);
-        }
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    background: radial-gradient(circle at 90% 10%, rgba(0, 47, 167, 0.04) 0%, transparent 60%);
+    margin-top: 2px;   /* 向下微调，对齐顶栏横线 */
+    position: relative;
+    z-index: 1;
+}
         .intro-content__overline {
             color: var(--pure-blue) !important;
             font-weight: 600;
@@ -327,12 +330,12 @@
                     <div class="column xl-10 intro-content">
                         <div class="intro-content__overline">Blupure · Digital Space</div>
                         <h1 class="intro-title-styled">
-                            欢迎来到<span>蓝色纯度</span>会客厅
+                            欢迎来到<span>Blupure</span><br>会客厅
                         </h1>
                         <p class="intro-content__desc lead">
-                            克莱因蓝为骨，纯粹表达为魂。此处摒弃冗余信息，专注呈现数字化探索的每一处笔触。<br>
-                            下方均为蓝色纯度的个人作品，点击任意卡片即可沉浸体验完整项目。
-                        </p>
+                            旨在以数字化探索推动网络工具创新性发展<br>
+                            下方作品均为Blupure原创，点击任意卡片即可沉浸体验完整项目。
+                        </p >
                     </div>               
                 </div>
 
@@ -355,7 +358,7 @@
                     </div>
                     <div class="column xl-8 md-12 s-works__header-end">
                         <p class="lead">
-                            以下内容的 <strong style="color: var(--pure-blue);">每一个独立单元</strong> 均代表一次交互或视觉边界的探索。
+                            以下每一个 <strong style="color: var(--pure-blue);">独立卡片</strong> 均代表一次蓝色纯度的个人探索。
                         </p>
                     </div>
                 </div>       
