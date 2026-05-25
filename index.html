@@ -325,13 +325,13 @@
 
                 <div class="row intro-content-wrap">  
                     <div class="column xl-10 intro-content">
-                        <div class="intro-content__overline">PURE BLUE · DIGITAL SPACE</div>
+                        <div class="intro-content__overline">Blupure · Digital Space</div>
                         <h1 class="intro-title-styled">
                             欢迎来到<span>蓝色纯度</span>会客厅
                         </h1>
                         <p class="intro-content__desc lead">
                             克莱因蓝为骨，纯粹表达为魂。此处摒弃冗余信息，专注呈现数字化探索的每一处笔触。<br>
-                            下方作品均由动态索引自动生成，点击任意卡片即可沉浸体验完整项目。
+                            下方均为蓝色纯度的个人作品，点击任意卡片即可沉浸体验完整项目。
                         </p>
                     </div>               
                 </div>
@@ -355,7 +355,7 @@
                     </div>
                     <div class="column xl-8 md-12 s-works__header-end">
                         <p class="lead">
-                            以下内容自动从 <strong style="color: var(--pure-blue);">/works</strong> 目录提取。每一个独立单元均代表一次交互或视觉边界的探索。
+                            以下内容的 <strong style="color: var(--pure-blue);">每一个独立单元</strong> 均代表一次交互或视觉边界的探索。
                         </p>
                     </div>
                 </div>       
@@ -412,8 +412,8 @@
             document.addEventListener('DOMContentLoaded', () => {
                 
                 // ----- 配置区（本地调试或自定义域名时填写自己的 GitHub 信息）-----
-                const MANUAL_OWNER = "";    // 填入 GitHub 用户名, 例如 "PureBlueStudio"
-                const MANUAL_REPO  = "";     // 填入仓库名, 例如 "blue-purity-portfolio"
+                const MANUAL_OWNER = "BlupureQingAn";    // GitHub 用户名
+                const MANUAL_REPO  = "Blupure_html";     // 仓库名
                 // -------------------------------------------------------------
                 
                 const container = document.getElementById('portfolio-container');
@@ -617,9 +617,12 @@
                     const apiEndpoint = `https://api.github.com/repos/${owner}/${repo}/contents/works`;
                     try {
                         // 请求 works 目录
-                        const response = await fetch(apiEndpoint, {
-                            headers: { 'Accept': 'application/vnd.github.v3+json' }
-                        });
+const response = await fetch(apiEndpoint, {
+    headers: {
+        'Accept': 'application/vnd.github.v3+json',
+        'Authorization': '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'   // 把 token 粘贴在这里
+    }
+});
                         
                         if (response.status === 404) {
                             showEmptyWorks();
@@ -627,9 +630,9 @@
                         }
                         if (!response.ok) {
                             if (response.status === 403) {
-                                showNetworkError('GitHub API 请求频率受限或仓库权限限制', '您可以稍后重试，或者确保仓库为公开。若仍异常，可尝试配置本地代理或稍后访问。');
+                                showNetworkError('GitHub API 请求频率受限', '您可以稍后重试。');
                             } else {
-                                showNetworkError(`无法获取作品目录 (${response.status})`, '请确认 /works 文件夹存在且仓库公开。');
+                                showNetworkError(`无法获取作品目录 (${response.status})`);
                             }
                             return;
                         }
