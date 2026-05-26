@@ -110,11 +110,11 @@
 .intro-title-styled {
     font-size: clamp(4.5rem, 8.5vw, 9.5rem);
     font-weight: 900;
-    line-height: 1.4;
+    line-height: 1;
     letter-spacing: -0.03em;
     margin-top: 1.5rem;
     margin-bottom: 2.5rem;
-    
+
     display: inline-block;
     animation: floatAnimation 6s ease-in-out infinite;
 }
@@ -126,16 +126,9 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     color: #111111; /* 降级备用色 */
-}
-/* "欢迎来到" 靠上留白略多 */
-.title-text {
     display: block;
-    margin-bottom: 0.2rem;
-}
-/* "会客厅" 与下方 Blupure 呼应 */
-.title-text-alt {
-    display: block;
-    margin-top: 0.2rem;
+    margin: 0;
+    padding: 0;
 }
 
 /* 4. 专属品牌词（Blupure）流光发光样式 */
@@ -145,7 +138,7 @@
     font-weight: 900;
     letter-spacing: -0.01em;
     display: block;
-    margin: 0.6rem 0;
+    margin: 0;
     padding: 0;
     line-height: 1.1;
     
@@ -167,7 +160,7 @@
 .intro-content .intro-content__desc.lead {
     color: #888888 !important;       /* 改为灰色 */
     font-size: 1.45rem !important;    /* 缩小字体 (原模板通常为 1.8rem 或更大) */
-    margin-top: 10rem !important;    /* 增大上边距，向下平移 */
+    margin-top: 12rem !important;    /* 增大上边距，与标题拉开距离 */
     line-height: 1.8;                 /* 稍微拉开行高，提升精致感 */
     letter-spacing: 0.05em;           /* 轻微增加字间距 */
 }
