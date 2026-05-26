@@ -3203,15 +3203,6 @@ html.dark-mode .theme-toggle:active {
 html.dark-mode .theme-toggle:focus-visible {
     outline-color: #4D7CFF;
 }
-html:not(.dark-mode) .s-header.is-visible {
-    background-color: rgba(255, 255, 255, 0.88);
-    border-bottom: 1px solid rgba(0, 47, 167, 0.08);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-}
-
-html.dark-mode .s-header.is-visible {
-    background-color: rgba(19, 20, 19, 0.9);
-}
 .theme-toggle__icon {
     width: 20px;
     height: 20px;
