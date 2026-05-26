@@ -21,10 +21,15 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 
+    <!-- Google Fonts: Mea Culpa + Noto Serif SC
+    ================================================== -->
+    <link rel="stylesheet" href="https://fonts.font.im/css2?family=Mea+Culpa&family=Noto+Serif+SC:wght@400;600;700;900&display=swap">
+
     <!-- 蓝色纯度·克莱因蓝定制样式表
     ================================================== -->
     <style>
         :root {
+            --font-1: "Noto Serif SC", "Roboto Flex", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", serif; /* 全局衬线体 */
             --pure-blue: #002FA7; /* 经典克莱因蓝 / 蓝色纯度核心色 */
             --pure-blue-hover: #001F70;
             --pure-blue-light: #E6EDFF;
@@ -103,7 +108,6 @@
 
 /* 2. 标题整体容器样式（负责全局字体、字号和浮动动画） */
 .intro-title-styled {
-    font-family: "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", -apple-system, sans-serif;
     font-size: clamp(4.5rem, 8.5vw, 9.5rem);
     font-weight: 900;
     line-height: 1.15;
@@ -125,7 +129,7 @@
 
 /* 4. 专属品牌词（Blupure）流光发光样式 */
 .title-brand {
-    font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+    font-family: "Mea Culpa", "Inter", "Helvetica Neue", Arial, sans-serif;
     font-weight: 900;
     letter-spacing: -0.01em;
     display: inline-block;
