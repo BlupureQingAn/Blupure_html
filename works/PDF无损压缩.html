@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ 丝滑版 · PDF智能抗锯齿压缩</title>
+    <meta name="description" content="基于 SSAA 抗锯齿渲染技术的 PDF 文件压缩工具，支持拖拽上传、超采样渲染、视觉无损压缩，大幅减小 PDF 文件体积。" />
+    <meta name="cover" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500'%3E%3Crect width='800' height='500' fill='%2388B3C8'/%3E%3Ctext x='40' y='250' font-family='sans-serif' font-size='42' fill='%23fff'%3EPDF 无损压缩%3C/text%3E%3C/svg%3E" />
+    <style>
+        :root {
+            /* 莫兰迪色系 - 柔和高级 */
+            --primary: #88B3C8;   /* 雾霾蓝 */
+            --secondary: #A6D0DD; /* 浅蓝 */
+            --accent: #FFD3B6;    /* 奶油橘 */
+            --text: #555555;      /* 深灰 */
+            --bg: #F7F9F9;
+            --success: #82E0AA;
+            --danger: #EC7063;
+            --card-bg: #FFFFFF;
+            --radius: 24px;
+            --shadow: 0 10px 40px rgba(136, 179, 200, 0.2);
+        }
+
+        body {
+            font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            /* 柔和的渐变光斑背景 */
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,0) 0, hsla(253,16%,7%,0) 50%), 
+                radial-gradient(at 80% 0%, hsla(189,100%,56%,0.1) 0px, transparent 50%), 
+                radial-gradient(at 0% 50%, hsla(355,100%,93%,0.1) 0px, transparent 50%);
+            margin: 0; min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            color: var(--text);
+        }
+
+        .container {
+            width: 92%; max-width: 900px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 40px;
+            border: 1px solid rgba(255,255,255,0.6);
+            transition: transform 0.3s;
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        h1 {
+            font-size: 2.2rem; margin: 0; color: var(--primary);
+            letter-spacing: 1px;
+        }
+        .tag {
+            background: var(--primary); color: white; padding: 4px 12px;
+            border-radius: 12px; font-size: 0.8rem; font-weight: bold;
+            vertical-align: text-top; margin-left: 8px;
+        }
+        .desc { font-size: 0.95rem; color: #888; margin-top: 8px; }
+
+        /* 上传区域 */
+        .upload-area {
+            border: 3px dashed #D6EAF8; border-radius: var(--radius);
+            height: 200px; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #FBFCFC; position: relative; overflow: hidden;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary); background: #EBF5FB;
+            transform: translateY(-2px);
+        }
+        .icon-bounce { font-size: 50px; margin-bottom: 10px; transition: 0.3s; }
+        .upload-area:hover .icon-bounce { transform: scale(1.2) rotate(10deg); }
+        
+        .hint-main { font-size: 1.2rem; font-weight: bold; color: var(--text); }
+        .hint-sub { font-size: 0.85rem; color: #ABB2B9; margin-top: 5px; }
+
+        /* 配置面板 */
+        .config-panel {
+            background: #F4F6F7; border-radius: 16px; padding: 15px;
+            margin-top: 20px; display: flex; justify-content: center; gap: 20px;
+            flex-wrap: wrap;
+        }
+        .checkbox-wrapper {
+            display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem;
+            user-select: none;
+        }
+        .checkbox-wrapper input { accent-color: var(--primary); width: 18px; height: 18px; }
+
+        /* 文件列表 */
+        .file-list { margin-top: 25px; max-height: 350px; overflow-y: auto; }
+        
+        .file-item {
+            background: var(--card-bg); border-radius: 16px; padding: 16px 20px;
+            margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            display: flex; align-items: center; justify-content: space-between;
+            border: 1px solid transparent; transition: 0.3s;
+        }
+        .file-item.active { border-color: var(--primary); background: #FDFEFE; }
+        
+        .f-left { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+        .f-name { font-weight: 700; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .f-status { font-size: 0.85rem; color: #999; display: flex; align-items: center; gap: 8px; }
+        
+        /* 进度条动画 */
+        .progress-track {
+            height: 4px; background: #EEE; width: 100px; border-radius: 2px;
+            overflow: hidden; display: none;
+        }
+        .progress-bar {
+            height: 100%; background: var(--primary); width: 0%;
+            transition: width 0.3s linear;
+        }
+
+        .actions { display: flex; align-items: center; gap: 10px; }
+        .btn-icon {
+            background: none; border: none; cursor: pointer; font-size: 1.1rem;
+            color: #AAA; transition: 0.2s; padding: 5px;
+        }
+        .btn-icon:hover { color: var(--danger); transform: scale(1.1); }
+
+        /* 底部按钮 */
+        .ctrl-group { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
+        .btn {
+            padding: 12px 32px; border: none; border-radius: 50px;
+            font-weight: 700; font-size: 1rem; cursor: pointer;
+            transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .btn-main { background: var(--primary); color: white; }
+        .btn-main:hover { background: #76A2B9; transform: translateY(-2px); }
+        .btn-sec { background: #E5E7E9; color: #555; }
+        .btn-danger { background: var(--danger); color: white; display: none; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .dl-btn {
+            background: var(--success); color: white; padding: 6px 15px;
+            border-radius: 20px; text-decoration: none; font-size: 0.85rem;
+            font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #toast {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(50, 50, 50, 0.9); color: #fff; padding: 10px 24px;
+            border-radius: 30px; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 999;
+        }
+    </style>
+</head>
+<body>
+
+<div id="toast">提示</div>
+
+<div class="container">
+    <div class="header">
+        <h1>PDF 丝滑瘦身 <span class="tag">SSAA 抗锯齿</span></h1>
+        <div class="desc">超采样渲染 + 视觉无损重组 = 极致清晰的小体积</div>
+    </div>
+
+    <div class="upload-area" id="dropArea">
+        <div class="icon-bounce">🍬</div>
+        <div class="hint-main">点击或拖拽 PDF 文件</div>
+        <div class="hint-sub">支持大文件 · 自动去除冗余 DPI · 边缘平滑处理</div>
+        <input type="file" id="fileIn" multiple accept=".pdf" style="display:none">
+    </div>
+
+    <div class="config-panel">
+        <label class="checkbox-wrapper" title="通过双倍渲染再缩小来消除锯齿，画质更好但速度稍慢">
+            <input type="checkbox" id="chkSSAA" checked>
+            <span>开启 SSAA 超采样抗锯齿 (推荐)</span>
+        </label>
+        <label class="checkbox-wrapper" title="将内容重构为图片，彻底去除隐藏数据">
+            <input type="checkbox" id="chkResample" checked disabled>
+            <span>智能视觉重构 (强制开启)</span>
+        </label>
+    </div>
+
+    <div class="file-list" id="listArea">
+        <!-- JS 渲染列表 -->
+    </div>
+
+    <div class="ctrl-group">
+        <button class="btn btn-sec" onclick="clearList()" id="btnClear">清空列表</button>
+        <button class="btn btn-main" onclick="startProcess()" id="btnStart">开始处理</button>
+        <button class="btn btn-danger" onclick="stopProcess()" id="btnStop">停止任务</button>
+    </div>
+</div>
+
+<!-- 依赖库 -->
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+<script>
+    // Worker 配置
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
+    let queue = [];
+    let isProcessing = false;
+    let abortCtrl = null;
+
+    const dropArea = document.getElementById('dropArea');
+    const fileIn = document.getElementById('fileIn');
+    const listArea = document.getElementById('listArea');
+    const btnStart = document.getElementById('btnStart');
+    const btnStop = document.getElementById('btnStop');
+    const btnClear = document.getElementById('btnClear');
+    const chkSSAA = document.getElementById('chkSSAA');
+
+    // 拖拽事件
+    dropArea.onclick = () => fileIn.click();
+    dropArea.ondragover = (e) => { e.preventDefault(); dropArea.classList.add('dragover'); };
+    dropArea.ondragleave = () => dropArea.classList.remove('dragover');
+    dropArea.ondrop = (e) => {
+        e.preventDefault();
+        dropArea.classList.remove('dragover');
+        addFiles(e.dataTransfer.files);
+    };
+    fileIn.onchange = (e) => {
+        addFiles(e.target.files);
+        fileIn.value = '';
+    };
+
+    function addFiles(files) {
+        if (!files.length) return;
+        for (let file of files) {
+            if (file.type !== 'application/pdf') {
+                showToast('⚠️ 只能上传 PDF 哦');
+                continue;
+            }
+            const id = Math.random().toString(36).substr(2);
+            const task = { id, file, status: 'wait' };
+            queue.push(task);
+            renderItem(task);
+        }
+    }
+
+    function renderItem(t) {
+        const div = document.createElement('div');
+        div.className = 'file-item';
+        div.id = `item-${t.id}`;
+        div.innerHTML = `
+            <div class="f-left">
+                <div class="f-name">${t.file.name}</div>
+                <div class="f-status" id="stat-${t.id}">
+                    <span>原始: ${fmtSize(t.file.size)}</span>
+                    <div class="progress-track" id="track-${t.id}">
+                        <div class="progress-bar" id="bar-${t.id}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="actions" id="act-${t.id}">
+                <button class="btn-icon" onclick="delItem('${t.id}')">✕</button>
+            </div>
+        `;
+        listArea.appendChild(div);
+    }
+
+    function delItem(id) {
+        if(isProcessing) return showToast('运行中无法删除 🐢');
+        queue = queue.filter(x => x.id !== id);
+        document.getElementById(`item-${id}`).remove();
+    }
+
+    function clearList() {
+        if(isProcessing) return;
+        queue = [];
+        listArea.innerHTML = '';
+    }
+
+    async function startProcess() {
+        if (!queue.length) return showToast('还没有添加文件呢 📂');
+        
+        isProcessing = true;
+        toggleUI(true);
+        abortCtrl = new AbortController();
+        const useSSAA = chkSSAA.checked;
+
+        try {
+            for (let t of queue) {
+                if (t.status !== 'wait') continue;
+                if (abortCtrl.signal.aborted) break;
+                await processSingleFile(t, useSSAA);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+
+        isProcessing = false;
+        toggleUI(false);
+        abortCtrl = null;
+        showToast('✨ 全部任务完成');
+    }
+
+    function stopProcess() {
+        if(abortCtrl) abortCtrl.abort();
+    }
+
+    async function processSingleFile(t, useSSAA) {
+        const item = document.getElementById(`item-${t.id}`);
+        const stat = document.getElementById(`stat-${t.id}`);
+        const track = document.getElementById(`track-${t.id}`);
+        const bar = document.getElementById(`bar-${t.id}`);
+
+        item.classList.add('active');
+        track.style.display = 'block';
+        
+        try {
+            const buffer = await readFile(t.file);
+            
+            // 处理过程回调
+            const progressCb = (pct, msg) => {
+                bar.style.width = `${pct}%`;
+                // 仅更新文字，保留进度条
+                const txt = stat.querySelector('span');
+                if(txt) txt.innerText = msg;
+            };
+
+            progressCb(5, '正在分析...');
+            
+            // 核心调用
+            const resBytes = await compressPDF(buffer, useSSAA, abortCtrl, progressCb);
+            
+            // 结果处理
+            const blob = new Blob([resBytes], { type: 'application/pdf' });
+            const saved = t.file.size - blob.size;
+            const ratio = (saved / t.file.size * 100).toFixed(1);
+            const isSmaller = saved > 0;
+            
+            bar.style.width = '100%';
+            item.classList.remove('active');
+            track.style.display = 'none';
+
+            let resHtml = '';
+            if (isSmaller) {
+                resHtml = `<span style="color:#2ECC71; font-weight:bold">↓${ratio}% (${fmtSize(blob.size)})</span>`;
+            } else {
+                resHtml = `<span style="color:#F39C12">体积未减 (${fmtSize(blob.size)})</span>`;
+            }
+            
+            stat.innerHTML = resHtml;
+
+            // 下载按钮
+            const act = document.getElementById(`act-${t.id}`);
+            const newName = t.file.name.replace(/\.pdf$/i, '') + '_无损压缩.pdf';
+            
+            act.innerHTML = '';
+            const dl = document.createElement('a');
+            dl.className = 'dl-btn';
+            dl.innerText = '下载';
+            dl.onclick = () => saveAs(blob, newName);
+            act.appendChild(dl);
+
+            t.status = 'done';
+
+        } catch (err) {
+            if (err.message === 'ABORT') {
+                stat.innerHTML = '<span>已取消</span>';
+            } else {
+                stat.innerHTML = `<span style="color:red">出错: ${err.message}</span>`;
+            }
+            item.classList.remove('active');
+        }
+    }
+
+    // --- 核心算法：SSAA 抗锯齿重采样 ---
+    async function compressPDF(buffer, useSSAA, controller, onProgress) {
+        const srcDoc = await pdfjsLib.getDocument({ data: buffer }).promise;
+        const pageCount = srcDoc.numPages;
+        const outDoc = await PDFLib.PDFDocument.create();
+
+        for (let i = 1; i <= pageCount; i++) {
+            if (controller && controller.signal.aborted) throw new Error('ABORT');
+
+            const page = await srcDoc.getPage(i);
+            const rawVp = page.getViewport({ scale: 1.0 });
+
+            // 1. 智能计算目标尺寸
+            // 目标：长边限制在 2000px (约等于 A4 纸的 175 DPI)
+            // 既能大幅减小体积，又能保证打印/阅读清晰
+            const MAX_DIM = 2000;
+            const maxSide = Math.max(rawVp.width, rawVp.height);
+            let targetScale = MAX_DIM / maxSide;
+            
+            // 如果原图就很小，不要强行缩小
+            if (targetScale > 1.5) targetScale = 1.5; // 轻微放大以获得更好甚至更清晰的效果
+            
+            // 2. 决定渲染倍率 (SSAA)
+            // 如果开启抗锯齿，我们渲染 2 倍大，然后缩小回 1 倍
+            let renderScale = targetScale;
+            if (useSSAA) {
+                // 安全检查：如果 2倍 超过 5000px，可能导致浏览器崩溃，降级为不开启SSAA
+                if (maxSide * targetScale * 2 < 5000) {
+                    renderScale = targetScale * 2; 
+                }
+            }
+
+            // 3. 高清渲染 (Supersampling)
+            const vp = page.getViewport({ scale: renderScale });
+            const canvas = document.createElement('canvas');
+            canvas.width = vp.width;
+            canvas.height = vp.height;
+            const ctx = canvas.getContext('2d');
+            
+            await page.render({ canvasContext: ctx, viewport: vp }).promise;
+
+            // 4. 抗锯齿下采样 (Downsampling)
+            // 如果渲染倍率 != 目标倍率 (即开启了 SSAA)，需要缩放回去
+            let finalCanvas = canvas;
+            if (Math.abs(renderScale - targetScale) > 0.01) {
+                const finalW = rawVp.width * targetScale;
+                const finalH = rawVp.height * targetScale;
+                
+                finalCanvas = document.createElement('canvas');
+                finalCanvas.width = finalW;
+                finalCanvas.height = finalH;
+                const fCtx = finalCanvas.getContext('2d');
+                
+                // 关键点：开启高质量平滑算法
+                fCtx.imageSmoothingEnabled = true;
+                fCtx.imageSmoothingQuality = 'high';
+                
+                // 将大图画到小图上 -> 产生抗锯齿效果
+                fCtx.drawImage(canvas, 0, 0, finalW, finalH);
+                
+                // 释放大图内存
+                canvas.width = 1; 
+            }
+
+            // 5. 导出 JPEG (视觉无损)
+            // 0.8 是体积与画质的最佳平衡点，几乎没有噪点
+            const imgData = finalCanvas.toDataURL('image/jpeg', 0.8);
+            const imgBytes = await fetch(imgData).then(r => r.arrayBuffer());
+            
+            // 6. 重组 PDF
+            const jpgImg = await outDoc.embedJpg(imgBytes);
+            // 保持页面原始物理尺寸，只是内容变清晰/变小了
+            const newPage = outDoc.addPage([rawVp.width, rawVp.height]);
+            newPage.drawImage(jpgImg, {
+                x: 0, y: 0,
+                width: newPage.getWidth(),
+                height: newPage.getHeight()
+            });
+
+            // 清理
+            finalCanvas.width = 1;
+            page.cleanup();
+            onProgress(Math.floor((i / pageCount) * 90), `正在处理第 ${i}/${pageCount} 页...`);
+        }
+
+        onProgress(95, '正在打包...');
+        return await outDoc.save({ useObjectStreams: true });
+    }
+
+    // 工具
+    function readFile(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsArrayBuffer(file);
+        });
+    }
+    
+    function fmtSize(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function toggleUI(busy) {
+        btnStart.style.display = busy ? 'none' : 'block';
+        btnStop.style.display = busy ? 'block' : 'none';
+        dropArea.style.pointerEvents = busy ? 'none' : 'auto';
+        dropArea.style.opacity = busy ? 0.6 : 1;
+        chkSSAA.disabled = busy;
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.style.opacity = 1;
+        setTimeout(() => t.style.opacity = 0, 3000);
+    }
+</script>
+</body>
+</html>

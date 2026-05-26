@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超长图片转PDF神器 ✨</title>
+    <meta name="description" content="将超长图片智能分割转换为 PDF 文档，支持 PPT 比例自动分割和手动自定义分割两种模式。" />
+    <meta name="cover" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500'%3E%3Crect width='800' height='500' fill='%23E0C3FC'/%3E%3Ctext x='40' y='250' font-family='sans-serif' font-size='40' fill='%236a11cb'%3E长图转 PDF%3C/text%3E%3C/svg%3E" />
+    <style>
+        /* --- 全局变量与重置 --- */
+        :root {
+            --color-bg: #E0C3FC;
+            --color-bg-grad: linear-gradient(135deg, #E0C3FC 0%, #8EC5FC 100%);
+            --color-card: #ffffff;
+            --color-primary: #FF9A9E; /* 粉色按钮 */
+            --color-primary-hover: #ff757b;
+            --color-secondary: #8FD3F4; /* 蓝色装饰 */
+            --color-text: #5E5E5E;
+            --color-border: #FBC2EB;
+            --radius-large: 24px;
+            --radius-input: 16px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Nunito', 'Segoe UI Rounded', 'Microsoft YaHei', sans-serif;
+            background: var(--color-bg-grad);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--color-text);
+        }
+
+        /* --- 主卡片容器 --- */
+        .app-container {
+            background: var(--color-card);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(100, 100, 255, 0.2);
+            border: 6px solid #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 卡通装饰背景纹理 */
+        .app-container::before {
+            content: '';
+            position: absolute;
+            top: -50px; right: -50px;
+            width: 150px; height: 150px;
+            background: #FBC2EB;
+            border-radius: 50%;
+            opacity: 0.3;
+            z-index: 0;
+        }
+        .app-container::after {
+            content: '';
+            position: absolute;
+            bottom: -30px; left: -30px;
+            width: 100px; height: 100px;
+            background: #8FD3F4;
+            border-radius: 50%;
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .content-wrap { position: relative; z-index: 1; }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #6a11cb;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 0px #fff;
+        }
+
+        /* --- 上传区域 --- */
+        .upload-area {
+            background: #fdf6fb;
+            border: 3px dashed var(--color-primary);
+            border-radius: var(--radius-large);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            background: #fff0f5;
+            transform: scale(1.02);
+            border-color: var(--color-primary-hover);
+        }
+
+        .upload-icon { font-size: 40px; margin-bottom: 10px; display: block; }
+        .upload-text { font-weight: bold; color: var(--color-primary); }
+        .file-input { display: none; }
+
+        /* --- 预览卡片 --- */
+        .preview-card {
+            display: none; /* 默认隐藏 */
+            background: #f0f7ff;
+            border: 2px solid #cbe4ff;
+            border-radius: var(--radius-large);
+            padding: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            gap: 15px;
+        }
+        .preview-thumb {
+            width: 60px; height: 60px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .file-info { flex: 1; font-size: 0.9rem; }
+        .file-name { font-weight: bold; color: #444; margin-bottom: 4px; display: block; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .file-meta { color: #888; font-size: 0.8rem; }
+
+        /* --- 模式切换 --- */
+        .mode-tabs {
+            display: flex;
+            background: #f3f3f3;
+            border-radius: 99px;
+            padding: 5px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 0;
+            border: none;
+            background: transparent;
+            border-radius: 99px;
+            font-weight: bold;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            background: #fff;
+            color: #6a11cb;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        
+        .tab-btn.active::after {
+            content: '👑';
+            position: absolute;
+            top: 5px; right: 10px;
+            font-size: 10px;
+        }
+
+        /* --- 设置区域 --- */
+        .settings-panel {
+            background: #fff;
+            margin-bottom: 25px;
+        }
+
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.95rem; color: #555; }
+        
+        .cartoon-select, .cartoon-input {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: var(--radius-input);
+            border: 2px solid #e0e0e0;
+            font-size: 1rem;
+            background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" opacity="0.1"><circle cx="10" cy="10" r="2" fill="%23000"/></svg>') repeat;
+            outline: none;
+            transition: 0.3s;
+            color: #555;
+        }
+
+        .cartoon-select:focus, .cartoon-input:focus {
+            border-color: var(--color-secondary);
+            box-shadow: 0 0 0 4px rgba(143, 211, 244, 0.2);
+        }
+
+        /* --- 按钮 --- */
+        .btn-action {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 99px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+            box-shadow: 0 6px 0 #e67a80;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #e67a80; }
+        .btn-primary:active { transform: translateY(4px); box-shadow: 0 2px 0 #e67a80; }
+        .btn-primary:disabled { background: #ccc; box-shadow: 0 6px 0 #bbb; cursor: not-allowed; transform: none; }
+
+        .btn-download {
+            background: #48c6ef;
+            color: white;
+            box-shadow: 0 6px 0 #2fa6cf;
+            display: none; /* 成功后显示 */
+        }
+        .btn-download:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #2fa6cf; }
+        .btn-download:active { transform: translateY(4px); box-shadow: 0 2px 0 #2fa6cf; }
+
+        /* --- 进度条 --- */
+        .progress-container {
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin-top: 15px;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: repeating-linear-gradient(
+                45deg,
+                #FF9A9E,
+                #FF9A9E 10px,
+                #ffb3b6 10px,
+                #ffb3b6 20px
+            );
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        /* --- 错误提示 --- */
+        .error-msg {
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: none;
+            background: #ffe3e3;
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        /* 隐藏 Canvas */
+        #processCanvas { display: none; }
+
+        @media (max-width: 400px) {
+            .app-container { padding: 20px; }
+            h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="content-wrap">
+            <h1>🌈 长图转 PDF 助手</h1>
+
+            <!-- 上传区 -->
+            <div class="upload-area" id="dropZone">
+                <span class="upload-icon">☁️</span>
+                <div class="upload-text">点击或拖拽上传超长图片</div>
+                <div style="font-size:0.8rem; color:#aaa; margin-top:5px;">支持 JPG / PNG / WebP</div>
+                <input type="file" id="fileInput" class="file-input" accept="image/jpeg, image/png, image/webp">
+            </div>
+
+            <!-- 预览区 -->
+            <div class="preview-card" id="previewCard">
+                <img src="" id="previewImg" class="preview-thumb" alt="预览">
+                <div class="file-info">
+                    <span class="file-name" id="fileName">image.jpg</span>
+                    <span class="file-meta" id="fileMeta">1000 x 5000 px</span>
+                </div>
+            </div>
+
+            <!-- 模式切换 -->
+            <div class="mode-tabs">
+                <button class="tab-btn active" onclick="switchMode(1)">📺 PPT自动分割</button>
+                <button class="tab-btn" onclick="switchMode(2)">✂️ 手动分段</button>
+            </div>
+
+            <!-- 参数设置 -->
+            <div class="settings-panel">
+                <!-- 模式1参数 -->
+                <div id="mode1-settings">
+                    <div class="input-group">
+                        <label class="input-label">选择PPT比例</label>
+                        <select id="aspectRatio" class="cartoon-select">
+                            <option value="1.7777777777777777">16:9 (标准宽屏)</option>
+                            <option value="1.3333333333333333">4:3 (传统比例)</option>
+                        </select>
+                    </div>
+                    <div style="font-size: 0.85rem; color: #888; background: #f9f9f9; padding: 10px; border-radius: 12px;">
+                        💡 系统将根据图片宽度和选定比例，自动计算最佳页数，确保无留白填充。
+                    </div>
+                </div>
+
+                <!-- 模式2参数 -->
+                <div id="mode2-settings" style="display:none;">
+                    <div class="input-group">
+                        <label class="input-label">想要分割成几页？</label>
+                        <input type="number" id="pageCountInput" class="cartoon-input" placeholder="例如：5" min="1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作区 -->
+            <button id="convertBtn" class="btn-action btn-primary" disabled>
+                <span>✨ 开始转换</span>
+            </button>
+            
+            <div class="progress-container" id="progressWrap">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div id="errorBox" class="error-msg"></div>
+
+            <button id="downloadBtn" class="btn-action btn-download">
+                <span>📥 下载 PDF</span>
+            </button>
+        </div>
+    </div>
+
+    <canvas id="processCanvas"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        // --- 逻辑处理 ---
+        const { jsPDF } = window.jspdf;
+
+        // DOM 元素
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const previewCard = document.getElementById('previewCard');
+        const previewImg = document.getElementById('previewImg');
+        const fileNameEl = document.getElementById('fileName');
+        const fileMetaEl = document.getElementById('fileMeta');
+        const convertBtn = document.getElementById('convertBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const errorBox = document.getElementById('errorBox');
+        const progressBar = document.getElementById('progressBar');
+        const progressWrap = document.getElementById('progressWrap');
+        const mode1Settings = document.getElementById('mode1-settings');
+        const mode2Settings = document.getElementById('mode2-settings');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+
+        // 状态变量
+        let currentMode = 1;
+        let loadedImage = null; // Image Object
+        let generatedPdfBlob = null; // 用于存储生成的PDF数据
+
+        // --- 1. UI 交互逻辑 ---
+
+        // 模式切换
+        window.switchMode = (mode) => {
+            currentMode = mode;
+            tabBtns.forEach((btn, index) => {
+                btn.classList.toggle('active', index + 1 === mode);
+            });
+            if (mode === 1) {
+                mode1Settings.style.display = 'block';
+                mode2Settings.style.display = 'none';
+            } else {
+                mode1Settings.style.display = 'none';
+                mode2Settings.style.display = 'block';
+            }
+            hideError();
+        };
+
+        // 上传点击
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        // 拖拽支持
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = '#fff0f5';
+        });
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = '#fdf6fb';
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = '#fdf6fb';
+            const files = e.dataTransfer.files;
+            if (files.length) handleFile(files[0]);
+        });
+
+        // 文件选择监听
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            // 重置状态
+            hideError();
+            downloadBtn.style.display = 'none';
+            progressWrap.style.display = 'none';
+            progressBar.style.width = '0%';
+            generatedPdfBlob = null; // 清空旧的PDF数据
+            
+            if (!file.type.match('image.*')) {
+                showError('哎呀，请上传 JPG, PNG 或 WebP 格式的图片哦！');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    loadedImage = img;
+                    // 更新预览
+                    previewImg.src = e.target.result;
+                    fileNameEl.textContent = file.name;
+                    fileMetaEl.textContent = `${img.width} x ${img.height} px`;
+                    previewCard.style.display = 'flex';
+                    convertBtn.disabled = false;
+                    convertBtn.querySelector('span').textContent = '✨ 开始转换';
+                };
+                img.onerror = () => showError('图片加载失败，请换一张试试~');
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // --- 2. 转换核心逻辑 ---
+
+        convertBtn.addEventListener('click', async () => {
+            if (!loadedImage) return;
+            
+            hideError();
+            convertBtn.disabled = true;
+            convertBtn.querySelector('span').textContent = '🚀 转换中...';
+            progressWrap.style.display = 'block';
+            downloadBtn.style.display = 'none';
+
+            // 稍微延迟让UI刷新
+            setTimeout(async () => {
+                try {
+                    await generatePDF();
+                    convertBtn.querySelector('span').textContent = '✅ 转换成功';
+                    downloadBtn.style.display = 'flex';
+                    // 滚动到底部
+                    downloadBtn.scrollIntoView({ behavior: 'smooth' });
+                } catch (err) {
+                    console.error(err);
+                    showError('转换出错了：' + err.message);
+                    convertBtn.disabled = false;
+                    convertBtn.querySelector('span').textContent = '✨ 开始转换';
+                }
+            }, 100);
+        });
+
+        async function generatePDF() {
+            const canvas = document.getElementById('processCanvas');
+            const ctx = canvas.getContext('2d');
+            const imgW = loadedImage.width;
+            const imgH = loadedImage.height;
+
+            // 1. 计算分割参数
+            let pageCount = 0;
+            let pageHeight = 0; // 这里的 height 是原图尺寸下的切分高度
+
+            if (currentMode === 1) {
+                // PPT 自动模式
+                const ratio = parseFloat(document.getElementById('aspectRatio').value); // 宽/高
+                const idealPageHeight = imgW / ratio;
+                // 为了无缝，计算总页数（四舍五入）
+                pageCount = Math.round(imgH / idealPageHeight);
+                if (pageCount < 1) pageCount = 1;
+                // 重新计算精确的每一页高度，确保无留白
+                pageHeight = imgH / pageCount;
+            } else {
+                // 手动模式
+                const inputVal = document.getElementById('pageCountInput').value;
+                pageCount = parseInt(inputVal);
+                if (!pageCount || pageCount < 1) {
+                    throw new Error('请输入正确的页数（正整数）哦！');
+                }
+                pageHeight = imgH / pageCount;
+            }
+
+            // 2. 初始化 PDF (方向取决于单页切分后的宽高比)
+            // 单页宽 imgW, 高 pageHeight
+            const orientation = (imgW > pageHeight) ? 'l' : 'p';
+            
+            const pdf = new jsPDF({
+                orientation: orientation,
+                unit: 'px',
+                format: [imgW, pageHeight]
+            });
+
+            // 3. 循环切分
+            canvas.width = imgW;
+            canvas.height = pageHeight;
+
+            for (let i = 0; i < pageCount; i++) {
+                // 更新进度条
+                const progress = Math.round(((i + 1) / pageCount) * 100);
+                progressBar.style.width = `${progress}%`;
+
+                // 清空画布
+                ctx.clearRect(0, 0, imgW, pageHeight);
+
+                // drawImage
+                // 从原图 y = i * pageHeight 处开始切
+                const sourceY = i * pageHeight;
+                
+                // 绘制到 canvas
+                ctx.drawImage(loadedImage, 0, sourceY, imgW, pageHeight, 0, 0, imgW, pageHeight);
+
+                // 获取图片数据 (JPEG 质量 0.85)
+                const imgData = canvas.toDataURL('image/jpeg', 0.85);
+
+                if (i > 0) {
+                    pdf.addPage([imgW, pageHeight], orientation);
+                }
+                
+                // 添加到 PDF (0, 0 坐标，无边距)
+                pdf.addImage(imgData, 'JPEG', 0, 0, imgW, pageHeight);
+                
+                // 简易防卡顿
+                await new Promise(r => setTimeout(r, 10)); 
+            }
+
+            // 将生成的 PDF 转换为 Blob 对象并存储到全局变量
+            generatedPdfBlob = pdf.output('blob');
+        }
+
+        // 下载按钮 - 修复了作用域问题
+        downloadBtn.addEventListener('click', () => {
+            if (generatedPdfBlob) {
+                const originalName = fileNameEl.textContent.split('.')[0];
+                const filename = `${originalName}_转PPT.pdf`;
+                
+                // 使用 Blob URL 下载
+                const url = URL.createObjectURL(generatedPdfBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a); // 兼容 Firefox
+                a.click();
+                document.body.removeChild(a); // 清理
+                URL.revokeObjectURL(url); // 释放内存
+            } else {
+                showError("PDF文件似乎已经丢失，请重新转换");
+            }
+        });
+
+        // 辅助函数
+        function showError(msg) {
+            errorBox.textContent = msg;
+            errorBox.style.display = 'block';
+            // 晃动动画
+            errorBox.animate([
+                { transform: 'translateX(-5px)' },
+                { transform: 'translateX(5px)' },
+                { transform: 'translateX(0)' }
+            ], { duration: 200, iterations: 2 });
+        }
+        function hideError() {
+            errorBox.style.display = 'none';
+        }
+
+    </script>
+</body>
+</html>
