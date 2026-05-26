@@ -14,6 +14,10 @@ const EXPECTED_CATEGORIES = {
     '长图转pdf.html': '实用工具',
     'pdf-image-converter.html': '实用工具',
     'fontawesome.html': '图标资源',
+    '萌趣抽奖屋.html': '互动文游',
+    '五子棋.html': '互动文游',
+    'md_docx.html': '实用工具',
+    'pdf_image.html': '实用工具',
 };
 
 let passed = 0;

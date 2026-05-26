@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Markdown ↔ Doc 转换器</title>
+    <meta name="description" content="Markdown 与 Word 文档双向转换工具，支持 MD 实时预览、编辑和导出为 DOCX 格式。" />
+    <meta name="cover" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500'%3E%3Crect width='800' height='500' fill='%2387CEEB'/%3E%3Ctext x='40' y='250' font-family='sans-serif' font-size='38' fill='%23fff'%3EMD ↔ DOCX%3C/text%3E%3C/svg%3E" />
+    <meta name="category" content="实用工具" />
+    <script src="https://unpkg.com/marked@4.3.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://unpkg.com/mammoth@1.5.1/mammoth.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 可爱的背景装饰 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 182, 193, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(173, 216, 230, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 224, 0.2) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: bounceIn 1s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #fff;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .title {
+                font-size: 2rem;
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.1),
+                0 0 0 1px rgba(255,255,255,0.5);
+            backdrop-filter: blur(10px);
+            border: 3px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            border-radius: 25px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .emoji {
+            font-size: 1.8rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 300px;
+            border: 3px solid #e1e8ed;
+            border-radius: 20px;
+            padding: 20px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: #4ecdc4;
+            box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.2);
+            background: #fff;
+        }
+
+        .textarea.drag-over {
+            border-color: #4ecdc4 !important;
+            background: #e8f4f8 !important;
+            box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.2);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            border: 3px dashed #4ecdc4;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f4f8 100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .file-input-label:hover {
+            border-color: #45b7d1;
+            background: linear-gradient(135deg, #e8f4f8 0%, #d4edda 100%);
+            transform: scale(1.02);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 12px 35px rgba(78, 205, 196, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+            box-shadow: 0 8px 25px rgba(254, 202, 87, 0.3);
+        }
+
+        .btn-warning:hover {
+            box-shadow: 0 12px 35px rgba(254, 202, 87, 0.4);
+        }
+
+        .preview {
+            background: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #e1e8ed;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .preview h1, .preview h2, .preview h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .preview p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4ecdc4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            font-weight: 600;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* 可爱的滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #45b7d1, #4ecdc4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎨 Markdown ↔ Doc 转换器</h1>
+            <p class="subtitle">✨ 可爱风格的文档格式转换工具 ✨</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Markdown 输入区 -->
+            <div class="card">
+                <h2 class="card-title">
+                    <span class="emoji">📝</span>
+                    Markdown 编辑器
+                </h2>
+                
+                <!-- MD文件上传区 -->
+                <div class="file-input-wrapper">
+                    <input 
+                        type="file" 
+                        id="mdFileInput" 
+                        class="file-input" 
+                        accept=".md,.markdown,.txt"
+                        onchange="handleMdFileUpload(event)"
+                    >
+                    <label for="mdFileInput" class="file-input-label">
+                        <span class="emoji">📄</span>
+                        点击上传或拖拽 Markdown 文件 (.md, .markdown, .txt)
+                    </label>
+                </div>
+                
+                <textarea 
+                    id="markdownInput" 
+                    class="textarea" 
+                    placeholder="在这里输入你的 Markdown 内容...&#10;&#10;或者上传 .md 文件&#10;&#10;例如：&#10;# 标题&#10;## 副标题&#10;**粗体文本**&#10;*斜体文本*&#10;- 列表项 1&#10;- 列表项 2"
+                ></textarea>
+                <div class="controls">
+                    <button class="btn btn-success" onclick="convertToDocx()">
+                        🚀 转换为 Word 文档
+                    </button>
+                    <button class="btn" onclick="downloadSampleMd()" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                        📥 下载示例文件
+                    </button>
+                    <button class="btn" onclick="checkLibraries()" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
+                        � 检查库状态
+                    </button>
+                    <button class="btn btn-warning" onclick="clearMarkdown()">
+                        🗑️ 清空内容
+                    </button>
+                </div>
+                <div id="markdownPreview" class="preview" style="display: none;">
+                    <h3>📖 预览效果</h3>
+                    <div id="previewContent"></div>
+                </div>
+            </div>
+
+            <!-- Doc/Docx 上传区 -->
+            <div class="card">
+                <h2 class="card-title">
+                    <span class="emoji">📄</span>
+                    Doc/Docx 解析器
+                </h2>
+                <div class="file-input-wrapper">
+                    <input 
+                        type="file" 
+                        id="docxInput" 
+                        class="file-input" 
+                        accept=".doc,.docx"
+                        onchange="handleFileUpload(event)"
+                    >
+                    <label for="docxInput" class="file-input-label">
+                        <span class="emoji">📁</span>
+                        点击选择 Doc/Docx 文件
+                    </label>
+                </div>
+                <div class="controls">
+                    <button class="btn" onclick="convertToMarkdown()" id="convertBtn" disabled>
+                        🔄 转换为 Markdown
+                    </button>
+                    <button class="btn btn-warning" onclick="clearFile()">
+                        🗑️ 清空文件
+                    </button>
+                </div>
+                <div id="docxPreview" class="preview" style="display: none;">
+                    <h3>📋 转换结果</h3>
+                    <div id="docxContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 加载动画 -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">🎪 正在施展魔法转换中...</div>
+        </div>
+
+        <!-- 提示消息 -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script>
+        let currentFile = null;
+        let currentMarkdown = '';
+
+        // 显示提示消息
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 显示/隐藏加载动画
+        function toggleLoading(show) {
+            const loading = document.getElementById('loading');
+            loading.style.display = show ? 'block' : 'none';
+        }
+
+        // 实时预览 Markdown
+        document.getElementById('markdownInput').addEventListener('input', function(e) {
+            const markdown = e.target.value;
+            currentMarkdown = markdown;
+            
+            if (markdown.trim()) {
+                const html = marked.parse(markdown);
+                document.getElementById('previewContent').innerHTML = html;
+                document.getElementById('markdownPreview').style.display = 'block';
+            } else {
+                document.getElementById('markdownPreview').style.display = 'none';
+            }
+        });
+
+        // 处理Markdown文件上传
+        function handleMdFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // 检查文件类型
+                const validTypes = ['.md', '.markdown', '.txt'];
+                const fileName = file.name.toLowerCase();
+                const isValidType = validTypes.some(type => fileName.endsWith(type));
+                
+                if (!isValidType) {
+                    showToast('❌ 请选择 .md、.markdown 或 .txt 文件！', 'error');
+                    return;
+                }
+                
+                // 读取文件内容
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    document.getElementById('markdownInput').value = content;
+                    currentMarkdown = content;
+                    
+                    // 触发预览更新
+                    const inputEvent = new Event('input');
+                    document.getElementById('markdownInput').dispatchEvent(inputEvent);
+                    
+                    // 更新上传标签
+                    document.querySelector('label[for="mdFileInput"]').innerHTML = `
+                        <span class="emoji">✅</span>
+                        已加载: ${file.name}
+                    `;
+                    
+                    showToast(`🎉 Markdown 文件 "${file.name}" 加载成功！`);
+                };
+                
+                reader.onerror = function() {
+                    showToast('❌ 文件读取失败，请重试！', 'error');
+                };
+                
+                reader.readAsText(file, 'UTF-8');
+            }
+        }
+
+        // 处理DOCX文件上传
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                currentFile = file;
+                document.getElementById('convertBtn').disabled = false;
+                document.querySelector('label[for="docxInput"]').innerHTML = `
+                    <span class="emoji">✅</span>
+                    已选择: ${file.name}
+                `;
+                showToast(`📁 文件 "${file.name}" 上传成功！`);
+            }
+        }
+
+        // Markdown 转 DOCX
+        async function convertToDocx() {
+            const markdown = document.getElementById('markdownInput').value.trim();
+            
+            if (!markdown) {
+                showToast('❌ 请先输入 Markdown 内容！', 'error');
+                return;
+            }
+
+            toggleLoading(true);
+
+            try {
+                console.log('开始转换 Markdown:', markdown);
+                
+                // 检查依赖库是否加载
+                if (typeof marked === 'undefined') {
+                    throw new Error('Markdown解析库未加载，请刷新页面重试');
+                }
+                
+                // 直接使用简化方案，避免docx库的兼容性问题
+                console.log('使用浏览器兼容的导出方案');
+                exportAsCompatibleDoc(markdown);
+                
+            } catch (error) {
+                console.error('转换错误详情:', error);
+                showToast(`❌ 转换失败：${error.message}`, 'error');
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // 将 HTML 转换为 DOCX 元素
+        async function parseHtmlToDocxElements(html) {
+            const elements = [];
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const body = doc.body;
+
+            for (const child of body.children) {
+                const element = await convertElementToDocx(child);
+                if (Array.isArray(element)) {
+                    elements.push(...element);
+                } else if (element) {
+                    elements.push(element);
+                }
+            }
+
+            return elements.length > 0 ? elements : [
+                new docx.Paragraph({
+                    children: [new docx.TextRun("转换的文档内容")]
+                })
+            ];
+        }
+
+        // 转换单个 HTML 元素为 DOCX
+        async function convertElementToDocx(element) {
+            const tagName = element.tagName.toLowerCase();
+            const text = element.textContent || '';
+
+            try {
+                switch (tagName) {
+                    case 'h1':
+                        return new docx.Paragraph({
+                            children: [new docx.TextRun({ text: text, bold: true, size: 48 })],
+                            heading: docx.HeadingLevel.HEADING_1
+                        });
+                    case 'h2':
+                        return new docx.Paragraph({
+                            children: [new docx.TextRun({ text: text, bold: true, size: 36 })],
+                            heading: docx.HeadingLevel.HEADING_2
+                        });
+                    case 'h3':
+                        return new docx.Paragraph({
+                            children: [new docx.TextRun({ text: text, bold: true, size: 28 })],
+                            heading: docx.HeadingLevel.HEADING_3
+                        });
+                    case 'p':
+                        if (text.trim()) {
+                            return new docx.Paragraph({
+                                children: [new docx.TextRun(text)]
+                            });
+                        }
+                        return null;
+                    case 'ul':
+                    case 'ol':
+                        const listItems = [];
+                        for (const li of element.children) {
+                            if (li.tagName.toLowerCase() === 'li') {
+                                listItems.push(new docx.Paragraph({
+                                    children: [new docx.TextRun(li.textContent)],
+                                    bullet: { level: 0 }
+                                }));
+                            }
+                        }
+                        return listItems;
+                    case 'blockquote':
+                        return new docx.Paragraph({
+                            children: [new docx.TextRun({ text: text, italics: true })],
+                            indent: { left: 720 }
+                        });
+                    case 'strong':
+                    case 'b':
+                        return new docx.Paragraph({
+                            children: [new docx.TextRun({ text: text, bold: true })]
+                        });
+                    case 'em':
+                    case 'i':
+                        return new docx.Paragraph({
+                            children: [new docx.TextRun({ text: text, italics: true })]
+                        });
+                    case 'code':
+                        return new docx.Paragraph({
+                            children: [new docx.TextRun({ 
+                                text: text, 
+                                font: { name: "Courier New" },
+                                color: "666666"
+                            })]
+                        });
+                    default:
+                        if (text.trim()) {
+                            return new docx.Paragraph({
+                                children: [new docx.TextRun(text)]
+                            });
+                        }
+                        return null;
+                }
+            } catch (error) {
+                console.warn('转换元素时出错:', error, element);
+                // 降级处理：返回纯文本段落
+                if (text.trim()) {
+                    return new docx.Paragraph({
+                        children: [new docx.TextRun(text)]
+                    });
+                }
+                return null;
+            }
+        }
+
+        // 简化的 Markdown 转 DOCX 方案
+        function createSimpleDocxFromMarkdown(markdown) {
+            const lines = markdown.split('\n');
+            const elements = [];
+            
+            for (const line of lines) {
+                const trimmedLine = line.trim();
+                if (!trimmedLine) {
+                    // 添加空段落保持格式
+                    elements.push(new docx.Paragraph({
+                        children: [new docx.TextRun(" ")]
+                    }));
+                    continue;
+                }
+                
+                try {
+                    if (trimmedLine.startsWith('# ')) {
+                        elements.push(new docx.Paragraph({
+                            children: [new docx.TextRun({ 
+                                text: trimmedLine.substring(2), 
+                                bold: true, 
+                                size: 48 
+                            })],
+                            heading: docx.HeadingLevel.HEADING_1
+                        }));
+                    } else if (trimmedLine.startsWith('## ')) {
+                        elements.push(new docx.Paragraph({
+                            children: [new docx.TextRun({ 
+                                text: trimmedLine.substring(3), 
+                                bold: true, 
+                                size: 36 
+                            })],
+                            heading: docx.HeadingLevel.HEADING_2
+                        }));
+                    } else if (trimmedLine.startsWith('### ')) {
+                        elements.push(new docx.Paragraph({
+                            children: [new docx.TextRun({ 
+                                text: trimmedLine.substring(4), 
+                                bold: true, 
+                                size: 28 
+                            })],
+                            heading: docx.HeadingLevel.HEADING_3
+                        }));
+                    } else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
+                        elements.push(new docx.Paragraph({
+                            children: [new docx.TextRun(trimmedLine.substring(2))],
+                            bullet: { level: 0 }
+                        }));
+                    } else if (trimmedLine.startsWith('> ')) {
+                        elements.push(new docx.Paragraph({
+                            children: [new docx.TextRun({ 
+                                text: trimmedLine.substring(2), 
+                                italics: true 
+                            })],
+                            indent: { left: 720 }
+                        }));
+                    } else {
+                        elements.push(new docx.Paragraph({
+                            children: [new docx.TextRun(trimmedLine)]
+                        }));
+                    }
+                } catch (error) {
+                    console.warn('处理行时出错:', error, line);
+                    // 降级为普通段落
+                    elements.push(new docx.Paragraph({
+                        children: [new docx.TextRun(trimmedLine)]
+                    }));
+                }
+            }
+            
+            return elements.length > 0 ? elements : [
+                new docx.Paragraph({
+                    children: [new docx.TextRun("文档内容")]
+                })
+            ];
+        }
+
+        // 浏览器兼容的Word文档导出方案
+        async function exportAsCompatibleDoc(markdown) {
+            try {
+                console.log('开始创建真正的DOCX文件...');
+                
+                // 检查JSZip是否加载
+                if (typeof JSZip === 'undefined') {
+                    throw new Error('JSZip库未加载');
+                }
+                
+                // 创建真正的DOCX文件
+                const docxBlob = await createRealDocxFile(markdown);
+                
+                // 下载文件
+                const url = URL.createObjectURL(docxBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'converted-document.docx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast('🎉 已导出为真正的Word文档！');
+                
+            } catch (error) {
+                console.error('导出失败:', error);
+                showToast(`❌ 导出失败：${error.message}`, 'error');
+            }
+        }
+
+        // 创建Word兼容的HTML文档
+        function createWordCompatibleHTML(html, markdown) {
+            // Word可以打开特定格式的HTML文件
+            const wordHtml = `
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" 
+      xmlns:w="urn:schemas-microsoft-com:office:word" 
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+    <meta charset="utf-8">
+    <meta name="ProgId" content="Word.Document">
+    <meta name="Generator" content="Microsoft Word 15">
+    <meta name="Originator" content="Microsoft Word 15">
+    <title>转换的文档</title>
+    <!--[if gte mso 9]>
+    <xml>
+        <w:WordDocument>
+            <w:View>Print</w:View>
+            <w:Zoom>90</w:Zoom>
+            <w:DoNotPromptForConvert/>
+            <w:DoNotShowInsertionsAndDeletions/>
+        </w:WordDocument>
+    </xml>
+    <![endif]-->
+    <style>
+        @page {
+            size: 8.5in 11in;
+            margin: 1in 1.25in 1in 1.25in;
+        }
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.15;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            font-size: 18pt;
+            font-weight: bold;
+            margin: 12pt 0 6pt 0;
+            page-break-after: avoid;
+        }
+        h2 {
+            font-size: 16pt;
+            font-weight: bold;
+            margin: 12pt 0 6pt 0;
+            page-break-after: avoid;
+        }
+        h3 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 12pt 0 6pt 0;
+            page-break-after: avoid;
+        }
+        p {
+            margin: 6pt 0;
+            text-align: justify;
+        }
+        ul, ol {
+            margin: 6pt 0;
+            padding-left: 36pt;
+        }
+        li {
+            margin: 3pt 0;
+        }
+        blockquote {
+            margin: 6pt 36pt;
+            padding-left: 12pt;
+            border-left: 3pt solid #ccc;
+            font-style: italic;
+        }
+        code {
+            font-family: 'Courier New', monospace;
+            background-color: #f5f5f5;
+            padding: 2pt 4pt;
+            border: 1pt solid #ddd;
+        }
+        pre {
+            font-family: 'Courier New', monospace;
+            background-color: #f5f5f5;
+            padding: 12pt;
+            border: 1pt solid #ddd;
+            margin: 6pt 0;
+            white-space: pre-wrap;
+        }
+        strong, b {
+            font-weight: bold;
+        }
+        em, i {
+            font-style: italic;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 6pt 0;
+        }
+        th, td {
+            border: 1pt solid #ddd;
+            padding: 6pt;
+            text-align: left;
+        }
+        th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    ${html}
+</body>
+</html>`;
+            return wordHtml;
+        }
+
+        // 创建真正的DOCX文件
+        async function createRealDocxFile(markdown) {
+            const zip = new JSZip();
+            
+            // 将Markdown转换为Word XML
+            const documentXml = convertMarkdownToWordXML(markdown);
+            
+            // 添加必需的DOCX文件结构
+            
+            // [Content_Types].xml
+            zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+    <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+    <Default Extension="xml" ContentType="application/xml"/>
+    <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+    <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`);
+
+            // _rels/.rels
+            zip.folder('_rels').file('.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`);
+
+            // word/_rels/document.xml.rels
+            zip.folder('word').folder('_rels').file('document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`);
+
+            // word/document.xml
+            zip.folder('word').file('document.xml', documentXml);
+
+            // word/styles.xml
+            zip.folder('word').file('styles.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+    <w:docDefaults>
+        <w:rPrDefault>
+            <w:rPr>
+                <w:rFonts w:ascii="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+                <w:sz w:val="24"/>
+                <w:szCs w:val="24"/>
+                <w:lang w:val="en-US" w:eastAsia="zh-CN" w:bidi="ar-SA"/>
+            </w:rPr>
+        </w:rPrDefault>
+        <w:pPrDefault>
+            <w:pPr>
+                <w:spacing w:after="160" w:line="259" w:lineRule="auto"/>
+            </w:pPr>
+        </w:pPrDefault>
+    </w:docDefaults>
+    <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
+        <w:name w:val="Normal"/>
+        <w:qFormat/>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Heading1">
+        <w:name w:val="heading 1"/>
+        <w:basedOn w:val="Normal"/>
+        <w:next w:val="Normal"/>
+        <w:qFormat/>
+        <w:pPr>
+            <w:keepNext/>
+            <w:keepLines/>
+            <w:spacing w:before="240" w:after="0"/>
+            <w:outlineLvl w:val="0"/>
+        </w:pPr>
+        <w:rPr>
+            <w:rFonts w:asciiTheme="majorHAnsi" w:eastAsiaTheme="majorEastAsia" w:hAnsiTheme="majorHAnsi" w:cstheme="majorBidi"/>
+            <w:b/>
+            <w:bCs/>
+            <w:color w:val="2F5496" w:themeColor="accent1" w:themeShade="BF"/>
+            <w:sz w:val="32"/>
+            <w:szCs w:val="32"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Heading2">
+        <w:name w:val="heading 2"/>
+        <w:basedOn w:val="Normal"/>
+        <w:next w:val="Normal"/>
+        <w:qFormat/>
+        <w:pPr>
+            <w:keepNext/>
+            <w:keepLines/>
+            <w:spacing w:before="40" w:after="0"/>
+            <w:outlineLvl w:val="1"/>
+        </w:pPr>
+        <w:rPr>
+            <w:rFonts w:asciiTheme="majorHAnsi" w:eastAsiaTheme="majorEastAsia" w:hAnsiTheme="majorHAnsi" w:cstheme="majorBidi"/>
+            <w:b/>
+            <w:bCs/>
+            <w:color w:val="2F5496" w:themeColor="accent1" w:themeShade="BF"/>
+            <w:sz w:val="26"/>
+            <w:szCs w:val="26"/>
+        </w:rPr>
+    </w:style>
+</w:styles>`);
+
+            // 生成ZIP文件
+            const blob = await zip.generateAsync({
+                type: 'blob',
+                mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            });
+
+            return blob;
+        }
+
+        // 将Markdown转换为Word XML
+        function convertMarkdownToWordXML(markdown) {
+            const lines = markdown.split('\n');
+            let paragraphs = '';
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmedLine = line.trim();
+                
+                if (!trimmedLine) {
+                    // 空行
+                    paragraphs += `
+                    <w:p>
+                        <w:pPr></w:pPr>
+                    </w:p>`;
+                    continue;
+                }
+                
+                if (trimmedLine.startsWith('# ')) {
+                    // H1标题
+                    paragraphs += `
+                    <w:p>
+                        <w:pPr>
+                            <w:pStyle w:val="Heading1"/>
+                        </w:pPr>
+                        <w:r>
+                            <w:t>${escapeXml(trimmedLine.substring(2))}</w:t>
+                        </w:r>
+                    </w:p>`;
+                } else if (trimmedLine.startsWith('## ')) {
+                    // H2标题
+                    paragraphs += `
+                    <w:p>
+                        <w:pPr>
+                            <w:pStyle w:val="Heading2"/>
+                        </w:pPr>
+                        <w:r>
+                            <w:t>${escapeXml(trimmedLine.substring(3))}</w:t>
+                        </w:r>
+                    </w:p>`;
+                } else if (trimmedLine.startsWith('### ')) {
+                    // H3标题
+                    paragraphs += `
+                    <w:p>
+                        <w:pPr></w:pPr>
+                        <w:r>
+                            <w:rPr>
+                                <w:b/>
+                                <w:sz w:val="28"/>
+                            </w:rPr>
+                            <w:t>${escapeXml(trimmedLine.substring(4))}</w:t>
+                        </w:r>
+                    </w:p>`;
+                } else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
+                    // 列表项
+                    paragraphs += `
+                    <w:p>
+                        <w:pPr>
+                            <w:pStyle w:val="ListParagraph"/>
+                            <w:ind w:left="720"/>
+                        </w:pPr>
+                        <w:r>
+                            <w:t>• ${escapeXml(trimmedLine.substring(2))}</w:t>
+                        </w:r>
+                    </w:p>`;
+                } else if (trimmedLine.startsWith('> ')) {
+                    // 引用
+                    paragraphs += `
+                    <w:p>
+                        <w:pPr>
+                            <w:ind w:left="720"/>
+                        </w:pPr>
+                        <w:r>
+                            <w:rPr>
+                                <w:i/>
+                                <w:color w:val="666666"/>
+                            </w:rPr>
+                            <w:t>${escapeXml(trimmedLine.substring(2))}</w:t>
+                        </w:r>
+                    </w:p>`;
+                } else {
+                    // 普通段落，处理内联格式
+                    const runs = parseInlineFormatting(trimmedLine);
+                    paragraphs += `
+                    <w:p>
+                        <w:pPr></w:pPr>
+                        ${runs}
+                    </w:p>`;
+                }
+            }
+            
+            return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+    <w:body>
+        ${paragraphs}
+        <w:sectPr>
+            <w:pgSz w:w="12240" w:h="15840"/>
+            <w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800" w:header="708" w:footer="708" w:gutter="0"/>
+            <w:cols w:space="708"/>
+            <w:docGrid w:linePitch="360"/>
+        </w:sectPr>
+    </w:body>
+</w:document>`;
+        }
+
+        // 解析内联格式（粗体、斜体、代码）
+        function parseInlineFormatting(text) {
+            let runs = '';
+            let currentPos = 0;
+            
+            // 简化处理：先处理粗体，再处理斜体，最后处理代码
+            const parts = [];
+            let remaining = text;
+            
+            // 分割文本并标记格式
+            while (remaining.length > 0) {
+                let found = false;
+                
+                // 查找粗体 **text**
+                const boldMatch = remaining.match(/\*\*(.*?)\*\*/);
+                if (boldMatch) {
+                    const beforeBold = remaining.substring(0, boldMatch.index);
+                    if (beforeBold) {
+                        parts.push({ text: beforeBold, format: 'normal' });
+                    }
+                    parts.push({ text: boldMatch[1], format: 'bold' });
+                    remaining = remaining.substring(boldMatch.index + boldMatch[0].length);
+                    found = true;
+                }
+                
+                // 查找斜体 *text*
+                else {
+                    const italicMatch = remaining.match(/\*([^*]+?)\*/);
+                    if (italicMatch) {
+                        const beforeItalic = remaining.substring(0, italicMatch.index);
+                        if (beforeItalic) {
+                            parts.push({ text: beforeItalic, format: 'normal' });
+                        }
+                        parts.push({ text: italicMatch[1], format: 'italic' });
+                        remaining = remaining.substring(italicMatch.index + italicMatch[0].length);
+                        found = true;
+                    }
+                }
+                
+                // 查找代码 `text`
+                if (!found) {
+                    const codeMatch = remaining.match(/`([^`]+?)`/);
+                    if (codeMatch) {
+                        const beforeCode = remaining.substring(0, codeMatch.index);
+                        if (beforeCode) {
+                            parts.push({ text: beforeCode, format: 'normal' });
+                        }
+                        parts.push({ text: codeMatch[1], format: 'code' });
+                        remaining = remaining.substring(codeMatch.index + codeMatch[0].length);
+                        found = true;
+                    }
+                }
+                
+                if (!found) {
+                    parts.push({ text: remaining, format: 'normal' });
+                    break;
+                }
+            }
+            
+            // 生成Word XML runs
+            for (const part of parts) {
+                if (!part.text) continue;
+                
+                switch (part.format) {
+                    case 'bold':
+                        runs += `
+                        <w:r>
+                            <w:rPr>
+                                <w:b/>
+                            </w:rPr>
+                            <w:t>${escapeXml(part.text)}</w:t>
+                        </w:r>`;
+                        break;
+                    case 'italic':
+                        runs += `
+                        <w:r>
+                            <w:rPr>
+                                <w:i/>
+                            </w:rPr>
+                            <w:t>${escapeXml(part.text)}</w:t>
+                        </w:r>`;
+                        break;
+                    case 'code':
+                        runs += `
+                        <w:r>
+                            <w:rPr>
+                                <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New"/>
+                                <w:color w:val="C7254E"/>
+                                <w:shd w:val="clear" w:color="auto" w:fill="F9F2F4"/>
+                            </w:rPr>
+                            <w:t>${escapeXml(part.text)}</w:t>
+                        </w:r>`;
+                        break;
+                    default:
+                        runs += `
+                        <w:r>
+                            <w:t>${escapeXml(part.text)}</w:t>
+                        </w:r>`;
+                        break;
+                }
+            }
+            
+            return runs;
+        }
+
+        // XML特殊字符转义
+        function escapeXml(text) {
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&apos;');
+        }
+
+        // 下载示例Markdown文件
+        function downloadSampleMd() {
+            const sampleContent = `# 📝 Markdown 示例文档
+
+欢迎使用 Markdown ↔ Word 转换器！
+
+## 🎯 基本语法示例
+
+### 文本格式
+这是**粗体文本**，这是*斜体文本*，这是\`内联代码\`。
+
+### 列表示例
+- 无序列表项 1
+- 无序列表项 2
+  - 嵌套列表项
+- 无序列表项 3
+
+1. 有序列表项 1
+2. 有序列表项 2
+3. 有序列表项 3
+
+### 引用示例
+> 这是一个引用块。
+> 
+> 可以包含多行内容。
+
+### 代码示例
+\`\`\`javascript
+function hello() {
+    console.log("Hello, World!");
+}
+\`\`\`
+
+### 链接和图片
+[这是一个链接](https://example.com)
+
+## 🚀 使用说明
+
+1. 编辑或上传你的 Markdown 文件
+2. 点击"转换为 Word 文档"按钮
+3. 下载生成的 .docx 文件
+4. 用 Microsoft Word 打开查看效果
+
+---
+
+**提示**：你可以直接编辑这个示例，然后转换为 Word 文档！
+
+### 表格示例
+| 功能 | 支持状态 | 说明 |
+|------|----------|------|
+| 标题 | ✅ | H1-H3 |
+| 粗体 | ✅ | **文本** |
+| 斜体 | ✅ | *文本* |
+| 列表 | ✅ | 有序/无序 |
+| 引用 | ✅ | > 引用 |
+| 代码 | ✅ | \`代码\` |
+
+祝你使用愉快！🎉`;
+
+            // 创建并下载文件
+            const blob = new Blob([sampleContent], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'markdown-sample.md';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('📥 示例 Markdown 文件已下载！');
+        }
+
+        // DOCX 转 Markdown
+        async function convertToMarkdown() {
+            if (!currentFile) {
+                showToast('❌ 请先选择一个 Doc/Docx 文件！', 'error');
+                return;
+            }
+
+            toggleLoading(true);
+
+            try {
+                const arrayBuffer = await currentFile.arrayBuffer();
+                const result = await mammoth.convertToMarkdown({ arrayBuffer });
+                
+                const markdown = result.value;
+                
+                // 显示转换结果
+                document.getElementById('docxContent').innerHTML = `
+                    <h4>📋 Markdown 内容：</h4>
+                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 10px; white-space: pre-wrap; font-family: 'Courier New', monospace;">${markdown}</pre>
+                `;
+                document.getElementById('docxPreview').style.display = 'block';
+                
+                // 同时更新左侧的 Markdown 编辑器
+                document.getElementById('markdownInput').value = markdown;
+                currentMarkdown = markdown;
+                
+                // 触发预览更新
+                const event = new Event('input');
+                document.getElementById('markdownInput').dispatchEvent(event);
+                
+                showToast('🎉 转换为 Markdown 成功！');
+                
+                if (result.messages.length > 0) {
+                    console.warn('转换警告:', result.messages);
+                }
+                
+            } catch (error) {
+                console.error('转换错误:', error);
+                showToast('❌ 文件解析失败，请确保文件格式正确！', 'error');
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // 清空 Markdown
+        function clearMarkdown() {
+            document.getElementById('markdownInput').value = '';
+            document.getElementById('markdownPreview').style.display = 'none';
+            document.getElementById('mdFileInput').value = '';
+            document.querySelector('label[for="mdFileInput"]').innerHTML = `
+                <span class="emoji">📄</span>
+                点击上传 Markdown 文件 (.md)
+            `;
+            currentMarkdown = '';
+            showToast('🗑️ Markdown 内容已清空！');
+        }
+
+        // 清空文件
+        function clearFile() {
+            document.getElementById('docxInput').value = '';
+            document.getElementById('docxPreview').style.display = 'none';
+            document.getElementById('convertBtn').disabled = true;
+            document.querySelector('.file-input-label').innerHTML = `
+                <span class="emoji">📁</span>
+                点击选择 Doc/Docx 文件
+            `;
+            currentFile = null;
+            showToast('🗑️ 文件已清空！');
+        }
+
+        // 检查依赖库加载状态
+        function checkLibraries() {
+            const libs = {
+                'Marked.js (Markdown解析)': typeof marked !== 'undefined',
+                'JSZip (文件压缩)': typeof JSZip !== 'undefined',
+                'Mammoth.js (DOCX解析)': typeof mammoth !== 'undefined'
+            };
+            
+            console.log('库加载状态:', libs);
+            console.log('Window对象上的库:', {
+                marked: window.marked,
+                JSZip: window.JSZip,
+                mammoth: window.mammoth
+            });
+            
+            const failedLibs = Object.entries(libs)
+                .filter(([name, loaded]) => !loaded)
+                .map(([name]) => name);
+                
+            if (failedLibs.length > 0) {
+                showToast(`⚠️ 以下库未加载: ${failedLibs.join(', ')}`, 'error');
+                console.warn('部分功能可能受限');
+                return false;
+            }
+            
+            showToast('✅ 所有功能库加载完成！可以生成真正的DOCX文件');
+            return true;
+        }
+
+        // 动态加载库的备用方案
+        function loadLibrariesFallback() {
+            const scripts = [
+                'https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js',
+                'https://cdn.jsdelivr.net/npm/mammoth@1.5.1/mammoth.browser.min.js'
+            ];
+
+            let loadedCount = 0;
+            const totalScripts = scripts.length;
+
+            scripts.forEach((src, index) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => {
+                    loadedCount++;
+                    console.log(`备用库 ${index + 1}/${totalScripts} 加载完成:`, src);
+                    if (loadedCount === totalScripts) {
+                        setTimeout(() => {
+                            checkLibraries();
+                            showToast('🎉 核心功能已就绪！');
+                        }, 500);
+                    }
+                };
+                script.onerror = () => {
+                    console.error('备用库加载失败:', src);
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            let retryCount = 0;
+            const maxRetries = 3;
+            
+            function tryLoadLibraries() {
+                retryCount++;
+                console.log(`尝试检查库加载状态 (${retryCount}/${maxRetries})`);
+                
+                if (checkLibraries()) {
+                    showToast('🎉 欢迎使用 Markdown ↔ Doc 转换器！');
+                    return;
+                }
+                
+                if (retryCount < maxRetries) {
+                    showToast(`⏳ 正在加载功能库... (${retryCount}/${maxRetries})`, 'warning');
+                    setTimeout(tryLoadLibraries, 2000);
+                } else {
+                    showToast('⚠️ 库加载失败，尝试备用方案...', 'error');
+                    loadLibrariesFallback();
+                }
+            }
+            
+            // 延迟检查，确保CDN库有时间加载
+            setTimeout(tryLoadLibraries, 1000);
+            
+            // 添加拖拽上传功能
+            setupDragAndDrop();
+        });
+
+        // 设置拖拽上传功能
+        function setupDragAndDrop() {
+            const textarea = document.getElementById('markdownInput');
+            const mdUploadLabel = document.querySelector('label[for="mdFileInput"]');
+            
+            // 防止默认拖拽行为
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                textarea.addEventListener(eventName, preventDefaults, false);
+                mdUploadLabel.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            // 拖拽进入时的视觉反馈
+            ['dragenter', 'dragover'].forEach(eventName => {
+                textarea.addEventListener(eventName, highlight, false);
+                mdUploadLabel.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                textarea.addEventListener(eventName, unhighlight, false);
+                mdUploadLabel.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight(e) {
+                e.target.style.backgroundColor = '#e8f4f8';
+                e.target.style.borderColor = '#4ecdc4';
+            }
+            
+            function unhighlight(e) {
+                e.target.style.backgroundColor = '';
+                e.target.style.borderColor = '';
+            }
+            
+            // 处理文件拖拽
+            textarea.addEventListener('drop', handleDrop, false);
+            mdUploadLabel.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    const file = files[0];
+                    const fileName = file.name.toLowerCase();
+                    
+                    // 检查是否是Markdown文件
+                    if (fileName.endsWith('.md') || fileName.endsWith('.markdown') || fileName.endsWith('.txt')) {
+                        // 模拟文件输入事件
+                        const fileInput = document.getElementById('mdFileInput');
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        fileInput.files = dataTransfer.files;
+                        
+                        // 触发文件处理
+                        handleMdFileUpload({ target: { files: [file] } });
+                    } else {
+                        showToast('❌ 请拖拽 .md、.markdown 或 .txt 文件！', 'error');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
