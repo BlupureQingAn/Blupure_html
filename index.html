@@ -10,7 +10,7 @@
         document.documentElement.classList.add('js');
         (function(){
             var t = localStorage.getItem('blupure-theme');
-            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            if (t === 'dark') {
                 document.documentElement.classList.add('dark-mode');
             }
         })();
@@ -1235,12 +1235,6 @@ async function initPortfolio() {
     <!-- 深色主题切换逻辑 -->
     <script>
         (function() {
-            function getPreferredTheme() {
-                var stored = localStorage.getItem('blupure-theme');
-                if (stored) return stored;
-                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            }
-
             function applyTheme(theme) {
                 if (theme === 'dark') {
                     document.documentElement.classList.add('dark-mode');
@@ -1250,15 +1244,7 @@ async function initPortfolio() {
                 try { localStorage.setItem('blupure-theme', theme); } catch(e) {}
             }
 
-            applyTheme(getPreferredTheme());
-
-            try {
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-                    if (!localStorage.getItem('blupure-theme')) {
-                        applyTheme(e.matches ? 'dark' : 'light');
-                    }
-                });
-            } catch(e) {}
+            applyTheme(localStorage.getItem('blupure-theme') || 'light');
 
             document.addEventListener('DOMContentLoaded', function() {
                 var toggle = document.getElementById('theme-toggle');
