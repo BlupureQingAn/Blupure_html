@@ -3159,7 +3159,12 @@ td:last-child {
     align-items: center;
     margin-left: 0.5rem;
     border-radius: 8px;
+    outline: none;
     transition: background-color 0.3s ease;
+}
+.theme-toggle:focus-visible {
+    outline: 2px solid #002FA7;
+    outline-offset: 2px;
 }
 .theme-toggle .theme-toggle__icon {
     stroke: #002FA7;
@@ -3187,6 +3192,9 @@ html.dark-mode .theme-toggle:hover {
 }
 html.dark-mode .theme-toggle:active {
     background-color: rgba(77, 124, 255, 0.22);
+}
+html.dark-mode .theme-toggle:focus-visible {
+    outline-color: #4D7CFF;
 }
 html:not(.dark-mode) .s-header.is-visible {
     background-color: rgba(255, 255, 255, 0.88);
