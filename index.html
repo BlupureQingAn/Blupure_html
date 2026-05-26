@@ -172,7 +172,7 @@
 .char {
     display: inline-block;
     animation: charFall 1s cubic-bezier(0.22, 0.61, 0.36, 1) both;
-    animation-delay: calc(var(--i) * 0.35s + 1s);
+    animation-delay: calc(var(--i) * 0.35s + 0.5s);
 }
 
 .char__inner {
@@ -188,7 +188,7 @@
     background-clip: text;
     color: #111111;
     animation: charFloat 3s ease-in-out infinite;
-    animation-delay: calc(var(--i) * 0.35s + 2s);
+    animation-delay: calc(var(--i) * 0.35s + 1.5s);
 }
 
 /* Blupure 渐变+流光+浮动 */
@@ -200,7 +200,7 @@
     background-clip: text;
     animation: charFloat 3s ease-in-out infinite,
                streamGradient 4s linear infinite;
-    animation-delay: calc(var(--i) * 0.35s + 2s), 0s;
+    animation-delay: calc(var(--i) * 0.35s + 1.5s), 0s;
 }
 
 /* 调整介绍段落的字体大小、颜色与间距 */
@@ -852,13 +852,13 @@ async function initPortfolio() {
         })();
     </script>
 
-    <!-- 标题逐字拆包：掉落 + 浮动动画 -->
+    <!-- 标题逐字拆包：等待字体和页面加载完再播放动画 -->
     <script>
         (function() {
-            document.addEventListener('DOMContentLoaded', function() {
-                var selectors = ['.title-text', '.title-brand', '.title-text-alt'];
-                var index = 0;
+            var index = 0;
 
+            function splitTitleChars() {
+                var selectors = ['.title-text', '.title-brand', '.title-text-alt'];
                 selectors.forEach(function(sel) {
                     var el = document.querySelector(sel);
                     if (!el) return;
@@ -877,6 +877,15 @@ async function initPortfolio() {
                     }
                     el.innerHTML = html;
                 });
+            }
+
+            // 等待字体加载完成 + 页面资源加载完成（此时 preloader 开始淡出）
+            Promise.all([
+                new Promise(function(resolve) { window.addEventListener('load', resolve); }),
+                document.fonts.ready
+            ]).then(function() {
+                // 再等 preloader 淡出动画结束（0.6s 延迟 + 0.3s 过渡）
+                setTimeout(splitTitleChars, 900);
             });
         })();
     </script>
