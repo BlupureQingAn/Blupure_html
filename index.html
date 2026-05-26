@@ -192,6 +192,7 @@
     font-size: inherit;
     font-weight: inherit;
     color: rgba(0, 47, 167, 0.15);
+    filter: blur(4px);
     z-index: -1;
     pointer-events: none;
     opacity: 0;
@@ -281,6 +282,19 @@
                 /* 缩小卡片之间的垂直间距，更符合手机端精致排版 */
                 gap: 24px;
                 margin-top: 4rem;
+            }
+
+            /* 标题区移动端适配：缩小字号、减少负边距，避免重叠 */
+            .intro-title-styled {
+                margin-top: 2rem;
+                margin-bottom: 1.5rem;
+            }
+            .title-brand {
+                font-size: clamp(4.5rem, 12vw, 9rem);
+                margin-top: -1rem;
+            }
+            .title-text-alt {
+                margin-top: -1rem;
             }
         }
         .portfolio-card {
