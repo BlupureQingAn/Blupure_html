@@ -164,16 +164,7 @@
     padding: 0;
     white-space: nowrap;
     line-height: 1.1;
-    overflow: visible;
     text-align: center;
-
-    /* 渐变统一放在父容器，避免每个字母独立裁剪边缘 */
-    background: linear-gradient(90deg, #002FA7 0%, #0077FF 35%, #00F0FF 70%, #002FA7 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: streamGradient 4s linear infinite;
 }
 
 /* 5. 逐字掉落 + 浮动动画 */
@@ -199,21 +190,27 @@
     animation-delay: calc(var(--i) * 0.35s + 1.5s);
 }
 
-/* Blupure 字母间距 + 霓虹发光 */
+/* Blupure 字母间距 */
 .title-brand {
     text-align: center;
 }
 .title-brand .char {
     padding: 0 0.12em;
     margin: 0;
-    filter: drop-shadow(0 4px 15px rgba(0, 119, 255, 0.45))
-            drop-shadow(0 1px 2px rgba(0, 47, 167, 0.3));
 }
 
-/* Blupure 浮动（渐变由父容器统一提供） */
+/* Blupure 霓虹流光渐变 + 浮动 + 文字发光 */
 .title-brand .char__inner {
-    animation: charFloat 3s ease-in-out infinite;
-    animation-delay: calc(var(--i) * 0.35s + 1.5s);
+    background: linear-gradient(90deg, #002FA7 0%, #0077FF 35%, #00F0FF 70%, #002FA7 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: charFloat 3s ease-in-out infinite,
+               streamGradient 4s linear infinite;
+    animation-delay: calc(var(--i) * 0.35s + 1.5s), 0s;
+    text-shadow: 0 0 18px rgba(0, 119, 255, 0.5),
+                 0 0 35px rgba(0, 47, 167, 0.3);
 }
 
 /* 调整介绍段落的字体大小、颜色与间距 */
