@@ -76,7 +76,7 @@
     min-height: 80vh;
     display: flex;
     align-items: center;
-    background: radial-gradient(circle at 90% 10%, rgba(0, 47, 167, 0.04) 0%, transparent 60%);
+    background: radial-gradient(circle at 90% 5%, rgba(0, 47, 167, 0.07) 0%, rgba(0, 119, 255, 0.04) 30%, transparent 100%);
     margin-top: 2px;   /* 向下微调，对齐顶栏横线 */
     position: relative;
     z-index: 1;
@@ -171,8 +171,8 @@
 /* 5. 逐字掉落 + 浮动动画 */
 .char {
     display: inline-block;
-    animation: charFall 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) both;
-    animation-delay: calc(var(--i) * 0.07s + 1s);
+    animation: charFall 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    animation-delay: calc(var(--i) * 0.12s + 1s);
 }
 
 .char__inner {
@@ -188,7 +188,7 @@
     background-clip: text;
     color: #111111;
     animation: charFloat 3s ease-in-out infinite;
-    animation-delay: calc(var(--i) * 0.07s + 1.55s);
+    animation-delay: calc(var(--i) * 0.12s + 1.9s);
 }
 
 /* Blupure 渐变+流光+浮动 */
@@ -200,7 +200,7 @@
     background-clip: text;
     animation: charFloat 3s ease-in-out infinite,
                streamGradient 4s linear infinite;
-    animation-delay: calc(var(--i) * 0.07s + 1.55s), 0s;
+    animation-delay: calc(var(--i) * 0.12s + 1.9s), 0s;
 }
 
 /* 调整介绍段落的字体大小、颜色与间距 */
