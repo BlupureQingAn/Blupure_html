@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{TITLE}} | 蓝色纯度会客厅</title>
+    <meta name="description" content="{{DESCRIPTION}}">
+    <meta property="og:title" content="{{TITLE}}">
+    <meta property="og:description" content="{{DESCRIPTION}}">
+    <meta property="og:type" content="article">
+    <meta property="article:published_time" content="{{DATE_ISO}}">
+
+    <script>
+        document.documentElement.classList.remove('no-js');
+        document.documentElement.classList.add('js');
+    </script>
+
+    <link rel="stylesheet" href="../css/vendor.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/blog.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.cn/css2?family=Mea+Culpa&family=Noto+Serif+SC:wght@400;600;700;900&display=swap">
+
+    <style>
+        :root {
+            --font-1: "Noto Serif SC", "Roboto Flex", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", serif;
+            --pure-blue: #002FA7;
+            --pure-blue-hover: #001F70;
+            --pure-blue-light: #E6EDFF;
+            --pure-blue-alpha: rgba(0, 47, 167, 0.08);
+            --text-dark: #111111;
+            --text-soft: #555555;
+            --card-bg: #ffffff;
+            --section-bg-alt: #fafafb;
+            --shadow-card: rgba(0, 47, 167, 0.08);
+            --shadow-card-hover: rgba(0, 47, 167, 0.2);
+            --text-gradient-end: #444444;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --pure-blue: #4D7CFF;
+                --pure-blue-hover: #6B8FFF;
+                --pure-blue-light: #0D1B3E;
+                --pure-blue-alpha: rgba(77, 124, 255, 0.15);
+                --text-dark: #E8E8E8;
+                --text-soft: #AAAAAA;
+                --card-bg: #1A1B2E;
+                --section-bg-alt: #12131E;
+                --shadow-card: rgba(0, 0, 0, 0.3);
+                --shadow-card-hover: rgba(0, 0, 0, 0.4);
+                --text-gradient-end: #BBBBBB;
+            }
+        }
+
+        html.dark-mode {
+            --pure-blue: #4D7CFF;
+            --pure-blue-hover: #6B8FFF;
+            --pure-blue-light: #0D1B3E;
+            --pure-blue-alpha: rgba(77, 124, 255, 0.15);
+            --text-dark: #E8E8E8;
+            --text-soft: #AAAAAA;
+            --card-bg: #1A1B2E;
+            --section-bg-alt: #12131E;
+            --shadow-card: rgba(0, 0, 0, 0.3);
+            --shadow-card-hover: rgba(0, 0, 0, 0.4);
+            --text-gradient-end: #BBBBBB;
+        }
+
+        ::selection { background-color: var(--pure-blue); color: #ffffff; }
+        ::-moz-selection { background-color: var(--pure-blue); color: #ffffff; }
+        a, a:hover, a:focus { color: var(--pure-blue); }
+
+        .s-header { border-bottom: 1px solid rgba(0, 47, 167, 0.06); }
+        .header-brand__text { color: var(--pure-blue) !important; font-weight: 700; letter-spacing: 0.05em; }
+        .header-nav__links li.current a { color: var(--pure-blue) !important; }
+        .header-nav__links li.current a::after { background-color: var(--pure-blue) !important; }
+        .header-nav__links a:hover { color: var(--pure-blue) !important; }
+        .s-footer { border-top: 1px solid rgba(0, 47, 167, 0.05); }
+        .s-footer .ss-copyright,
+        .s-footer .ss-back-to-top { font-size: 1.2rem; }
+        .footer-line { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .footer-logo { font-weight: 700; color: var(--pure-blue); letter-spacing: 0.05em; }
+
+        html.dark-mode, html.dark-mode * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+</head>
+<body id="top">
+
+    <div id="preloader">
+        <div id="loader" class="dots-fade">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <div id="page" class="s-pagewrap">
+
+        <header class="s-header">
+            <div class="container s-header__content">
+                <div class="s-header__block">
+                    <div class="header-brand">
+                        <a class="header-brand__link" href="../index.html">
+                            <span class="header-brand__text">Blupure reception room</span>
+                        </a>
+                    </div>
+                    <a class="header-menu-toggle" href="#0"><span>菜单</span></a>
+                </div>
+                <nav class="header-nav">
+                    <ul class="header-nav__links">
+                        <li><a href="../index.html">会客厅</a></li>
+                        <li><a href="../index.html#works">作品汇集</a></li>
+                        <li class="current"><a href="../blog.html">博客</a></li>
+                    </ul>
+                    <button class="theme-toggle" id="theme-toggle" aria-label="切换深色/浅色主题">
+                        <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <section class="s-blog-post target-section">
+            <div class="container" style="max-width: 780px;">
+
+                <div class="blog-post__header">
+                    <div class="blog-post__breadcrumb">
+                        <a href="../blog.html">&larr; 返回博客列表</a>
+                    </div>
+                    <h1 class="blog-post__title">{{TITLE}}</h1>
+                    <div class="blog-post__meta">
+                        <time class="blog-post__date" datetime="{{DATE_ISO}}">{{DATE_DISPLAY}}</time>
+                        <span class="blog-post__category">{{CATEGORY}}</span>
+                    </div>
+                    {{TAGS_HTML}}
+                </div>
+
+                <article class="blog-post__content">
+                    <!--BLOG_CONTENT-->
+                </article>
+
+                <nav class="blog-post__nav">
+                    <a href="../blog.html" class="blog-post__back">&larr; 返回博客列表</a>
+                </nav>
+
+            </div>
+        </section>
+
+        <footer id="footer" class="container s-footer">
+            <div class="row">
+                <div class="column xl-12 footer-line">
+                    <p class="ss-copyright" style="margin: 0;">
+                        <span>&copy; <span class="footer-logo">Blupure会客厅</span> 2026</span>
+                        <span>Powered by GitHub Pages &middot; 蓝色纯度灵感场域</span>
+                    </p>
+                    <p class="ss-back-to-top" style="margin: 0;">
+                        <a href="#top" class="ss-back-to-top__link smoothscroll" style="display: flex; align-items: center; gap: 8px;">
+                            <span class="ss-back-to-top__text">回到顶部</span>
+                            <span class="ss-back-to-top__icon" style="display: inline-flex; align-items: center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#002FA7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                </svg>
+                            </span>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="../js/plugins.js"></script>
+    <script src="../js/main.js"></script>
+
+    <script>
+        (function() {
+            function getPreferredTheme() {
+                var stored = localStorage.getItem('blupure-theme');
+                if (stored) return stored;
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                }
+                try { localStorage.setItem('blupure-theme', theme); } catch(e) {}
+            }
+            applyTheme(getPreferredTheme());
+            try {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+                    if (!localStorage.getItem('blupure-theme')) {
+                        applyTheme(e.matches ? 'dark' : 'light');
+                    }
+                });
+            } catch(e) {}
+            document.addEventListener('DOMContentLoaded', function() {
+                var toggle = document.getElementById('theme-toggle');
+                if (toggle) {
+                    toggle.addEventListener('click', function() {
+                        var isDark = document.documentElement.classList.contains('dark-mode');
+                        applyTheme(isDark ? 'light' : 'dark');
+                    });
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

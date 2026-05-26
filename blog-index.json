@@ -1,0 +1,31 @@
+[
+  {
+    "title": "欢迎来到蓝色纯度博客",
+    "date": "2026-05-26",
+    "description": "这是蓝色纯度会客厅的第一篇博客。这里将分享技术探索、数学思考与设计心得。",
+    "category": "站务",
+    "tags": [
+      "公告",
+      "开篇"
+    ],
+    "cover": "",
+    "fileName": "welcome-to-blupure-blog.html",
+    "workUrl": "blog/welcome-to-blupure-blog.html",
+    "wordCount": 832
+  },
+  {
+    "title": "理解傅里叶变换：从直观到数学",
+    "date": "2026-05-20",
+    "description": "傅里叶变换是信号处理的核心工具，本文从直观角度出发，逐步深入到数学本质，帮助你建立完整的理解框架。",
+    "category": "数学",
+    "tags": [
+      "傅里叶变换",
+      "信号处理",
+      "数学分析"
+    ],
+    "cover": "",
+    "fileName": "fourier-transform-intuition.html",
+    "workUrl": "blog/fourier-transform-intuition.html",
+    "wordCount": 1471
+  }
+]

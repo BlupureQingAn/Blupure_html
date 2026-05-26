@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>博客 | 蓝色纯度会客厅</title>
+    <meta name="description" content="蓝色纯度会客厅博客 — 技术、数学、设计与思考">
+
+    <script>
+        document.documentElement.classList.remove('no-js');
+        document.documentElement.classList.add('js');
+    </script>
+
+    <link rel="stylesheet" href="css/vendor.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/blog.css">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.cn/css2?family=Mea+Culpa&family=Noto+Serif+SC:wght@400;600;700;900&display=swap">
+
+    <style>
+        :root {
+            --font-1: "Noto Serif SC", "Roboto Flex", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", serif;
+            --pure-blue: #002FA7;
+            --pure-blue-hover: #001F70;
+            --pure-blue-light: #E6EDFF;
+            --pure-blue-alpha: rgba(0, 47, 167, 0.08);
+            --text-dark: #111111;
+            --text-soft: #555555;
+            --card-bg: #ffffff;
+            --section-bg-alt: #fafafb;
+            --shadow-card: rgba(0, 47, 167, 0.08);
+            --shadow-card-hover: rgba(0, 47, 167, 0.2);
+            --text-gradient-end: #444444;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --pure-blue: #4D7CFF;
+                --pure-blue-hover: #6B8FFF;
+                --pure-blue-light: #0D1B3E;
+                --pure-blue-alpha: rgba(77, 124, 255, 0.15);
+                --text-dark: #E8E8E8;
+                --text-soft: #AAAAAA;
+                --card-bg: #1A1B2E;
+                --section-bg-alt: #12131E;
+                --shadow-card: rgba(0, 0, 0, 0.3);
+                --shadow-card-hover: rgba(0, 0, 0, 0.4);
+                --text-gradient-end: #BBBBBB;
+            }
+        }
+
+        html.dark-mode {
+            --pure-blue: #4D7CFF;
+            --pure-blue-hover: #6B8FFF;
+            --pure-blue-light: #0D1B3E;
+            --pure-blue-alpha: rgba(77, 124, 255, 0.15);
+            --text-dark: #E8E8E8;
+            --text-soft: #AAAAAA;
+            --card-bg: #1A1B2E;
+            --section-bg-alt: #12131E;
+            --shadow-card: rgba(0, 0, 0, 0.3);
+            --shadow-card-hover: rgba(0, 0, 0, 0.4);
+            --text-gradient-end: #BBBBBB;
+        }
+
+        ::selection { background-color: var(--pure-blue); color: #ffffff; }
+        ::-moz-selection { background-color: var(--pure-blue); color: #ffffff; }
+        a, a:hover, a:focus { color: var(--pure-blue); }
+
+        .s-header { border-bottom: 1px solid rgba(0, 47, 167, 0.06); }
+        .header-brand__text { color: var(--pure-blue) !important; font-weight: 700; letter-spacing: 0.05em; }
+        .header-nav__links li.current a { color: var(--pure-blue) !important; }
+        .header-nav__links li.current a::after { background-color: var(--pure-blue) !important; }
+        .header-nav__links a:hover { color: var(--pure-blue) !important; }
+        .s-footer { border-top: 1px solid rgba(0, 47, 167, 0.05); }
+        .s-footer .ss-copyright,
+        .s-footer .ss-back-to-top { font-size: 1.2rem; }
+        .footer-line { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .footer-logo { font-weight: 700; color: var(--pure-blue); letter-spacing: 0.05em; }
+    </style>
+</head>
+<body id="top">
+
+    <div id="preloader">
+        <div id="loader" class="dots-fade">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <div id="page" class="s-pagewrap">
+
+        <header class="s-header">
+            <div class="container s-header__content">
+                <div class="s-header__block">
+                    <div class="header-brand">
+                        <a class="header-brand__link" href="index.html">
+                            <span class="header-brand__text">Blupure reception room</span>
+                        </a>
+                    </div>
+                    <a class="header-menu-toggle" href="#0"><span>菜单</span></a>
+                </div>
+                <nav class="header-nav">
+                    <ul class="header-nav__links">
+                        <li><a href="index.html">会客厅</a></li>
+                        <li><a href="index.html#works">作品汇集</a></li>
+                        <li class="current"><a href="blog.html">博客</a></li>
+                    </ul>
+                    <button class="theme-toggle" id="theme-toggle" aria-label="切换深色/浅色主题">
+                        <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <section class="s-blog-listing target-section">
+            <div class="container">
+                <div class="row">
+                    <div class="column xl-12">
+                        <h1 class="blog-listing__title">博客</h1>
+                        <p class="blog-listing__subtitle">思考 &middot; 技术 &middot; 数学 &middot; 设计</p>
+                    </div>
+                </div>
+
+                <div class="blog-filters" id="blog-filters"></div>
+
+                <div class="blog-grid" id="blog-container">
+                    <div class="blog-loading-wrapper" id="blog-loading-state">
+                        <div class="spinner"></div>
+                        <p class="loading-text">正在加载文章列表...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer id="footer" class="container s-footer">
+            <div class="row">
+                <div class="column xl-12 footer-line">
+                    <p class="ss-copyright" style="margin: 0;">
+                        <span>&copy; <span class="footer-logo">Blupure会客厅</span> 2026</span>
+                        <span>Powered by GitHub Pages &middot; 蓝色纯度灵感场域</span>
+                    </p>
+                    <p class="ss-back-to-top" style="margin: 0;">
+                        <a href="#top" class="ss-back-to-top__link smoothscroll" style="display: flex; align-items: center; gap: 8px;">
+                            <span class="ss-back-to-top__text">回到顶部</span>
+                            <span class="ss-back-to-top__icon" style="display: inline-flex; align-items: center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#002FA7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                </svg>
+                            </span>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="js/plugins.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        (function() {
+            function generateBlogCover(titleText) {
+                var safeTitle = (titleText || 'Blupure').substring(0, 28);
+                return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">' +
+                    '<rect width="100%" height="100%" fill="#002FA7"/>' +
+                    '<path d="M0 350 L800 280" stroke="#FFFFFF" stroke-width="1.2" fill="none" opacity="0.15"/>' +
+                    '<circle cx="680" cy="100" r="180" fill="#001F75" opacity="0.5"/>' +
+                    '<circle cx="120" cy="400" r="140" fill="#001A60" opacity="0.4"/>' +
+                    '<text x="8%" y="85%" fill="#FFFFFF" font-family="\'Inter\',system-ui" font-size="34" font-weight="800" letter-spacing="0.02em" opacity="0.95">' + escapeXml(safeTitle) + '</text>' +
+                    '<text x="8%" y="75%" fill="#FFFFFF" font-family="\'Inter\',system-ui" font-size="16" font-weight="400" opacity="0.6">Blupure &middot; 博客</text>' +
+                    '</svg>'
+                );
+            }
+
+            function escapeXml(str) {
+                if (!str) return '';
+                return String(str).replace(/[<>&]/g, function(m) {
+                    if (m === '<') return '\\u003c';
+                    if (m === '>') return '\\u003e';
+                    return '\\u0026';
+                });
+            }
+
+            function formatDate(dateStr) {
+                if (!dateStr) return '';
+                try {
+                    var d = new Date(dateStr);
+                    if (isNaN(d.getTime())) return dateStr;
+                    var year = d.getFullYear();
+                    var month = d.getMonth() + 1;
+                    var day = d.getDate();
+                    // Check if YYYY-MM-DD format (no timezone shift)
+                    var parts = dateStr.split('T')[0].split('-');
+                    if (parts.length === 3) {
+                        year = parseInt(parts[0], 10);
+                        month = parseInt(parts[1], 10);
+                        day = parseInt(parts[2], 10);
+                    }
+                    return year + '年' + month + '月' + day + '日';
+                } catch(e) {
+                    return dateStr;
+                }
+            }
+
+            var container = document.getElementById('blog-container');
+            var filtersEl = document.getElementById('blog-filters');
+            var allPosts = [];
+
+            function renderBlogCard(post, index) {
+                var coverSrc = post.cover || generateBlogCover(post.title);
+                var tagsHtml = '';
+                if (post.tags && post.tags.length > 0) {
+                    tagsHtml = '<div class="blog-card__tags">' +
+                        post.tags.map(function(t) {
+                            return '<span class="blog-card__tag">' + escapeXml(t) + '</span>';
+                        }).join('') +
+                        '</div>';
+                }
+                return '<article class="blog-card" style="--card-i: ' + index + '">' +
+                    '<a href="' + post.workUrl + '" class="blog-card__media" target="_blank" rel="noopener noreferrer">' +
+                        '<img src="' + coverSrc + '" alt="' + escapeXml(post.title) + '" class="blog-card__img"' +
+                            ' onerror="this.onerror=null;this.src=\'' + generateBlogCover(post.title) + '\'">' +
+                        '<div class="blog-card__action-hint">' +
+                            '阅读文章 ' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>' +
+                        '</div>' +
+                    '</a>' +
+                    '<div class="blog-card__content">' +
+                        '<span class="blog-card__category">' + escapeXml(post.category || '') + '</span>' +
+                        '<h2 class="blog-card__title"><a href="' + post.workUrl + '" target="_blank" rel="noopener noreferrer">' + escapeXml(post.title) + '</a></h2>' +
+                        '<p class="blog-card__desc">' + escapeXml(post.description) + '</p>' +
+                        '<div class="blog-card__footer">' +
+                            '<time class="blog-card__date">' + formatDate(post.date) + '</time>' +
+                            tagsHtml +
+                        '</div>' +
+                    '</div>' +
+                '</article>';
+            }
+
+            function renderPosts(postsArray) {
+                container.innerHTML = '';
+                postsArray.forEach(function(post, i) {
+                    container.innerHTML += renderBlogCard(post, i);
+                });
+            }
+
+            function renderEmpty(title, msg) {
+                container.innerHTML =
+                    '<div class="blog-empty-state">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--pure-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
+                            '<rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>' +
+                            '<line x1="12" y1="18" x2="12" y2="12"></line>' +
+                            '<line x1="9" y1="15" x2="15" y2="15"></line>' +
+                        '</svg>' +
+                        '<h3>' + (title || '暂无文章') + '</h3>' +
+                        '<p>' + (msg || '还没有发布任何博客文章，敬请期待。') + '</p>' +
+                    '</div>';
+            }
+
+            function renderError(msg, detail) {
+                container.innerHTML =
+                    '<div class="blog-error-state">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--pure-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
+                            '<circle cx="12" cy="12" r="10"></circle>' +
+                            '<line x1="12" y1="8" x2="12" y2="12"></line>' +
+                            '<line x1="12" y1="16" x2="12.01" y2="16"></line>' +
+                        '</svg>' +
+                        '<h3>' + (msg || '加载失败') + '</h3>' +
+                        '<p>' + (detail || '无法获取文章列表，请稍后刷新页面重试。') + '</p>' +
+                        '<button class="blog-retry-btn" onclick="location.reload()">重新加载</button>' +
+                    '</div>';
+            }
+
+            function setupFilters(posts) {
+                var categories = [];
+                var catSet = {};
+                posts.forEach(function(p) {
+                    var c = p.category || '未分类';
+                    if (!catSet[c]) { catSet[c] = true; categories.push(c); }
+                });
+
+                var allTags = [];
+                var tagSet = {};
+                posts.forEach(function(p) {
+                    if (p.tags) {
+                        p.tags.forEach(function(t) {
+                            if (!tagSet[t]) { tagSet[t] = true; allTags.push(t); }
+                        });
+                    }
+                });
+
+                var html = '<div class="blog-filters__categories">';
+                html += '<button class="filter-btn active" data-filter="all">全部</button>';
+                categories.forEach(function(c) {
+                    html += '<button class="filter-btn" data-filter="' + escapeXml(c) + '">' + escapeXml(c) + '</button>';
+                });
+                html += '</div>';
+
+                if (allTags.length > 0) {
+                    html += '<div class="blog-filters__tags">';
+                    allTags.forEach(function(t) {
+                        html += '<button class="filter-tag" data-tag="' + escapeXml(t) + '">' + escapeXml(t) + '</button>';
+                    });
+                    html += '</div>';
+                }
+
+                filtersEl.innerHTML = html;
+
+                function applyFilters() {
+                    var activeCat = filtersEl.querySelector('.filter-btn.active');
+                    var catFilter = activeCat ? activeCat.dataset.filter : 'all';
+                    var activeTags = [];
+                    filtersEl.querySelectorAll('.filter-tag.active').forEach(function(el) {
+                        activeTags.push(el.dataset.tag);
+                    });
+
+                    var filtered = allPosts.filter(function(post) {
+                        var pc = post.category || '未分类';
+                        if (catFilter !== 'all' && pc !== catFilter) return false;
+                        if (activeTags.length > 0) {
+                            var matched = activeTags.some(function(t) {
+                                return post.tags && post.tags.includes(t);
+                            });
+                            if (!matched) return false;
+                        }
+                        return true;
+                    });
+
+                    if (filtered.length === 0) {
+                        renderEmpty('没有匹配的文章', '试试其他筛选条件');
+                    } else {
+                        renderPosts(filtered);
+                    }
+                }
+
+                filtersEl.querySelectorAll('.filter-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        filtersEl.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+                        this.classList.add('active');
+                        applyFilters();
+                    });
+                });
+
+                filtersEl.querySelectorAll('.filter-tag').forEach(function(chip) {
+                    chip.addEventListener('click', function() {
+                        this.classList.toggle('active');
+                        applyFilters();
+                    });
+                });
+            }
+
+            async function initBlog() {
+                try {
+                    var resp = await fetch('blog-index.json');
+                    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                    allPosts = await resp.json();
+
+                    if (!allPosts || allPosts.length === 0) {
+                        renderEmpty();
+                        return;
+                    }
+
+                    setupFilters(allPosts);
+                    renderPosts(allPosts);
+                } catch (err) {
+                    console.error('Blog load error:', err);
+                    renderError();
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', initBlog);
+        })();
+    </script>
+
+    <script>
+        (function() {
+            function getPreferredTheme() {
+                var stored = localStorage.getItem('blupure-theme');
+                if (stored) return stored;
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                }
+                try { localStorage.setItem('blupure-theme', theme); } catch(e) {}
+            }
+            applyTheme(getPreferredTheme());
+            try {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+                    if (!localStorage.getItem('blupure-theme')) {
+                        applyTheme(e.matches ? 'dark' : 'light');
+                    }
+                });
+            } catch(e) {}
+            document.addEventListener('DOMContentLoaded', function() {
+                var toggle = document.getElementById('theme-toggle');
+                if (toggle) {
+                    toggle.addEventListener('click', function() {
+                        var isDark = document.documentElement.classList.contains('dark-mode');
+                        applyTheme(isDark ? 'light' : 'dark');
+                    });
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

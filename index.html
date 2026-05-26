@@ -14,6 +14,7 @@
     ================================================== -->
     <link rel="stylesheet" href="css/vendor.css">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/blog.css">
 
     <!-- 网页图标 (可保持原样或替换)
     ================================================== -->
@@ -632,6 +633,7 @@
                     <ul class="header-nav__links">
                         <li class="current"><a class="smoothscroll" href="#intro">会客厅</a></li>
                         <li><a class="smoothscroll" href="#works">作品汇集</a></li>
+                        <li><a class="smoothscroll" href="#blog">博客</a></li>
                     </ul>
                     <button class="theme-toggle" id="theme-toggle" aria-label="切换深色/浅色主题">
                         <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -705,9 +707,35 @@
         </section>
 
 
-        <!-- # 简化版页脚 
+        <!-- # 博客预览区 (Blog Preview)
         ================================================== -->
-        <footer id="footer" class="container s-footer">  
+        <section id="blog" class="s-blog-preview target-section">
+            <div class="container">
+                <div class="row s-blog-preview__header">
+                    <div class="column xl-12 md-12">
+                        <h2 data-num="02" class="section-title">最新笔墨</h2>
+                        <p class="blog-preview-subtitle">
+                            <span class="ws-hint">思考记录与</span>
+                            <a href="blog.html" class="ws-action">查看全部文章 &rarr;</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="blog-grid blog-grid--preview" id="blog-preview-container">
+                    <div class="blog-loading-wrapper" id="blog-preview-loading">
+                        <div class="spinner"></div>
+                        <p class="loading-text">正在加载最新文章...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- # 简化版页脚
+        ================================================== -->
+        <footer id="footer" class="container s-footer">
             <div class="row">
                 <div class="column xl-12 footer-line">
                     <p class="ss-copyright" style="margin: 0;">
@@ -754,7 +782,7 @@
                 // 辅助函数: 生成高质优雅 SVG 占位 (Blupure风格)
                 function generatePureBlueCover(titleText) {
                     const safeTitle = titleText.substring(0, 28);
-                    return `data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"><rect width="100%" height="100%" fill="%23002FA7"/><path d="M0 350 L800 280" stroke="%23FFFFFF" stroke-width="1.2" fill="none" opacity="0.15"/><circle cx="680" cy="100" r="180" fill="%23001F75" opacity="0.5"/><circle cx="120" cy="400" r="140" fill="%23001A60" opacity="0.4"/><text x="8%" y="85%" fill="%23FFFFFF" font-family="'Inter',system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" letter-spacing="0.02em" opacity="0.95">${escapeXml(safeTitle)}</text><text x="8%" y="75%" fill="%23FFFFFF" font-family="'Inter',system-ui" font-size="16" font-weight="400" opacity="0.6">Blupure · 作品集</text></svg>`;
+                    return `data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"><rect width="100%" height="100%" fill="%23002FA7"/><path d="M0 350 L800 280" stroke="%23FFFFFF" stroke-width="1.2" fill="none" opacity="0.15"/><circle cx="680" cy="100" r="180" fill="%23001F75" opacity="0.5"/><circle cx="120" cy="400" r="140" fill="%23001A60" opacity="0.4"/><text x="8%" y="85%" fill="%23FFFFFF" font-family="'Inter',system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" letter-spacing="0.02em" opacity="0.95">${esc(safeTitle)}</text><text x="8%" y="75%" fill="%23FFFFFF" font-family="'Inter',system-ui" font-size="16" font-weight="400" opacity="0.6">Blupure · 作品集</text></svg>`;
                 }
 
                 function escapeXml(str) {
@@ -1057,6 +1085,115 @@ async function initPortfolio() {
 }
                 
                 initPortfolio();
+            });
+        })();
+    </script>
+
+    <!-- 博客预览加载模块 -->
+    <script>
+        (function() {
+            function esc(str) {
+                if (!str) return '';
+                return String(str).replace(/[<>&]/g, function(m) {
+                    if (m === '<') return '\\u003c';
+                    if (m === '>') return '\\u003e';
+                    return '\\u0026';
+                });
+            }
+
+            function generateBlogCover(titleText) {
+                var safeTitle = (titleText || 'Blupure').substring(0, 28);
+                return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">' +
+                    '<rect width="100%" height="100%" fill="#002FA7"/>' +
+                    '<path d="M0 350 L800 280" stroke="#FFFFFF" stroke-width="1.2" fill="none" opacity="0.15"/>' +
+                    '<circle cx="680" cy="100" r="180" fill="#001F75" opacity="0.5"/>' +
+                    '<circle cx="120" cy="400" r="140" fill="#001A60" opacity="0.4"/>' +
+                    '<text x="8%" y="85%" fill="#FFFFFF" font-family="\'Inter\',system-ui" font-size="34" font-weight="800" letter-spacing="0.02em" opacity="0.95">' + esc(safeTitle) + '</text>' +
+                    '<text x="8%" y="75%" fill="#FFFFFF" font-family="\'Inter\',system-ui" font-size="16" font-weight="400" opacity="0.6">Blupure &middot; 博客</text>' +
+                    '</svg>'
+                );
+            }
+
+            function formatBlogDate(dateStr) {
+                if (!dateStr) return '';
+                try {
+                    var parts = dateStr.split('T')[0].split('-');
+                    if (parts.length === 3) {
+                        return parseInt(parts[0], 10) + '年' + parseInt(parts[1], 10) + '月' + parseInt(parts[2], 10) + '日';
+                    }
+                    var d = new Date(dateStr);
+                    if (!isNaN(d.getTime())) {
+                        return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+                    }
+                    return dateStr;
+                } catch(e) { return dateStr; }
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                var container = document.getElementById('blog-preview-container');
+                if (!container) return;
+
+                async function loadBlogPreview() {
+                    try {
+                        var resp = await fetch('blog-index.json');
+                        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                        var posts = await resp.json();
+
+                        if (!posts || posts.length === 0) {
+                            container.innerHTML =
+                                '<div class="blog-empty-state" style="grid-column: 1/-1; text-align:center; padding:4rem 2rem;">' +
+                                    '<h3 style="margin: 0 0 0.8rem; font-weight: 600; color: var(--text-dark);">暂无博客文章</h3>' +
+                                    '<p style="font-size: 1.4rem; color: var(--text-soft);">博客内容正在筹备中，敬请期待。</p>' +
+                                '</div>';
+                            return;
+                        }
+
+                        var latest = posts.slice(0, 3);
+                        container.innerHTML = '';
+                        latest.forEach(function(post, i) {
+                            var coverSrc = post.cover || generateBlogCover(post.title);
+                            var tagsHtml = '';
+                            if (post.tags && post.tags.length > 0) {
+                                tagsHtml = '<div class="blog-card__tags">' +
+                                    post.tags.map(function(t) {
+                                        return '<span class="blog-card__tag">' + esc(t) + '</span>';
+                                    }).join('') +
+                                    '</div>';
+                            }
+                            var card = document.createElement('article');
+                            card.className = 'blog-card';
+                            card.style.setProperty('--card-i', i);
+                            card.innerHTML =
+                                '<a href="' + post.workUrl + '" class="blog-card__media" target="_blank" rel="noopener noreferrer">' +
+                                    '<img src="' + coverSrc + '" alt="' + esc(post.title) + '" class="blog-card__img"' +
+                                        ' onerror="this.onerror=null;this.src=\'' + generateBlogCover(post.title) + '\'">' +
+                                    '<div class="blog-card__action-hint">' +
+                                        '阅读文章 ' +
+                                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>' +
+                                    '</div>' +
+                                '</a>' +
+                                '<div class="blog-card__content">' +
+                                    '<span class="blog-card__category">' + esc(post.category || '') + '</span>' +
+                                    '<h2 class="blog-card__title"><a href="' + post.workUrl + '" target="_blank" rel="noopener noreferrer">' + esc(post.title) + '</a></h2>' +
+                                    '<p class="blog-card__desc">' + esc(post.description) + '</p>' +
+                                    '<div class="blog-card__footer">' +
+                                        '<time class="blog-card__date">' + formatBlogDate(post.date) + '</time>' +
+                                        tagsHtml +
+                                    '</div>' +
+                                '</div>';
+                            container.appendChild(card);
+                        });
+                    } catch (err) {
+                        console.error('Blog preview load error:', err);
+                        container.innerHTML =
+                            '<div class="blog-loading-wrapper" style="grid-column: 1/-1;">' +
+                                '<p style="font-size: 1.4rem; color: var(--text-soft);">博客加载失败</p>' +
+                            '</div>';
+                    }
+                }
+
+                loadBlogPreview();
             });
         })();
     </script>
