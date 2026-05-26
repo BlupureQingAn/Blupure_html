@@ -76,7 +76,7 @@
     min-height: 80vh;
     display: flex;
     align-items: center;
-    background: radial-gradient(circle at 90% 5%, rgba(0, 47, 167, 0.07) 0%, rgba(0, 119, 255, 0.04) 30%, transparent 100%);
+    background: radial-gradient(circle at 50% 38%, rgba(0, 47, 167, 0.07) 0%, rgba(0, 119, 255, 0.04) 30%, transparent 100%);
     margin-top: 2px;   /* 向下微调，对齐顶栏横线 */
     position: relative;
     z-index: 1;
@@ -255,9 +255,15 @@
         }
         .works-subtitle {
             text-align: center;
-            font-size: 1.2rem;
-            color: #888;
-            margin-top: 0.5rem;
+            font-size: 1.5rem;
+            margin-top: 0.8rem;
+        }
+        .works-subtitle .ws-action {
+            color: var(--pure-blue);
+            font-weight: 600;
+        }
+        .works-subtitle .ws-hint {
+            color: #999;
         }
         .s-works .lead {
             font-size: var(--text-lg);
@@ -275,7 +281,23 @@
             grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
             gap: 40px;
             width: 100%;
-            margin-top: 6rem;
+            margin-top: 4rem;
+        }
+
+        /* 分类标题 */
+        .category-header {
+            grid-column: 1 / -1;
+            margin: 3rem 0 0.5rem 0;
+            padding-bottom: 0.6rem;
+            border-bottom: 2px solid rgba(0, 47, 167, 0.08);
+        }
+        .category-header:first-of-type { margin-top: 0; }
+        .category-title {
+            font-family: var(--font-1);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--pure-blue);
+            margin: 0;
         }
 
         /* ===== 移动端适配（屏幕宽度 < 768px） ===== */
@@ -540,7 +562,7 @@
                 <div class="row s-works__header">
                     <div class="column xl-12 md-12">
                         <h2 data-num="01" class="section-title">作品陈列</h2>
-                        <p class="works-subtitle">点击即可体验</p>
+                        <p class="works-subtitle"><span class="ws-action">点击</span><span class="ws-hint">即可体验</span></p>
                     </div>
                 </div>
             </div>
@@ -709,11 +731,17 @@ async function parseWorkMetadata(fileItem, sameNameCoverUrl = '') {
     if (!coverImg || coverImg === '') {
         coverImg = generatePureBlueCover(rawTitle);
     }
-    
+
+    // 分类提取
+    let category = '';
+    const metaCategory = doc.querySelector('meta[name="category"]')?.getAttribute('content');
+    if (metaCategory && metaCategory.trim()) category = metaCategory.trim();
+
     return {
         title: rawTitle,
         description: description,
         coverImg: coverImg,
+        category: category,
         valid: true,
         fileName: fileName,
         workUrl: workPath
@@ -842,27 +870,50 @@ async function initPortfolio() {
         // 清空容器
         container.innerHTML = '';
         
-        // 3. 遍历 HTML 文件，并尝试获取同名封面
+        // 3. 收集所有作品元数据
+        const allMetas = [];
         for (const fileItem of htmlFiles) {
             const htmlBaseName = fileItem.name.replace(/\.html$/i, '');
             const sameNameCover = imageMap.get(htmlBaseName) || '';
             try {
                 const meta = await parseWorkMetadata(fileItem, sameNameCover);
-                const card = renderCard(meta);
-                container.appendChild(card);
+                allMetas.push(meta);
             } catch (err) {
                 console.warn(`处理作品 ${fileItem.name} 时出错:`, err);
-                // 降级卡片
-                const fallbackMeta = {
+                allMetas.push({
                     title: fileItem.name.replace('.html', ''),
                     description: '点击进入查看完整数字创作内容。',
                     coverImg: sameNameCover || generatePureBlueCover(fileItem.name.replace('.html', '')),
+                    category: '',
                     valid: true,
                     fileName: fileItem.name,
                     workUrl: `works/${fileItem.name}`
-                };
-                container.appendChild(renderCard(fallbackMeta));
+                });
             }
+        }
+
+        // 4. 按分类分组渲染
+        const CATEGORY_ORDER = ['互动文游', '实用工具', '参考文档', '图标资源'];
+        const CATEGORY_LABELS = { '互动文游': '互动文游', '实用工具': '实用工具', '参考文档': '参考文档', '图标资源': '图标资源' };
+
+        const groups = {};
+        for (const meta of allMetas) {
+            const cat = meta.category || '其他';
+            if (!groups[cat]) groups[cat] = [];
+            groups[cat].push(meta);
+        }
+
+        container.innerHTML = '';
+        for (const cat of CATEGORY_ORDER) {
+            const items = groups[cat];
+            if (!items || items.length === 0) continue;
+
+            const header = document.createElement('div');
+            header.className = 'category-header';
+            header.innerHTML = '<h3 class="category-title">' + (CATEGORY_LABELS[cat] || cat) + '</h3>';
+            container.appendChild(header);
+
+            items.forEach(meta => container.appendChild(renderCard(meta)));
         }
         
         // 图片加载错误后备（保持不变）

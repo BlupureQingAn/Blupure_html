@@ -3,119 +3,806 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Font Awesome 图标大全</title>
-    <meta name="description" content="Font Awesome 4.7 图标完整集合，支持搜索和点击复制图标名称，方便前端开发时快速查阅。" />
+    <title>Font Awesome 4.7 图标大全</title>
+    <meta name="description" content="Font Awesome 4.7 图标完整集合，分类浏览、搜索、一键复制，支持下载 ZIP 含 AI 使用指南。" />
     <meta name="cover" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500'%3E%3Crect width='800' height='500' fill='%232c3e50'/%3E%3Ctext x='40' y='250' font-family='sans-serif' font-size='36' fill='%23fff'%3EFontAwesome 4.7%3C/text%3E%3C/svg%3E" />
+    <meta name="category" content="图标资源" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        body { background: #f5f5f5; font-family: "Microsoft YaHei", sans-serif; padding: 20px; }
-        .wrapper { max-width: 1200px; margin: 0 auto; }
-        .page-header { color: #1d9d74; border-bottom-color: #ddd; }
-        .fontawesome-icon-list .fa-hover {
-            cursor: pointer; overflow: hidden; text-overflow: ellipsis;
-            white-space: nowrap; display: block; color: #222;
-            line-height: 32px; height: 32px; padding-left: 10px; border-radius: 4px;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0f0f1a;
+            --bg-card: #1a1a2e;
+            --bg-card-hover: #252540;
+            --border: #2a2a45;
+            --text: #e8e8f0;
+            --text-muted: #8888aa;
+            --accent: #4a9eff;
+            --accent-hover: #6ab0ff;
+            --accent-dim: rgba(74,158,255,0.12);
+            --green: #4ade80;
+            --radius: 12px;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+            min-height: 100vh;
+            padding: 0;
+        }
+        .app { max-width: 1400px; margin: 0 auto; padding: 24px 20px 60px; }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header h1 small {
+            font-size: 0.9rem;
+            -webkit-text-fill-color: var(--text-muted);
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Search */
+        .search-wrap {
+            position: relative;
+            width: 260px;
+        }
+        .search-wrap input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            color: var(--text);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-wrap input:focus { border-color: var(--accent); }
+        .search-wrap input::placeholder { color: var(--text-muted); }
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+        .search-clear {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: none;
+            padding: 4px 6px;
+            border-radius: 50%;
+        }
+        .search-clear:hover { color: var(--text); }
+        .search-clear.show { display: block; }
+
+        /* Download Btn */
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            background: linear-gradient(135deg, var(--accent), #6366f1);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(74,158,255,0.3);
+        }
+        .btn-download:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-download .fa { font-size: 1.1rem; }
+
+        /* Stats bar */
+        .stats-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .stats-bar .count b { color: var(--text); }
+
+        /* Category Tabs */
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .category-tab {
+            padding: 7px 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .category-tab:hover { border-color: var(--accent); color: var(--text); }
+        .category-tab.active {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .category-tab .badge {
+            display: inline-block;
+            margin-left: 6px;
+            padding: 1px 8px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            font-size: 0.75rem;
+        }
+        .category-tab.active .badge { background: rgba(74,158,255,0.2); }
+
+        /* Icon Grid */
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+        }
+        .icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 18px 8px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            user-select: none;
+        }
+        .icon-item:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        .icon-item .fa {
+            font-size: 1.8rem;
+            color: var(--accent);
+            transition: transform 0.2s;
+        }
+        .icon-item:hover .fa { transform: scale(1.25); }
+        .icon-item .label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            text-align: center;
+            transition: color 0.2s;
+        }
+        .icon-item:hover .label { color: var(--text); }
+        .icon-item .copy-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 6px;
+            background: var(--green);
+            color: #000;
+            font-weight: 600;
+            opacity: 0;
+            transform: scale(0.8);
             transition: all 0.2s;
         }
-        .fontawesome-icon-list .fa-hover .fa {
-            width: 32px; font-size: 14px; display: inline-block;
-            text-align: right; margin-right: 10px;
+        .icon-item .copy-badge.show {
+            opacity: 1;
+            transform: scale(1);
         }
-        .fontawesome-icon-list .fa-hover:hover {
-            background-color: #1d9d74; color: #fff; text-decoration: none;
+
+        /* Empty */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
         }
-        .fontawesome-icon-list .fa-hover:hover .fa { font-size: 30px; vertical-align: -6px; }
-        .fontawesome-icon-list .fa-hover .text-muted { color: #bbe2d5; }
-        .search-box { margin-bottom: 20px; }
-        .search-box input {
-            width: 100%; padding: 12px 20px; border: 2px solid #1d9d74;
-            border-radius: 30px; font-size: 16px; outline: none;
-        }
+        .empty-state .fa { font-size: 3rem; margin-bottom: 16px; color: var(--border); }
+        .empty-state p { font-size: 1rem; }
+
+        /* Toast */
         #toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.8); color: #fff; padding: 10px 24px;
-            border-radius: 20px; opacity: 0; transition: 0.3s; z-index: 9999;
-            pointer-events: none; font-size: 14px;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 12px;
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+            z-index: 9999;
+            pointer-events: none;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.06);
         }
-        .section-hidden { display: none; }
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Progress overlay for download */
+        .progress-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        .progress-overlay.show { display: flex; }
+        .progress-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 36px 44px;
+            text-align: center;
+            max-width: 380px;
+        }
+        .progress-card .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .progress-card p { font-size: 0.95rem; color: var(--text-muted); }
+        .progress-card p b { color: var(--text); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app { padding: 16px 12px 40px; }
+            .header h1 { font-size: 1.3rem; }
+            .search-wrap { width: 100%; }
+            .header-actions { width: 100%; }
+            .btn-download { flex: 1; justify-content: center; }
+            .icon-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px; }
+            .icon-item { padding: 14px 6px 10px; }
+            .icon-item .fa { font-size: 1.4rem; }
+            .icon-item .label { font-size: 0.65rem; }
+        }
+        @media (max-width: 480px) {
+            .icon-grid { grid-template-columns: repeat(4, 1fr); }
+        }
     </style>
 </head>
 <body>
-<div id="toast">点击复制图标名称</div>
-<div class="wrapper">
-    <div class="page-header"><h1>Font Awesome 4.7 图标大全</h1></div>
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="输入关键词搜索图标..." oninput="filterIcons(this.value)">
-    </div>
-    <div class="ibox float-e-margins">
-        <div class="ibox-content icons-box">
-            <section id="web-application">
-                <h2 class="page-header">Web 应用程序图标</h2>
-                <div class="row fontawesome-icon-list" id="iconList"></div>
-            </section>
+<div class="app">
+    <header class="header">
+        <h1>Font Awesome 4.7 <small>图标大全</small></h1>
+        <div class="header-actions">
+            <div class="search-wrap">
+                <span class="search-icon fa fa-search"></span>
+                <input type="text" id="searchInput" placeholder="搜索图标..." autocomplete="off">
+                <button class="search-clear" id="searchClear">&times;</button>
+            </div>
+            <button class="btn-download" id="downloadBtn">
+                <span class="fa fa-download"></span> 下载 ZIP
+            </button>
         </div>
+    </header>
+
+    <div class="stats-bar">
+        <span class="count">共 <b id="totalCount">0</b> 个图标</span>
+        <span id="resultCount" style="display:none">搜索匹配 <b id="matchCount">0</b> 个</span>
+    </div>
+
+    <div class="category-tabs" id="categoryTabs"></div>
+    <div class="icon-grid" id="iconGrid"></div>
+</div>
+
+<div id="toast"></div>
+
+<div class="progress-overlay" id="progressOverlay">
+    <div class="progress-card">
+        <div class="spinner"></div>
+        <p>正在打包 <b id="progressText">Font Awesome 4.7</b></p>
+        <p style="font-size:0.8rem;margin-top:4px">获取字体文件并生成 AI 文档...</p>
     </div>
 </div>
+
 <script>
-// Font Awesome 4.7 完整图标列表
-var icons = [
-    "fa-address-book","fa-address-book-o","fa-address-card","fa-address-card-o","fa-adjust","fa-american-sign-language-interpreting","fa-anchor","fa-archive","fa-area-chart","fa-arrows","fa-arrows-h","fa-arrows-v","fa-asl-interpreting","fa-assistive-listening-systems","fa-asterisk","fa-at","fa-audio-description","fa-automobile","fa-balance-scale","fa-ban","fa-bank","fa-bar-chart","fa-bar-chart-o","fa-barcode","fa-bars","fa-bath","fa-bathtub","fa-battery","fa-battery-0","fa-battery-1","fa-battery-2","fa-battery-3","fa-battery-4","fa-battery-empty","fa-battery-full","fa-battery-half","fa-battery-quarter","fa-battery-three-quarters","fa-bed","fa-beer","fa-bell","fa-bell-o","fa-bell-slash","fa-bell-slash-o","fa-bicycle","fa-binoculars","fa-birthday-cake","fa-blind","fa-bluetooth","fa-bluetooth-b","fa-bolt","fa-bomb","fa-book","fa-bookmark","fa-bookmark-o","fa-braille","fa-briefcase","fa-bug","fa-building","fa-building-o","fa-bullhorn","fa-bullseye","fa-bus","fa-cab","fa-calculator","fa-calendar","fa-calendar-check-o","fa-calendar-minus-o","fa-calendar-o","fa-calendar-plus-o","fa-calendar-times-o","fa-camera","fa-camera-retro","fa-car","fa-caret-square-o-down","fa-caret-square-o-left","fa-caret-square-o-right","fa-caret-square-o-up","fa-cart-arrow-down","fa-cart-plus","fa-cc","fa-certificate","fa-check","fa-check-circle","fa-check-circle-o","fa-check-square","fa-check-square-o","fa-child","fa-circle","fa-circle-o","fa-circle-o-notch","fa-circle-thin","fa-clock-o","fa-clone","fa-cloud","fa-cloud-download","fa-cloud-upload","fa-code","fa-code-fork","fa-coffee","fa-cog","fa-cogs","fa-comment","fa-comment-o","fa-commenting","fa-commenting-o","fa-comments","fa-comments-o","fa-compass","fa-copyright","fa-creative-commons","fa-credit-card","fa-credit-card-alt","fa-crop","fa-crosshairs","fa-cube","fa-cubes","fa-cutlery","fa-dashboard","fa-database","fa-deaf","fa-deafness","fa-desktop","fa-diamond","fa-dot-circle-o","fa-download","fa-drivers-license","fa-drivers-license-o","fa-edit","fa-ellipsis-h","fa-ellipsis-v","fa-envelope","fa-envelope-o","fa-envelope-open","fa-envelope-open-o","fa-envelope-square","fa-eraser","fa-exchange","fa-exclamation","fa-exclamation-circle","fa-exclamation-triangle","fa-external-link","fa-external-link-square","fa-eye","fa-eye-slash","fa-eyedropper","fa-fax","fa-female","fa-fighter-jet","fa-file-archive-o","fa-file-audio-o","fa-file-code-o","fa-file-excel-o","fa-file-image-o","fa-file-movie-o","fa-file-pdf-o","fa-file-photo-o","fa-file-picture-o","fa-file-powerpoint-o","fa-file-sound-o","fa-file-video-o","fa-file-word-o","fa-file-zip-o","fa-film","fa-filter","fa-fire","fa-fire-extinguisher","fa-flag","fa-flag-checkered","fa-flag-o","fa-flash","fa-flask","fa-folder","fa-folder-o","fa-folder-open","fa-folder-open-o","fa-frown-o","fa-futbol-o","fa-gamepad","fa-gavel","fa-gear","fa-gears","fa-gift","fa-glass","fa-globe","fa-graduation-cap","fa-hand-grab-o","fa-hand-lizard-o","fa-hand-o-down","fa-hand-o-left","fa-hand-o-right","fa-hand-o-up","fa-hand-paper-o","fa-hand-peace-o","fa-hand-pointer-o","fa-hand-rock-o","fa-hand-scissors-o","fa-hand-spock-o","fa-hand-stop-o","fa-handshake-o","fa-hard-of-hearing","fa-hashtag","fa-hdd-o","fa-headphones","fa-heart","fa-heart-o","fa-heartbeat","fa-history","fa-home","fa-hospital-o","fa-hourglass","fa-hourglass-1","fa-hourglass-2","fa-hourglass-3","fa-hourglass-end","fa-hourglass-half","fa-hourglass-o","fa-hourglass-start","fa-i-cursor","fa-id-badge","fa-id-card","fa-id-card-o","fa-image","fa-inbox","fa-industry","fa-info","fa-info-circle","fa-institution","fa-key","fa-keyboard-o","fa-language","fa-laptop","fa-leaf","fa-legal","fa-lemon-o","fa-level-down","fa-level-up","fa-life-bouy","fa-life-buoy","fa-life-ring","fa-life-saver","fa-lightbulb-o","fa-line-chart","fa-location-arrow","fa-lock","fa-low-vision","fa-magic","fa-magnet","fa-mail-forward","fa-mail-reply","fa-mail-reply-all","fa-male","fa-map","fa-map-marker","fa-map-o","fa-map-pin","fa-map-signs","fa-meh-o","fa-microchip","fa-microphone","fa-microphone-slash","fa-minus","fa-minus-circle","fa-minus-square","fa-minus-square-o","fa-mobile","fa-mobile-phone","fa-money","fa-moon-o","fa-mortar-board","fa-motorcycle","fa-mouse-pointer","fa-music","fa-navicon","fa-newspaper-o","fa-object-group","fa-object-ungroup","fa-paint-brush","fa-paper-plane","fa-paper-plane-o","fa-paw","fa-pencil","fa-pencil-square","fa-pencil-square-o","fa-percent","fa-phone","fa-phone-square","fa-photo","fa-picture-o","fa-pie-chart","fa-plane","fa-plug","fa-plus","fa-plus-circle","fa-plus-square","fa-plus-square-o","fa-podcast","fa-power-off","fa-print","fa-puzzle-piece","fa-qrcode","fa-question","fa-question-circle","fa-question-circle-o","fa-quote-left","fa-quote-right","fa-random","fa-recycle","fa-refresh","fa-registered","fa-remove","fa-reorder","fa-repeat","fa-reply","fa-reply-all","fa-retweet","fa-road","fa-rocket","fa-rss","fa-rss-square","fa-s15","fa-search","fa-search-minus","fa-search-plus","fa-send","fa-send-o","fa-server","fa-share","fa-share-alt","fa-share-alt-square","fa-share-square","fa-share-square-o","fa-shield","fa-ship","fa-shopping-bag","fa-shopping-basket","fa-shopping-cart","fa-shower","fa-sign-in","fa-sign-language","fa-sign-out","fa-signal","fa-signing","fa-sitemap","fa-sliders","fa-smile-o","fa-snowflake-o","fa-soccer-ball-o","fa-sort","fa-sort-alpha-asc","fa-sort-alpha-desc","fa-sort-amount-asc","fa-sort-amount-desc","fa-sort-asc","fa-sort-desc","fa-sort-down","fa-sort-numeric-asc","fa-sort-numeric-desc","fa-sort-up","fa-space-shuttle","fa-spinner","fa-spoon","fa-square","fa-square-o","fa-star","fa-star-half","fa-star-half-empty","fa-star-half-full","fa-star-half-o","fa-star-o","fa-sticky-note","fa-sticky-note-o","fa-street-view","fa-suitcase","fa-sun-o","fa-support","fa-tablet","fa-tachometer","fa-tag","fa-tags","fa-tasks","fa-taxi","fa-television","fa-terminal","fa-thermometer","fa-thermometer-0","fa-thermometer-1","fa-thermometer-2","fa-thermometer-3","fa-thermometer-4","fa-thermometer-empty","fa-thermometer-full","fa-thermometer-half","fa-thermometer-quarter","fa-thermometer-three-quarters","fa-thumb-tack","fa-thumbs-down","fa-thumbs-o-down","fa-thumbs-o-up","fa-thumbs-up","fa-ticket","fa-times","fa-times-circle","fa-times-circle-o","fa-times-rectangle","fa-times-rectangle-o","fa-tint","fa-toggle-down","fa-toggle-left","fa-toggle-off","fa-toggle-on","fa-toggle-right","fa-toggle-up","fa-trademark","fa-trash","fa-trash-o","fa-tree","fa-trophy","fa-truck","fa-tty","fa-tv","fa-umbrella","fa-universal-access","fa-university","fa-unlock","fa-unlock-alt","fa-unsorted","fa-upload","fa-usb","fa-user","fa-user-o","fa-user-circle","fa-user-circle-o","fa-user-md","fa-user-plus","fa-user-secret","fa-user-times","fa-users","fa-vcard","fa-vcard-o","fa-video-camera","fa-volume-control-phone","fa-volume-down","fa-volume-off","fa-volume-up","fa-warning","fa-wheelchair","fa-wheelchair-alt","fa-wifi","fa-window-close","fa-window-close-o","fa-window-maximize","fa-window-minimize","fa-window-restore","fa-wrench","fa-american-sign-language-interpreting","fa-area-chart","fa-arrows",
-    "fa-asterisk","fa-at","fa-audio-description","fa-automobile","fa-balance-scale","fa-ban","fa-bank","fa-bar-chart","fa-bar-chart-o","fa-barcode","fa-bars","fa-bath","fa-bathtub","fa-battery","fa-battery-0","fa-battery-1","fa-battery-2","fa-battery-3","fa-battery-4","fa-battery-empty","fa-battery-full","fa-battery-half","fa-battery-quarter","fa-battery-three-quarters","fa-bed","fa-beer","fa-bell","fa-bell-o","fa-bell-slash","fa-bell-slash-o","fa-bicycle","fa-binoculars","fa-birthday-cake","fa-blind","fa-bluetooth","fa-bluetooth-b","fa-bolt","fa-bomb","fa-book","fa-bookmark","fa-bookmark-o","fa-braille","fa-briefcase","fa-bug","fa-building","fa-building-o","fa-bullhorn","fa-bullseye","fa-bus","fa-cab","fa-calculator","fa-calendar","fa-calendar-check-o","fa-calendar-minus-o","fa-calendar-o","fa-calendar-plus-o","fa-calendar-times-o","fa-camera","fa-camera-retro","fa-car","fa-caret-square-o-down","fa-caret-square-o-left","fa-caret-square-o-right","fa-caret-square-o-up","fa-cart-arrow-down","fa-cart-plus","fa-cc","fa-certificate","fa-check","fa-check-circle","fa-check-circle-o","fa-check-square","fa-check-square-o","fa-child","fa-circle","fa-circle-o","fa-circle-o-notch","fa-circle-thin","fa-clock-o","fa-clone",
-    "fa-angle-double-down","fa-angle-double-left","fa-angle-double-right","fa-angle-double-up","fa-angle-down","fa-angle-left","fa-angle-right","fa-angle-up","fa-arrow-circle-down","fa-arrow-circle-left","fa-arrow-circle-o-down","fa-arrow-circle-o-left","fa-arrow-circle-o-right","fa-arrow-circle-o-up","fa-arrow-circle-right","fa-arrow-circle-up","fa-arrow-down","fa-arrow-left","fa-arrow-right","fa-arrow-up","fa-arrows-alt","fa-caret-down","fa-caret-left","fa-caret-right","fa-caret-up","fa-chevron-circle-down","fa-chevron-circle-left","fa-chevron-circle-right","fa-chevron-circle-up","fa-chevron-down","fa-chevron-left","fa-chevron-right","fa-chevron-up","fa-hand-o-down","fa-hand-o-left","fa-hand-o-right","fa-hand-o-up","fa-long-arrow-down","fa-long-arrow-left","fa-long-arrow-right","fa-long-arrow-up",
-    "fa-android","fa-angellist","fa-apple","fa-bandcamp","fa-behance","fa-behance-square","fa-bitbucket","fa-bitbucket-square","fa-bitcoin","fa-black-tie","fa-buysellads","fa-cc-amex","fa-cc-diners-club","fa-cc-discover","fa-cc-jcb","fa-cc-mastercard","fa-cc-paypal","fa-cc-stripe","fa-cc-visa","fa-chrome","fa-codepen","fa-codiepie","fa-connectdevelop","fa-contao","fa-css3","fa-dashcube","fa-delicious","fa-deviantart","fa-digg","fa-dribbble","fa-dropbox","fa-drupal","fa-edge","fa-eercast","fa-empire","fa-envira","fa-etsy","fa-expeditedssl","fa-fa","fa-facebook","fa-facebook-f","fa-facebook-official","fa-facebook-square","fa-firefox","fa-first-order","fa-flickr","fa-font-awesome","fa-fonticons","fa-fort-awesome","fa-forumbee","fa-foursquare","fa-free-code-camp","fa-ge","fa-get-pocket","fa-gg","fa-gg-circle","fa-git","fa-git-square","fa-github","fa-github-alt","fa-github-square","fa-gitlab","fa-glide","fa-glide-g","fa-google","fa-google-plus","fa-google-plus-circle","fa-google-plus-official","fa-google-plus-square","fa-google-wallet","fa-gratipay","fa-grav","fa-hacker-news","fa-houzz","fa-html5","fa-imdb","fa-instagram","fa-internet-explorer","fa-ioxhost","fa-joomla","fa-jsfiddle","fa-lastfm","fa-lastfm-square","fa-leanpub","fa-linkedin","fa-linkedin-square","fa-linode","fa-linux","fa-maxcdn","fa-meanpath","fa-medium","fa-meetup","fa-mixcloud","fa-modx","fa-odnoklassniki","fa-odnoklassniki-square","fa-opencart","fa-openid","fa-opera","fa-optin-monster","fa-pagelines","fa-paypal","fa-pied-piper","fa-pied-piper-alt","fa-pied-piper-pp","fa-pinterest","fa-pinterest-p","fa-pinterest-square","fa-product-hunt","fa-qq","fa-quora","fa-ravelry","fa-rebel","fa-reddit","fa-reddit-alien","fa-reddit-square","fa-renren","fa-resistance","fa-safari","fa-scribd","fa-sellsy","fa-share-alt","fa-share-alt-square","fa-shirtsinbulk","fa-simplybuilt","fa-skyatlas","fa-skype","fa-slack","fa-slideshare","fa-snapchat","fa-snapchat-ghost","fa-snapchat-square","fa-soundcloud","fa-spotify","fa-stack-exchange","fa-stack-overflow","fa-steam","fa-steam-square","fa-stumbleupon","fa-stumbleupon-circle","fa-superpowers","fa-telegram","fa-tencent-weibo","fa-themeisle","fa-trello","fa-tripadvisor","fa-tumblr","fa-tumblr-square","fa-twitch","fa-twitter","fa-twitter-square","fa-usb","fa-viacoin","fa-viadeo","fa-viadeo-square","fa-vimeo","fa-vimeo-square","fa-vine","fa-vk","fa-wechat","fa-weibo","fa-weixin","fa-whatsapp","fa-wikipedia-w","fa-windows","fa-wordpress","fa-wpbeginner","fa-wpexplorer","fa-wpforms","fa-xing","fa-xing-square","fa-y-combinator","fa-y-combinator-square","fa-yahoo","fa-yc","fa-yc-square","fa-yelp","fa-yoast","fa-youtube","fa-youtube-play","fa-youtube-square",
-    "fa-file","fa-file-archive-o","fa-file-audio-o","fa-file-code-o","fa-file-excel-o","fa-file-image-o","fa-file-o","fa-file-pdf-o","fa-file-photo-o","fa-file-picture-o","fa-file-powerpoint-o","fa-file-sound-o","fa-file-text","fa-file-text-o","fa-file-video-o","fa-file-word-o","fa-file-zip-o","fa-files-o","fa-floppy-o","fa-folder","fa-folder-o","fa-folder-open","fa-folder-open-o","fa-folder-o","fa-folder-open-o",
-    "fa-500px","fa-adn","fa-amazon","fa-android","fa-angellist","fa-apple","fa-bandcamp","fa-behance","fa-behance-square","fa-bitbucket","fa-bitbucket-square","fa-bitcoin","fa-black-tie","fa-buysellads","fa-cc-amex","fa-cc-diners-club","fa-cc-discover","fa-cc-jcb","fa-cc-mastercard","fa-cc-paypal","fa-cc-stripe","fa-cc-visa","fa-chrome","fa-codepen","fa-codiepie","fa-connectdevelop","fa-contao","fa-css3","fa-dashcube","fa-delicious","fa-deviantart","fa-digg","fa-dribbble","fa-dropbox","fa-drupal","fa-edge","fa-eercast","fa-empire","fa-envira","fa-etsy","fa-expeditedssl","fa-facebook","fa-facebook-f","fa-facebook-official","fa-facebook-square","fa-firefox","fa-first-order","fa-flickr","fa-font-awesome","fa-fonticons","fa-fort-awesome","fa-forumbee","fa-foursquare","fa-free-code-camp","fa-get-pocket","fa-gg","fa-gg-circle","fa-git","fa-git-square","fa-github","fa-github-alt","fa-github-square","fa-gitlab","fa-glide","fa-glide-g","fa-google","fa-google-plus","fa-google-plus-circle","fa-google-plus-official","fa-google-plus-square","fa-google-wallet","fa-gratipay","fa-grav","fa-hacker-news","fa-houzz","fa-html5","fa-imdb","fa-instagram","fa-internet-explorer","fa-ioxhost","fa-joomla","fa-jsfiddle","fa-lastfm","fa-lastfm-square","fa-leanpub","fa-linkedin","fa-linkedin-square","fa-linode","fa-linux","fa-maxcdn","fa-meanpath","fa-medium","fa-meetup","fa-mixcloud","fa-modx","fa-odnoklassniki","fa-odnoklassniki-square","fa-opencart","fa-openid","fa-opera","fa-optin-monster","fa-pagelines","fa-paypal","fa-pied-piper","fa-pied-piper-alt","fa-pied-piper-pp","fa-pinterest","fa-pinterest-p","fa-pinterest-square","fa-product-hunt","fa-qq","fa-quora","fa-ravelry","fa-rebel","fa-reddit","fa-reddit-alien","fa-reddit-square","fa-renren","fa-safari","fa-scribd","fa-sellsy","fa-shirtsinbulk","fa-simplybuilt","fa-skyatlas","fa-skype","fa-slack","fa-slideshare","fa-snapchat","fa-snapchat-ghost","fa-snapchat-square","fa-soundcloud","fa-spotify","fa-stack-exchange","fa-stack-overflow","fa-steam","fa-steam-square","fa-stumbleupon","fa-stumbleupon-circle","fa-superpowers","fa-telegram","fa-tencent-weibo","fa-themeisle","fa-trello","fa-tripadvisor","fa-tumblr","fa-tumblr-square","fa-twitch","fa-twitter","fa-twitter-square","fa-usb","fa-viacoin","fa-viadeo","fa-viadeo-square","fa-vimeo","fa-vimeo-square","fa-vine","fa-vk","fa-wechat","fa-weibo","fa-weixin","fa-whatsapp","fa-wikipedia-w","fa-windows","fa-wordpress","fa-wpbeginner","fa-wpexplorer","fa-wpforms","fa-xing","fa-xing-square","fa-y-combinator","fa-y-combinator-square","fa-yahoo","fa-yc","fa-yc-square","fa-yelp","fa-yoast","fa-youtube","fa-youtube-play","fa-youtube-square"
+// ============================================================
+// 1. Font Awesome 4.7 完整图标列表（已去重）
+// ============================================================
+var ICONS = [
+    "fa-address-book","fa-address-book-o","fa-address-card","fa-address-card-o","fa-adjust","fa-american-sign-language-interpreting","fa-anchor","fa-archive","fa-area-chart","fa-arrows","fa-arrows-h","fa-arrows-v","fa-asl-interpreting","fa-assistive-listening-systems","fa-asterisk","fa-at","fa-audio-description","fa-automobile","fa-balance-scale","fa-ban","fa-bank","fa-bar-chart","fa-bar-chart-o","fa-barcode","fa-bars","fa-bath","fa-bathtub","fa-battery","fa-battery-0","fa-battery-1","fa-battery-2","fa-battery-3","fa-battery-4","fa-battery-empty","fa-battery-full","fa-battery-half","fa-battery-quarter","fa-battery-three-quarters","fa-bed","fa-beer","fa-bell","fa-bell-o","fa-bell-slash","fa-bell-slash-o","fa-bicycle","fa-binoculars","fa-birthday-cake","fa-blind","fa-bluetooth","fa-bluetooth-b","fa-bolt","fa-bomb","fa-book","fa-bookmark","fa-bookmark-o","fa-braille","fa-briefcase","fa-bug","fa-building","fa-building-o","fa-bullhorn","fa-bullseye","fa-bus","fa-cab","fa-calculator","fa-calendar","fa-calendar-check-o","fa-calendar-minus-o","fa-calendar-o","fa-calendar-plus-o","fa-calendar-times-o","fa-camera","fa-camera-retro","fa-car","fa-caret-square-o-down","fa-caret-square-o-left","fa-caret-square-o-right","fa-caret-square-o-up","fa-cart-arrow-down","fa-cart-plus","fa-cc","fa-certificate","fa-check","fa-check-circle","fa-check-circle-o","fa-check-square","fa-check-square-o","fa-child","fa-circle","fa-circle-o","fa-circle-o-notch","fa-circle-thin","fa-clock-o","fa-clone","fa-cloud","fa-cloud-download","fa-cloud-upload","fa-code","fa-code-fork","fa-coffee","fa-cog","fa-cogs","fa-comment","fa-comment-o","fa-commenting","fa-commenting-o","fa-comments","fa-comments-o","fa-compass","fa-copyright","fa-creative-commons","fa-credit-card","fa-credit-card-alt","fa-crop","fa-crosshairs","fa-cube","fa-cubes","fa-cutlery","fa-dashboard","fa-database","fa-deaf","fa-deafness","fa-desktop","fa-diamond","fa-dot-circle-o","fa-download","fa-drivers-license","fa-drivers-license-o","fa-edit","fa-ellipsis-h","fa-ellipsis-v","fa-envelope","fa-envelope-o","fa-envelope-open","fa-envelope-open-o","fa-envelope-square","fa-eraser","fa-exchange","fa-exclamation","fa-exclamation-circle","fa-exclamation-triangle","fa-external-link","fa-external-link-square","fa-eye","fa-eye-slash","fa-eyedropper","fa-fax","fa-female","fa-fighter-jet","fa-file","fa-file-archive-o","fa-file-audio-o","fa-file-code-o","fa-file-excel-o","fa-file-image-o","fa-file-movie-o","fa-file-o","fa-file-pdf-o","fa-file-photo-o","fa-file-picture-o","fa-file-powerpoint-o","fa-file-sound-o","fa-file-text","fa-file-text-o","fa-file-video-o","fa-file-word-o","fa-file-zip-o","fa-files-o","fa-film","fa-filter","fa-fire","fa-fire-extinguisher","fa-flag","fa-flag-checkered","fa-flag-o","fa-flash","fa-flask","fa-floppy-o","fa-folder","fa-folder-o","fa-folder-open","fa-folder-open-o","fa-frown-o","fa-futbol-o","fa-gamepad","fa-gavel","fa-gear","fa-gears","fa-gift","fa-glass","fa-globe","fa-graduation-cap","fa-hand-grab-o","fa-hand-lizard-o","fa-hand-o-down","fa-hand-o-left","fa-hand-o-right","fa-hand-o-up","fa-hand-paper-o","fa-hand-peace-o","fa-hand-pointer-o","fa-hand-rock-o","fa-hand-scissors-o","fa-hand-spock-o","fa-hand-stop-o","fa-handshake-o","fa-hard-of-hearing","fa-hashtag","fa-hdd-o","fa-headphones","fa-heart","fa-heart-o","fa-heartbeat","fa-history","fa-home","fa-hospital-o","fa-hourglass","fa-hourglass-1","fa-hourglass-2","fa-hourglass-3","fa-hourglass-end","fa-hourglass-half","fa-hourglass-o","fa-hourglass-start","fa-i-cursor","fa-id-badge","fa-id-card","fa-id-card-o","fa-image","fa-inbox","fa-industry","fa-info","fa-info-circle","fa-institution","fa-key","fa-keyboard-o","fa-language","fa-laptop","fa-leaf","fa-legal","fa-lemon-o","fa-level-down","fa-level-up","fa-life-bouy","fa-life-buoy","fa-life-ring","fa-life-saver","fa-lightbulb-o","fa-line-chart","fa-location-arrow","fa-lock","fa-low-vision","fa-magic","fa-magnet","fa-mail-forward","fa-mail-reply","fa-mail-reply-all","fa-male","fa-map","fa-map-marker","fa-map-o","fa-map-pin","fa-map-signs","fa-meh-o","fa-microchip","fa-microphone","fa-microphone-slash","fa-minus","fa-minus-circle","fa-minus-square","fa-minus-square-o","fa-mobile","fa-mobile-phone","fa-money","fa-moon-o","fa-mortar-board","fa-motorcycle","fa-mouse-pointer","fa-music","fa-navicon","fa-newspaper-o","fa-object-group","fa-object-ungroup","fa-paint-brush","fa-paper-plane","fa-paper-plane-o","fa-paw","fa-pencil","fa-pencil-square","fa-pencil-square-o","fa-percent","fa-phone","fa-phone-square","fa-photo","fa-picture-o","fa-pie-chart","fa-play","fa-pause","fa-stop","fa-forward","fa-backward","fa-step-forward","fa-step-backward","fa-eject","fa-fast-forward","fa-fast-backward","fa-plane","fa-plug","fa-plus","fa-plus-circle","fa-plus-square","fa-plus-square-o","fa-podcast","fa-power-off","fa-print","fa-puzzle-piece","fa-qrcode","fa-question","fa-question-circle","fa-question-circle-o","fa-quote-left","fa-quote-right","fa-random","fa-recycle","fa-refresh","fa-registered","fa-remove","fa-reorder","fa-repeat","fa-reply","fa-reply-all","fa-retweet","fa-road","fa-rocket","fa-rss","fa-rss-square","fa-s15","fa-search","fa-search-minus","fa-search-plus","fa-send","fa-send-o","fa-server","fa-share","fa-share-alt","fa-share-alt-square","fa-share-square","fa-share-square-o","fa-shield","fa-ship","fa-shopping-bag","fa-shopping-basket","fa-shopping-cart","fa-shower","fa-sign-in","fa-sign-language","fa-sign-out","fa-signal","fa-signing","fa-sitemap","fa-sliders","fa-smile-o","fa-snowflake-o","fa-soccer-ball-o","fa-sort","fa-sort-alpha-asc","fa-sort-alpha-desc","fa-sort-amount-asc","fa-sort-amount-desc","fa-sort-asc","fa-sort-desc","fa-sort-down","fa-sort-numeric-asc","fa-sort-numeric-desc","fa-sort-up","fa-space-shuttle","fa-spinner","fa-spoon","fa-square","fa-square-o","fa-star","fa-star-half","fa-star-half-empty","fa-star-half-full","fa-star-half-o","fa-star-o","fa-sticky-note","fa-sticky-note-o","fa-street-view","fa-suitcase","fa-sun-o","fa-support","fa-tablet","fa-tachometer","fa-tag","fa-tags","fa-tasks","fa-taxi","fa-television","fa-terminal","fa-thermometer","fa-thermometer-0","fa-thermometer-1","fa-thermometer-2","fa-thermometer-3","fa-thermometer-4","fa-thermometer-empty","fa-thermometer-full","fa-thermometer-half","fa-thermometer-quarter","fa-thermometer-three-quarters","fa-thumb-tack","fa-thumbs-down","fa-thumbs-o-down","fa-thumbs-o-up","fa-thumbs-up","fa-ticket","fa-times","fa-times-circle","fa-times-circle-o","fa-times-rectangle","fa-times-rectangle-o","fa-tint","fa-toggle-down","fa-toggle-left","fa-toggle-off","fa-toggle-on","fa-toggle-right","fa-toggle-up","fa-trademark","fa-trash","fa-trash-o","fa-tree","fa-trophy","fa-truck","fa-tty","fa-tv","fa-umbrella","fa-universal-access","fa-university","fa-unlock","fa-unlock-alt","fa-unsorted","fa-upload","fa-usb","fa-user","fa-user-o","fa-user-circle","fa-user-circle-o","fa-user-md","fa-user-plus","fa-user-secret","fa-user-times","fa-users","fa-vcard","fa-vcard-o","fa-video-camera","fa-volume-control-phone","fa-volume-down","fa-volume-off","fa-volume-up","fa-warning","fa-wheelchair","fa-wheelchair-alt","fa-wifi","fa-window-close","fa-window-close-o","fa-window-maximize","fa-window-minimize","fa-window-restore","fa-wrench",
+    // Commonly used missing icons
+    "fa-bold","fa-italic","fa-underline","fa-strikethrough","fa-save","fa-copy","fa-paste","fa-cut","fa-clipboard","fa-undo","fa-rotate-left","fa-rotate-right",
+    // Directional arrows
+    "fa-angle-double-down","fa-angle-double-left","fa-angle-double-right","fa-angle-double-up","fa-angle-down","fa-angle-left","fa-angle-right","fa-angle-up","fa-arrow-circle-down","fa-arrow-circle-left","fa-arrow-circle-o-down","fa-arrow-circle-o-left","fa-arrow-circle-o-right","fa-arrow-circle-o-up","fa-arrow-circle-right","fa-arrow-circle-up","fa-arrow-down","fa-arrow-left","fa-arrow-right","fa-arrow-up","fa-arrows-alt","fa-caret-down","fa-caret-left","fa-caret-right","fa-caret-up","fa-chevron-circle-down","fa-chevron-circle-left","fa-chevron-circle-right","fa-chevron-circle-up","fa-chevron-down","fa-chevron-left","fa-chevron-right","fa-chevron-up","fa-long-arrow-down","fa-long-arrow-left","fa-long-arrow-right","fa-long-arrow-up",
+    // Brand icons
+    "fa-500px","fa-adn","fa-amazon","fa-android","fa-angellist","fa-apple","fa-bandcamp","fa-behance","fa-behance-square","fa-bitbucket","fa-bitbucket-square","fa-bitcoin","fa-black-tie","fa-buysellads","fa-cc-amex","fa-cc-diners-club","fa-cc-discover","fa-cc-jcb","fa-cc-mastercard","fa-cc-paypal","fa-cc-stripe","fa-cc-visa","fa-chrome","fa-codepen","fa-codiepie","fa-connectdevelop","fa-contao","fa-css3","fa-dashcube","fa-delicious","fa-deviantart","fa-digg","fa-dribbble","fa-dropbox","fa-drupal","fa-edge","fa-eercast","fa-empire","fa-envira","fa-etsy","fa-expeditedssl","fa-fa","fa-facebook","fa-facebook-f","fa-facebook-official","fa-facebook-square","fa-firefox","fa-first-order","fa-flickr","fa-font-awesome","fa-fonticons","fa-fort-awesome","fa-forumbee","fa-foursquare","fa-free-code-camp","fa-ge","fa-get-pocket","fa-gg","fa-gg-circle","fa-git","fa-git-square","fa-github","fa-github-alt","fa-github-square","fa-gitlab","fa-glide","fa-glide-g","fa-google","fa-google-plus","fa-google-plus-circle","fa-google-plus-official","fa-google-plus-square","fa-google-wallet","fa-gratipay","fa-grav","fa-hacker-news","fa-houzz","fa-html5","fa-imdb","fa-instagram","fa-internet-explorer","fa-ioxhost","fa-joomla","fa-jsfiddle","fa-lastfm","fa-lastfm-square","fa-leanpub","fa-linkedin","fa-linkedin-square","fa-linode","fa-linux","fa-maxcdn","fa-meanpath","fa-medium","fa-meetup","fa-mixcloud","fa-modx","fa-odnoklassniki","fa-odnoklassniki-square","fa-opencart","fa-openid","fa-opera","fa-optin-monster","fa-pagelines","fa-paypal","fa-pied-piper","fa-pied-piper-alt","fa-pied-piper-pp","fa-pinterest","fa-pinterest-p","fa-pinterest-square","fa-product-hunt","fa-qq","fa-quora","fa-ravelry","fa-rebel","fa-reddit","fa-reddit-alien","fa-reddit-square","fa-renren","fa-resistance","fa-safari","fa-scribd","fa-sellsy","fa-shirtsinbulk","fa-simplybuilt","fa-skyatlas","fa-skype","fa-slack","fa-slideshare","fa-snapchat","fa-snapchat-ghost","fa-snapchat-square","fa-soundcloud","fa-spotify","fa-stack-exchange","fa-stack-overflow","fa-steam","fa-steam-square","fa-stumbleupon","fa-stumbleupon-circle","fa-superpowers","fa-telegram","fa-tencent-weibo","fa-themeisle","fa-trello","fa-tripadvisor","fa-tumblr","fa-tumblr-square","fa-twitch","fa-twitter","fa-twitter-square","fa-viacoin","fa-viadeo","fa-viadeo-square","fa-vimeo","fa-vimeo-square","fa-vine","fa-vk","fa-wechat","fa-weibo","fa-weixin","fa-whatsapp","fa-wikipedia-w","fa-windows","fa-wordpress","fa-wpbeginner","fa-wpexplorer","fa-wpforms","fa-xing","fa-xing-square","fa-y-combinator","fa-y-combinator-square","fa-yahoo","fa-yc","fa-yc-square","fa-yelp","fa-yoast","fa-youtube","fa-youtube-play","fa-youtube-square"
 ];
 
-// 去重
-var uniqueIcons = [];
-var seen = {};
-for (var i = 0; i < icons.length; i++) {
-    if (!seen[icons[i]]) {
-        uniqueIcons.push(icons[i]);
-        seen[icons[i]] = true;
+// ============================================================
+// 2. 图标分类引擎
+// ============================================================
+var CATEGORY_RULES = [
+    { name: '品牌图标', test: function(n) {
+        var brands = ['500px','adn','amazon','android','angellist','apple','bandcamp','behance','behance-square','bitbucket','bitbucket-square','bitcoin','black-tie','buysellads','cc-amex','cc-diners-club','cc-discover','cc-jcb','cc-mastercard','cc-paypal','cc-stripe','cc-visa','chrome','codepen','codiepie','connectdevelop','contao','css3','dashcube','delicious','deviantart','digg','dribbble','dropbox','drupal','edge','eercast','empire','envira','etsy','expeditedssl','fa','facebook','facebook-f','facebook-official','facebook-square','firefox','first-order','flickr','font-awesome','fonticons','fort-awesome','forumbee','foursquare','free-code-camp','ge','get-pocket','gg','gg-circle','git','git-square','github','github-alt','github-square','gitlab','glide','glide-g','google','google-plus','google-plus-circle','google-plus-official','google-plus-square','google-wallet','gratipay','grav','hacker-news','houzz','html5','imdb','instagram','internet-explorer','ioxhost','joomla','jsfiddle','lastfm','lastfm-square','leanpub','linkedin','linkedin-square','linode','linux','maxcdn','meanpath','medium','meetup','mixcloud','modx','odnoklassniki','odnoklassniki-square','opencart','openid','opera','optin-monster','pagelines','paypal','pied-piper','pied-piper-alt','pied-piper-pp','pinterest','pinterest-p','pinterest-square','product-hunt','qq','quora','ravelry','rebel','reddit','reddit-alien','reddit-square','renren','resistance','safari','scribd','sellsy','shirtsinbulk','simplybuilt','skyatlas','skype','slack','slideshare','snapchat','snapchat-ghost','snapchat-square','soundcloud','spotify','stack-exchange','stack-overflow','steam','steam-square','stumbleupon','stumbleupon-circle','superpowers','telegram','tencent-weibo','themeisle','trello','tripadvisor','tumblr','tumblr-square','twitch','twitter','twitter-square','viacoin','viadeo','viadeo-square','vimeo','vimeo-square','vine','vk','wechat','weibo','weixin','whatsapp','wikipedia-w','windows','wordpress','wpbeginner','wpexplorer','wpforms','xing','xing-square','y-combinator','y-combinator-square','yahoo','yc','yc-square','yelp','yoast','youtube','youtube-play','youtube-square'];
+        return brands.indexOf(n) !== -1;
+    }},
+    { name: '方向 & 箭头', test: function(n) {
+        return /^(angle|arrow|caret|chevron|long-arrow)/.test(n) || n === 'arrows-alt' || n === 'arrows' || n === 'arrows-h' || n === 'arrows-v';
+    }},
+    { name: '手势图标', test: function(n) {
+        return /^hand-/.test(n) || n === 'thumbs-up' || n === 'thumbs-down' || n === 'thumbs-o-up' || n === 'thumbs-o-down' || n === 'thumb-tack';
+    }},
+    { name: '文件图标', test: function(n) {
+        return /^file/.test(n) || n === 'folder' || n === 'folder-o' || n === 'folder-open' || n === 'folder-open-o' || n === 'files-o' || n === 'floppy-o';
+    }},
+    { name: '文本编辑', test: function(n) {
+        return /^(edit|eraser|pencil|scissors|eyedropper|paint-brush|clipboard|paste|crop|magic|header|paragraph|align|indent|outdent|list-(ul|ol)|list-alt|quote-left|quote-right|text|font|superscript|subscript|chain|chain-broken|unlink|table)/.test(n);
+    }},
+    { name: '媒体控制', test: function(n) {
+        return /^(play|pause|stop|forward|backward|step-|eject|fast-|rotate|repeat|refresh|random)/.test(n) || n === 'rotate-left' || n === 'rotate-right';
+    }},
+    { name: '用户 & 头像', test: function(n) {
+        return /^user/.test(n) || n === 'male' || n === 'female' || n === 'child' || n === 'street-view' || n === 'id-badge' || n === 'id-card' || n === 'id-card-o' || n === 'vcard' || n === 'vcard-o';
+    }},
+    { name: '表单 & 切换', test: function(n) {
+        return /^(check|times|plus|minus|toggle|dot-circle|circle-|square-)/.test(n) && !/^(circle-o-notch|circle-thin|circle-notch)/.test(n) || n === 'check-square' || n === 'check-square-o';
+    }}
+];
+
+function getCategory(iconName) {
+    var name = iconName.replace('fa-', '');
+    for (var i = 0; i < CATEGORY_RULES.length; i++) {
+        if (CATEGORY_RULES[i].test(name)) return CATEGORY_RULES[i].name;
+    }
+    return 'Web 应用图标';
+}
+
+// ============================================================
+// 3. 渲染引擎
+// ============================================================
+var grid = document.getElementById('iconGrid');
+var tabs = document.getElementById('categoryTabs');
+var searchInput = document.getElementById('searchInput');
+var searchClear = document.getElementById('searchClear');
+var totalCount = document.getElementById('totalCount');
+var matchCount = document.getElementById('matchCount');
+var resultCount = document.getElementById('resultCount');
+var toast = document.getElementById('toast');
+
+// 构建分类数据
+var categorized = {};
+ICONS.forEach(function(name) {
+    var cat = getCategory(name);
+    if (!categorized[cat]) categorized[cat] = [];
+    categorized[cat].push(name);
+});
+var CAT_ORDER = ['Web 应用图标', '方向 & 箭头', '手势图标', '文件图标', '文本编辑', '媒体控制', '用户 & 头像', '表单 & 切换', '品牌图标'];
+totalCount.textContent = ICONS.length;
+
+// 渲染分类标签
+function renderTabs(activeCat, filter) {
+    tabs.innerHTML = '';
+    // "全部" 标签
+    var allBtn = document.createElement('button');
+    allBtn.className = 'category-tab' + (activeCat === '__all__' ? ' active' : '');
+    allBtn.textContent = '全部';
+    var badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = filter ? countFiltered(filter) : ICONS.length;
+    allBtn.appendChild(badge);
+    allBtn.addEventListener('click', function() { renderTabs('__all__', searchInput.value.trim()); renderGrid('__all__', searchInput.value.trim()); });
+    tabs.appendChild(allBtn);
+
+    CAT_ORDER.forEach(function(cat) {
+        if (!categorized[cat] || categorized[cat].length === 0) return;
+        var count = filter ? categorized[cat].filter(function(n) { return n.indexOf('fa-' + filter) !== -1; }).length : categorized[cat].length;
+        if (count === 0) return;
+        var btn = document.createElement('button');
+        btn.className = 'category-tab' + (activeCat === cat ? ' active' : '');
+        btn.textContent = cat;
+        var badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.textContent = count;
+        btn.appendChild(badge);
+        btn.addEventListener('click', function() { renderTabs(cat, searchInput.value.trim()); renderGrid(cat, searchInput.value.trim()); });
+        tabs.appendChild(btn);
+    });
+}
+
+function countFiltered(filter) {
+    var f = filter.toLowerCase().replace('fa-', '');
+    var cnt = 0;
+    for (var i = 0; i < ICONS.length; i++) {
+        if (ICONS[i].indexOf('fa-' + f) !== -1) cnt++;
+    }
+    return cnt;
+}
+
+// 渲染图标网格
+function renderGrid(category, filter) {
+    var f = filter ? filter.toLowerCase().replace('fa-', '') : '';
+    var items = [];
+    CAT_ORDER.forEach(function(cat) {
+        if (category !== '__all__' && cat !== category) return;
+        if (!categorized[cat]) return;
+        categorized[cat].forEach(function(name) {
+            if (f && name.indexOf('fa-' + f) === -1) return;
+            items.push(name);
+        });
+    });
+
+    grid.innerHTML = '';
+    if (items.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><div class="fa fa-search"></div><p>未找到匹配的图标</p></div>';
+        resultCount.style.display = 'none';
+        return;
+    }
+
+    resultCount.style.display = filter ? 'block' : 'none';
+    matchCount.textContent = items.length;
+
+    items.forEach(function(name) {
+        var el = document.createElement('div');
+        el.className = 'icon-item';
+        el.innerHTML = '<i class="fa ' + name + '" aria-hidden="true"></i><span class="label">' + name.replace('fa-', '') + '</span><span class="copy-badge">已复制</span>';
+
+        var badge = el.querySelector('.copy-badge');
+        el.addEventListener('click', function() {
+            var cls = name;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(cls).catch(function() { fallbackCopy(cls); });
+            } else {
+                fallbackCopy(cls);
+            }
+            badge.classList.add('show');
+            showToast('已复制: ' + cls);
+            setTimeout(function() { badge.classList.remove('show'); }, 1200);
+        });
+
+        grid.appendChild(el);
+    });
+}
+
+function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+}
+
+function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._hide);
+    toast._hide = setTimeout(function() { toast.classList.remove('show'); }, 1800);
+}
+
+// 搜索
+searchInput.addEventListener('input', function() {
+    var val = this.value.trim();
+    searchClear.classList.toggle('show', val.length > 0);
+    var active = document.querySelector('.category-tab.active');
+    var cat = active ? active.textContent.trim() : '__all__';
+    // Don't match badge numbers
+    var catName = cat.replace(/\d+/g, '').trim() || '__all__';
+    // Check if the category exists
+    var isAll = catName === '__all__' || !CAT_ORDER.some(function(c) { return catName.indexOf(c) !== -1; }) && catName !== '全部';
+    if (!isAll) {
+        var matchedCat = CAT_ORDER.filter(function(c) { return catName.indexOf(c) !== -1; })[0];
+        isAll = !matchedCat;
+        catName = matchedCat || '__all__';
+    } else {
+        catName = '__all__';
+    }
+
+    renderTabs(catName, val);
+    renderGrid(catName, val);
+});
+
+searchClear.addEventListener('click', function() {
+    searchInput.value = '';
+    searchClear.classList.remove('show');
+    renderTabs('__all__', '');
+    renderGrid('__all__', '');
+    searchInput.focus();
+});
+
+// 初始渲染
+renderTabs('__all__', '');
+renderGrid('__all__', '');
+
+// ============================================================
+// 4. 下载 ZIP — 含 CSS、字体文件、AI 使用指南 MD
+// ============================================================
+var FA_CDN_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0';
+document.getElementById('downloadBtn').addEventListener('click', handleDownload);
+
+async function handleDownload() {
+    var overlay = document.getElementById('progressOverlay');
+    var progressText = document.getElementById('progressText');
+    var btn = document.getElementById('downloadBtn');
+    btn.disabled = true;
+    overlay.classList.add('show');
+
+    try {
+        var zip = new JSZip();
+
+        // 4a. 获取 CSS
+        progressText.textContent = '获取 font-awesome.css ...';
+        var cssResp = await fetch(FA_CDN_BASE + '/css/font-awesome.min.css');
+        var cssText = await cssResp.text();
+        zip.file('font-awesome/css/font-awesome.min.css', cssText);
+
+        // 4b. 获取 woff2 字体文件 (最小)
+        progressText.textContent = '获取字体文件 ...';
+        var fontResp = await fetch(FA_CDN_BASE + '/fonts/fontawesome-webfont.woff2');
+        var fontBlob = await fontResp.blob();
+        zip.file('font-awesome/fonts/fontawesome-webfont.woff2', fontBlob);
+
+        // 4c. 生成 AI 使用指南 MD
+        progressText.textContent = '生成 AI 指南文档 ...';
+        var md = generateAIGuide();
+        zip.file('font-awesome/ai-guide.md', md);
+
+        // 4d. 生成完整图标列表 MD 参考
+        var iconListMd = generateIconList();
+        zip.file('font-awesome/icon-list.md', iconListMd);
+
+        // 4e. 打包下载
+        progressText.textContent = '打包 ZIP ...';
+        var zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+
+        var url = URL.createObjectURL(zipBlob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'fontawesome-4.7.zip';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(url); }, 10000);
+
+        showToast('下载完成！ZIP 包含 CSS、字体文件及 AI 使用指南');
+    } catch (err) {
+        console.error('下载失败:', err);
+        showToast('下载失败: ' + err.message);
+    } finally {
+        overlay.classList.remove('show');
+        btn.disabled = false;
     }
 }
 
-var listEl = document.getElementById('iconList');
+// ============================================================
+// 5. AI 指南文档 生成
+// ============================================================
+function generateAIGuide() {
+    // 按分类统计
+    var catCounts = {};
+    var catIcons = {};
+    CAT_ORDER.forEach(function(c) {
+        if (categorized[c] && categorized[c].length > 0) {
+            catCounts[c] = categorized[c].length;
+            catIcons[c] = categorized[c];
+        }
+    });
 
-function renderIcons(filter) {
-    listEl.innerHTML = '';
-    var count = 0;
-    for (var i = 0; i < uniqueIcons.length; i++) {
-        var name = uniqueIcons[i];
-        if (filter && name.indexOf(filter) === -1) continue;
-        var div = document.createElement('div');
-        div.className = 'fa-hover col-md-3 col-sm-4';
-        div.innerHTML = '<i class="fa ' + name + '" aria-hidden="true"></i> ' + name.replace('fa-', '');
-        div.onclick = (function(n) {
-            return function() {
-                var input = document.createElement('input');
-                input.value = n;
-                document.body.appendChild(input);
-                input.select();
-                document.execCommand('copy');
-                document.body.removeChild(input);
-                var toast = document.getElementById('toast');
-                toast.textContent = '已复制: ' + n;
-                toast.style.opacity = '1';
-                setTimeout(function() { toast.style.opacity = '0'; }, 1500);
-            };
-        })(name);
-        listEl.appendChild(div);
-        count++;
-    }
-    if (count === 0) {
-        listEl.innerHTML = '<div class="col-xs-12" style="text-align:center;padding:40px;color:#999;font-size:18px">未找到匹配的图标</div>';
-    }
+    var md = '# Font Awesome 4.7 — AI 使用指南\n\n';
+    md += '## 目录结构\n\n```\nfont-awesome/\n├── css/\n│   └── font-awesome.min.css   # 图标样式定义\n├── fonts/\n│   └── fontawesome-webfont.woff2  # 图标字体文件（约 70KB）\n├── ai-guide.md               # 本文件 — AI 使用指南\n└── icon-list.md              # 完整图标名称列表\n```\n\n';
+    md += '## 快速上手\n\n在 HTML 中引入 CSS 文件：\n\n```html\n<link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">\n```\n\n使用图标：\n\n```html\n<i class="fa fa-search"></i>  <!-- 搜索图标 -->\n<i class="fa fa-star"></i>   <!-- 星星图标 -->\n```\n\n';
+    md += '> **提示**：`fa` 前缀必须保留，图标名称为 `fa-` + 图标英文名。\n\n';
+    md += '## 图标分类概览\n\n';
+    md += '| 分类 | 数量 | 典型图标 | 用途场景 |\n|------|------|----------|----------|\n';
+    CAT_ORDER.forEach(function(c) {
+        if (!catCounts[c]) return;
+        var examples = catIcons[c].slice(0, 4).map(function(n) { return '`' + n + '`'; }).join(', ');
+        var usage = getCategoryUsage(c);
+        md += '| ' + c + ' | ' + catCounts[c] + ' | ' + examples + ' | ' + usage + ' |\n';
+    });
+
+    md += '\n## 各分类详细说明\n\n';
+    CAT_ORDER.forEach(function(c) {
+        if (!catCounts[c]) return;
+        md += '### ' + c + '（共 ' + catCounts[c] + ' 个）\n\n';
+        md += getCategoryDescription(c) + '\n\n';
+        md += '**使用场景：** ' + getCategoryUsage(c) + '\n\n';
+        md += '**代表图标：** ';
+        var examples = catIcons[c].slice(0, 8).map(function(n) {
+            var shortName = n.replace('fa-', '');
+            return '`' + shortName + '`';
+        }).join('、');
+        md += examples + '\n\n';
+        md += '**完整列表见** `icon-list.md` 中 `' + c + '` 章节。\n\n';
+    });
+
+    md += '## 相对路径说明\n\n';
+    md += 'CSS 中 `@font-face` 引用的字体路径已配置为相对路径：\n\n```css\nsrc: url("../fonts/fontawesome-webfont.woff2") format("woff2");\n```\n\n';
+    md += '建议的目录结构：\n\n```\n你的项目/\n├── css/\n│   ├── style.css\n│   └── font-awesome.min.css\n├── fonts/\n│   └── fontawesome-webfont.woff2\n├── index.html\n└── ...\n```\n\n';
+    md += '将 `font-awesome/` 目录整体复制到项目根目录即可直接使用，无需修改任何路径。\n\n';
+    md += '## 最佳实践\n\n';
+    md += '1. **性能**：只引用需要的图标时，可用 `unicode` 字符代替 `fa` 类 —— 查阅 Font Awesome 4.7 字符映射表\n';
+    md += '2. **可访问性**：对纯装饰性图标添加 `aria-hidden="true"`，对有意义图标添加 `aria-label`\n';
+    md += '3. **大小控制**：使用 `fa-lg`（1.33×）、`fa-2x`、`fa-3x`、`fa-4x`、`fa-5x` 控制图标尺寸\n';
+    md += '4. **固定宽度**：使用 `fa-fw` 使不同宽度的图标对齐（适合列表/导航）\n';
+    md += '5. **旋转动画**：使用 `fa-spin` 使图标旋转（适合加载状态），使用 `fa-pulse` 使图标8步旋转\n';
+    md += '6. **翻转/旋转**：使用 `fa-rotate-90`、`fa-rotate-180`、`fa-rotate-270`、`fa-flip-horizontal`、`fa-flip-vertical`\n';
+    md += '7. **边框**：使用 `fa-border` 给图标添加边框\n';
+    md += '8. **叠加**：使用 `fa-stack` 实现图标叠加（如社交分享图标组合）\n';
+    md += '\n---\n';
+    md += '\n> 此文档由 [Blupure 会客厅](https://blupureqingan.github.io/Blupure_html) 自动生成。\n';
+
+    return md;
 }
 
-function filterIcons(val) {
-    renderIcons(val.trim().toLowerCase().replace('fa-', ''));
+function getCategoryUsage(cat) {
+    var map = {
+        'Web 应用图标': '通用 UI 元素（设置、搜索、分享、通知等），几乎所有 Web 项目的基础图标集',
+        '方向 & 箭头': '导航菜单、轮播翻页、折叠面板、返回顶部、步骤指示器',
+        '手势图标': '点赞/收藏、拖拽交互、投票、交互式 UI 反馈',
+        '文件图标': '文件管理器、文档列表、上传下载、文件类型标识',
+        '文本编辑': '富文本编辑器、笔记应用、内容管理系统排版工具栏',
+        '媒体控制': '音频/视频播放器、幻灯片放映、音乐应用控制栏',
+        '用户 & 头像': '用户中心、个人资料页、登录注册、评论区头像',
+        '表单 & 切换': '复选框、单选框、开关、折叠展开、评分组件',
+        '品牌图标': '社交分享按钮、友情链接、技术栈展示、版权/关于页'
+    };
+    return map[cat] || '通用 UI 场景';
 }
 
-renderIcons('');
+function getCategoryDescription(cat) {
+    var map = {
+        'Web 应用图标': '这是 Font Awesome 最核心的分类，涵盖 Web 开发中绝大多数常见操作和状态图标。包括设置(cog)、搜索(search)、邮件(envelope)、首页(home)、用户(user) 等基础元素，几乎每个 Web 项目都会用到其中的一部分。',
+        '方向 & 箭头': '包含全部方向相关的图标：角度(angle)、箭头(arrow)、V形(chevron)、插入符(caret)和长箭头(long-arrow)。其中 chevron 系列是最常用的折叠/展开指示器，angle 系列常用于轮播和翻页，arrow 系列适合强视觉引导。',
+        '手势图标': '以手部动作为主的交互反馈图标，包括手指操作(hand-*系列)和拇指评价(thumbs-*系列)。hand-pointer 适合表示可点击，hand-rock 适合"摇滚/赞"文化场景，thumbs-up/down 适用于投票评价场景。',
+        '文件图标': '覆盖文件操作全场景：不同格式的文件图标(file-*-o)、文件夹(folder-*)、剪贴板(clipboard)。file-text 适合文档预览，file-pdf-o/file-image-o 等用于文件类型标识。注意：file-o 是空白文件，file-text 有内容线框。',
+        '文本编辑': '富文本编辑器的标配工具集。包括笔类(pencil/edit)、橡皮擦(eraser)、滴管(eyedropper)、画笔(paint-brush)以及格式控制工具(align-*, list-*, indent/outdent)。quote-left/right 适合引用块装饰。',
+        '媒体控制': '播放器控制栏的标准组件。play/pause/stop/forward/backward 已涵盖核心控制需求。step-backward/step-forward 适合切曲/切集场景。repeat/random 是循环/随机播放的标准图标。refresh 适合刷新/重新加载场景。',
+        '用户 & 头像': '用户体系相关图标。user 的多种变体 —— user-plus(添加用户)、user-times(移除用户)、user-md(医生)、user-secret(间谍) —— 覆盖了大部分业务场景。user-circle 适合用作默认头像占位。',
+        '表单 & 切换': '表单控件核心图标。check 系列用于确认状态，times 系列用于关闭/取消，plus/minus 系列用于增减操作。toggle-* 系列可模拟开关控件。dot-circle-o 适合单选框选中态，circle-o 适合未选中态。',
+        '品牌图标': '各大品牌和平台的官方图标，适用于社交分享、技术栈展示、合作伙伴链接等场景。包含 github、twitter、weibo、wechat 等中国常用平台。注意：品牌图标不带 circle/square 后缀的仅保留品牌本身，带 -square 的可用于统一排版。'
+    };
+    return map[cat] || '通用图标分类。';
+}
+
+// ============================================================
+// 6. 完整图标列表 MD 参考
+// ============================================================
+function generateIconList() {
+    var md = '# Font Awesome 4.7 完整图标列表\n\n';
+    md += '## 总览\n\n共 **' + ICONS.length + '** 个图标，按分类排列：\n\n';
+
+    CAT_ORDER.forEach(function(cat) {
+        if (!categorized[cat] || categorized[cat].length === 0) return;
+        md += '## ' + cat + '（' + categorized[cat].length + ' 个）\n\n';
+        md += '| 类名 | 说明 |\n|------|------|\n';
+        categorized[cat].forEach(function(name) {
+            var shortName = name.replace('fa-', '');
+            var desc = getIconHint(shortName);
+            md += '| `' + name + '` | ' + desc + ' |\n';
+        });
+        md += '\n';
+    });
+
+    md += '---\n> 由 [Blupure 会客厅](https://blupureqingan.github.io/Blupure_html) 自动生成\n';
+    return md;
+}
+
+function getIconHint(name) {
+    var hints = {
+        'search': '搜索', 'home': '首页', 'user': '用户', 'users': '用户群',
+        'cog': '设置', 'cogs': '多设置', 'star': '收藏/星标', 'heart': '喜欢/心',
+        'envelope': '邮件', 'envelope-o': '邮件(空心)', 'bell': '通知铃铛',
+        'bell-o': '通知铃铛(空心)', 'comment': '评论', 'comments': '多评论',
+        'trash': '删除', 'trash-o': '删除(空心)', 'pencil': '编辑',
+        'plus': '添加', 'minus': '减少', 'times': '关闭/取消',
+        'check': '确认/勾选', 'info': '信息', 'question': '疑问',
+        'warning': '警告', 'exclamation': '感叹号', 'lock': '锁定/私密',
+        'unlock': '解锁', 'bookmark': '书签', 'tag': '标签',
+        'tags': '多标签', 'share': '分享', 'download': '下载',
+        'upload': '上传', 'refresh': '刷新', 'print': '打印',
+        'eye': '可见', 'eye-slash': '隐藏', 'calendar': '日历',
+        'clock-o': '时间', 'map-marker': '地图标记', 'phone': '电话',
+        'camera': '相机', 'video-camera': '视频', 'music': '音乐',
+        'image': '图片', 'film': '影片', 'headphones': '耳机',
+        'gift': '礼物', 'fire': '热门/火', 'flag': '标记旗帜',
+        'rocket': '火箭/快速', 'dashboard': '仪表盘', 'bar-chart': '柱状图',
+        'pie-chart': '饼图', 'line-chart': '折线图', 'table': '表格',
+        'qrcode': '二维码', 'barcode': '条形码', 'rss': 'RSS 订阅',
+        'globe': '地球/全球', 'plane': '飞机/旅行', 'truck': '卡车/物流',
+        'shopping-cart': '购物车', 'credit-card': '信用卡', 'money': '货币',
+        'building': '建筑物', 'hospital-o': '医院', 'ambulance': '救护车',
+        'medkit': '医疗包', 'phone-square': '电话(方框)', 'external-link': '外链',
+        'cloud': '云', 'database': '数据库', 'server': '服务器',
+        'code': '代码', 'terminal': '终端', 'github': 'GitHub',
+        'twitter': 'Twitter', 'weibo': '微博', 'wechat': '微信',
+        'qq': 'QQ', 'facebook': 'Facebook', 'linkedin': 'LinkedIn',
+        'html5': 'HTML5', 'css3': 'CSS3', 'apple': 'Apple',
+        'android': 'Android', 'windows': 'Windows', 'linux': 'Linux',
+        'spinner': '加载中', 'circle-o-notch': '加载中(圆环)',
+        'angle-left': '左箭头(细)', 'angle-right': '右箭头(细)',
+        'chevron-left': '左V形', 'chevron-right': '右V形',
+        'arrow-up': '上箭头', 'arrow-down': '下箭头',
+        'thumbs-up': '赞', 'thumbs-down': '踩',
+        'commenting': '聊天气泡', 'send': '发送', 'paper-plane': '纸飞机/发送',
+        'check-circle': '成功勾选(实心)', 'info-circle': '信息(实心)',
+        'exclamation-circle': '警告圈', 'exclamation-triangle': '警告三角',
+        'times-circle': '关闭(实心)', 'question-circle': '疑问(实心)',
+        'plus-circle': '添加(实心)', 'minus-circle': '减少(实心)',
+        'play': '播放', 'pause': '暂停', 'stop': '停止',
+        'forward': '快进', 'backward': '后退', 'step-forward': '下一曲',
+        'step-backward': '上一曲', 'eject': '弹出',
+        'file': '文件', 'file-o': '文件(空心)', 'file-text': '文档文件',
+        'folder': '文件夹', 'folder-open': '文件夹(打开)',
+        'image': '图片', 'photo': '照片', 'picture-o': '图片(空心)',
+        'hand-pointer': '手指点击', 'hand-grab-o': '抓取',
+        'sliders': '滑块/设置', 'toggle-on': '开启', 'toggle-off': '关闭',
+        'sort': '排序', 'list': '列表', 'th': '网格视图',
+        'navicon': '菜单栏/汉堡', 'ellipsis-h': '更多(横)', 'ellipsis-v': '更多(竖)',
+        'wrench': '扳手/维护', 'shield': '盾牌/安全'
+    };
+    return hints[name] || 'Font Awesome 图标';
+}
 </script>
 </body>
 </html>
