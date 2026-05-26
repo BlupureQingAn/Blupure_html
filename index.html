@@ -148,7 +148,7 @@
     margin-bottom: 0;
 }
 .title-text-alt {
-    margin-top: 0;
+    margin-top: -12rem;
 }
 
 /* 4. 专属品牌词（Blupure）流光发光样式 */
@@ -159,13 +159,11 @@
     font-style: normal;
     letter-spacing: -0.01em;
     display: block;
-    margin: 0;
+    margin: -12rem 0 0 0;
     padding: 0;
     line-height: 1.1;
 
-    /* 霓虹发光阴影（留在父容器） */
-    filter: drop-shadow(0 4px 15px rgba(0, 119, 255, 0.45))
-            drop-shadow(0 1px 2px rgba(0, 47, 167, 0.3));
+    /* 彩虹发光阴影将在 char__inner 上设置，此处移除旧阴影 */
 }
 
 /* 5. 逐字掉落 + 浮动动画 */
@@ -191,16 +189,28 @@
     animation-delay: calc(var(--i) * 0.35s + 1.5s);
 }
 
-/* Blupure 渐变+流光+浮动 */
+/* Blupure 字母间距 */
+.title-brand .char {
+    margin: 0 0.2em;
+}
+.title-brand .char:first-child { margin-left: 0; }
+.title-brand .char:last-child { margin-right: 0; }
+
+/* Blupure 逐字深→浅渐变 + 彩虹发光阴影 + 浮动 */
 .title-brand .char__inner {
-    background: linear-gradient(90deg, #002FA7 0%, #0077FF 35%, #00F0FF 70%, #002FA7 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: charFloat 3s ease-in-out infinite,
-               streamGradient 4s linear infinite;
-    animation-delay: calc(var(--i) * 0.35s + 1.5s), 0s;
+    background: none;
+    -webkit-text-fill-color: initial;
+    background-clip: unset;
+    color: hsl(220, 100%, calc(30% + var(--i) * 5%));
+    animation: charFloat 3s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 0.35s + 1.5s);
+    text-shadow:
+        0 0 3px rgba(255, 0, 0, 0.5),
+        0 0 7px rgba(255, 165, 0, 0.4),
+        0 0 12px rgba(255, 255, 0, 0.3),
+        0 0 17px rgba(0, 200, 0, 0.25),
+        0 0 22px rgba(0, 100, 255, 0.25),
+        0 0 27px rgba(139, 0, 255, 0.2);
 }
 
 /* 调整介绍段落的字体大小、颜色与间距 */
