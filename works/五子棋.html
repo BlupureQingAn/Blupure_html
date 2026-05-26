@@ -280,8 +280,9 @@
             font-weight: bold;
             box-shadow: 0 3px 8px rgba(0,0,0,0.3);
             animation: piecePlace 0.5s ease-out;
+            position: relative;
         }
-        
+
         @keyframes piecePlace {
             0% {
                 transform: scale(0) rotate(180deg);
@@ -313,6 +314,20 @@
         
         .piece.black::before {
             content: '';
+        }
+
+        /* 最后落子标记 - 红色小圆点 */
+        .piece.last-move::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #FF3B30;
+            border-radius: 50%;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 6px rgba(255,59,48,0.6);
         }
         
         .modal {
@@ -561,7 +576,8 @@
             difficulty: 'easy', // 'easy', 'medium', 'hard'
             gameOver: false,
             moveHistory: [],
-            moveCount: 0
+            moveCount: 0,
+            lastMove: null // {row, col}
         };
         
         // 音效数据 (base64编码的简短音效)
@@ -660,15 +676,20 @@
             gameState.board[row][col] = player;
             gameState.moveHistory.push({row, col, player});
             gameState.moveCount++;
-            
+
             // 更新UI
             const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
             cell.classList.add('occupied');
-            
+
             const piece = document.createElement('div');
             piece.className = `piece ${player === 1 ? 'black' : 'white'}`;
             cell.appendChild(piece);
-            
+
+            // 移除旧的最后落子标记，标记最新落子
+            document.querySelectorAll('.piece.last-move').forEach(el => el.classList.remove('last-move'));
+            piece.classList.add('last-move');
+            gameState.lastMove = {row, col};
+
             // 播放音效
             playSound('place');
         }
@@ -710,78 +731,266 @@
             }
         }
         
-        // 简单AI：基础策略 + 随机
+        // 简单AI（原中等）：进攻防守平衡
         function getEasyMove() {
-            // 1. 如果能直接获胜，就获胜
+            // 1. 必胜检查
             const winMove = findDirectWin(2);
             if (winMove) return winMove;
-            
-            // 2. 如果玩家下一步能获胜，就阻止
+
+            // 2. 必防检查
             const blockMove = findDirectWin(1);
             if (blockMove) return blockMove;
-            
-            // 3. 寻找能形成三连的位置
-            const threeMove = findBestThree(2);
-            if (threeMove && Math.random() > 0.3) return threeMove; // 70%概率选择
-            
-            // 4. 阻止玩家形成三连
-            const blockThreeMove = findBestThree(1);
-            if (blockThreeMove && Math.random() > 0.5) return blockThreeMove; // 50%概率选择
-            
-            // 5. 智能随机（偏向中心和有价值的位置）
-            return getSmartRandomMove();
+
+            // 3. 寻找双活三或活四机会
+            const doubleThreeMove = findDoubleThree(2);
+            if (doubleThreeMove) return doubleThreeMove;
+
+            // 4. 阻止玩家双活三
+            const blockDoubleThreeMove = findDoubleThree(1);
+            if (blockDoubleThreeMove) return blockDoubleThreeMove;
+
+            // 5. 寻找活三
+            const liveThreeMove = findLiveThree(2);
+            if (liveThreeMove) return liveThreeMove;
+
+            // 6. 阻止玩家活三
+            const blockLiveThreeMove = findLiveThree(1);
+            if (blockLiveThreeMove) return blockLiveThreeMove;
+
+            // 7. 使用简化的minimax算法
+            return getBestMoveWithEvaluation(2, 2);
         }
         
-        // 中等AI：进攻防守平衡
+        // 中等AI（原困难）：高级策略和深度搜索
         function getMediumMove() {
             // 1. 必胜检查
             const winMove = findDirectWin(2);
             if (winMove) return winMove;
-            
+
             // 2. 必防检查
             const blockMove = findDirectWin(1);
             if (blockMove) return blockMove;
-            
-            // 3. 寻找双活三或活四机会
-            const doubleThreeMove = findDoubleThree(2);
-            if (doubleThreeMove) return doubleThreeMove;
-            
-            // 4. 阻止玩家双活三
-            const blockDoubleThreeMove = findDoubleThree(1);
-            if (blockDoubleThreeMove) return blockDoubleThreeMove;
-            
-            // 5. 寻找活三
-            const liveThreeMove = findLiveThree(2);
-            if (liveThreeMove) return liveThreeMove;
-            
-            // 6. 阻止玩家活三
-            const blockLiveThreeMove = findLiveThree(1);
-            if (blockLiveThreeMove) return blockLiveThreeMove;
-            
-            // 7. 使用简化的minimax算法
-            return getBestMoveWithEvaluation(2, 2); // 深度2
-        }
-        
-        // 困难AI：高级策略和深度搜索
-        function getHardMove() {
-            // 1. 必胜检查
-            const winMove = findDirectWin(2);
-            if (winMove) return winMove;
-            
-            // 2. 必防检查
-            const blockMove = findDirectWin(1);
-            if (blockMove) return blockMove;
-            
+
             // 3. 寻找必胜组合（如双活三、活四等）
             const winningComboMove = findWinningCombo(2);
             if (winningComboMove) return winningComboMove;
-            
+
             // 4. 阻止玩家必胜组合
             const blockWinningComboMove = findWinningCombo(1);
             if (blockWinningComboMove) return blockWinningComboMove;
-            
+
             // 5. 使用高级minimax算法进行深度搜索
-            return getBestMoveWithAdvancedSearch(4); // 深度4
+            return getBestMoveWithAdvancedSearch(4);
+        }
+        
+        // 困难AI：最强算法 — 威胁空间搜索 + 迭代加深 Alpha-Beta
+        function getHardMove() {
+            // 1. 直接获胜/防守
+            const winMove = findDirectWin(2);
+            if (winMove) return winMove;
+            const blockMove = findDirectWin(1);
+            if (blockMove) return blockMove;
+
+            // 2. 生成候选位置（仅棋子周围 2 格内）
+            const candidates = generateEliteCandidates();
+            if (candidates.length === 0) return {row: 7, col: 7};
+
+            // 3. 快速评分排序
+            for (const c of candidates) {
+                c.score = evaluateEliteMove(c.row, c.col);
+            }
+            candidates.sort((a, b) => b.score - a.score);
+            if (candidates.length === 0) return {row: 7, col: 7};
+
+            // 4. 迭代加深搜索（时限 800ms）
+            const timeLimit = 800;
+            const startTime = Date.now();
+            let bestMove = candidates[0];
+            let bestScore = -Infinity;
+            const searchDepth = 6;
+            const topN = Math.min(10, candidates.length);
+
+            for (let i = 0; i < topN; i++) {
+                if (Date.now() - startTime > timeLimit) break;
+                const c = candidates[i];
+                gameState.board[c.row][c.col] = 2;
+                const score = eliteSearch(searchDepth, -Infinity, Infinity, false, 2, startTime, timeLimit);
+                gameState.board[c.row][c.col] = 0;
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = {row: c.row, col: c.col};
+                }
+            }
+
+            return bestMove;
+        }
+
+        // 精英候选：仅返回有棋子的位置周围 2 格内的空位
+        function generateEliteCandidates() {
+            const set = new Set();
+            const list = [];
+            for (let i = 0; i < 15; i++) {
+                for (let j = 0; j < 15; j++) {
+                    if (gameState.board[i][j] !== 0) {
+                        for (let dr = -2; dr <= 2; dr++) {
+                            for (let dc = -2; dc <= 2; dc++) {
+                                const r = i + dr, c = j + dc;
+                                if (r >= 0 && r < 15 && c >= 0 && c < 15 && gameState.board[r][c] === 0) {
+                                    const key = r * 15 + c;
+                                    if (!set.has(key)) {
+                                        set.add(key);
+                                        list.push({row: r, col: c});
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+
+        // 精英走法评分：进攻 * 1.15 + 防守，含精细棋型价值
+        function evaluateEliteMove(row, col) {
+            const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+            let attack = 0, defense = 0;
+
+            // 进攻评估
+            gameState.board[row][col] = 2;
+            for (const [dx, dy] of dirs) {
+                const p = analyzeLinePattern(row, col, dx, dy, 2);
+                attack += getElitePatternValue(p);
+            }
+            gameState.board[row][col] = 0;
+
+            // 防守评估
+            gameState.board[row][col] = 1;
+            for (const [dx, dy] of dirs) {
+                const p = analyzeLinePattern(row, col, dx, dy, 1);
+                defense += getElitePatternValue(p);
+            }
+            gameState.board[row][col] = 0;
+
+            // 位置权重（中心偏好）
+            const centerDist = Math.abs(row - 7) + Math.abs(col - 7);
+            const posBonus = Math.max(0, 14 - centerDist) * 5;
+
+            return attack * 1.15 + defense + posBonus;
+        }
+
+        // 精英棋型价值表
+        function getElitePatternValue(p) {
+            const { consecutive, leftBlocked, rightBlocked, totalSpace } = p;
+            if (consecutive >= 5) return 1000000;
+            if (consecutive === 4 && !leftBlocked && !rightBlocked) return 500000; // 活四
+            if (consecutive === 4) return 50000; // 冲四
+            if (consecutive === 3 && !leftBlocked && !rightBlocked && totalSpace >= 2) return 50000; // 活三
+            if (consecutive === 3 && totalSpace >= 1) return 5000; // 眠三/冲三
+            if (consecutive === 2 && !leftBlocked && !rightBlocked && totalSpace >= 3) return 5000; // 活二
+            if (consecutive === 2 && totalSpace >= 2) return 500; // 眠二
+            if (consecutive === 1 && !leftBlocked && !rightBlocked && totalSpace >= 4) return 200;
+            return 1;
+        }
+
+        // 精英搜索：带威胁强化的 Alpha-Beta 剪枝
+        function eliteSearch(depth, alpha, beta, isMaximizing, player, startTime, timeLimit) {
+            // 超时截断
+            if (Date.now() - startTime > timeLimit) return evaluateEliteBoard();
+
+            // 终局检测
+            if (depth === 0) return evaluateEliteBoard();
+
+            // 快速胜负检查
+            const recent = gameState.moveHistory;
+            if (recent.length > 0) {
+                const last = recent[recent.length - 1];
+                if (checkWin(last.row, last.col, last.player)) {
+                    return last.player === 2 ? 1000000 + depth : -1000000 - depth;
+                }
+            }
+            if (gameState.moveCount >= 225) return 0;
+
+            // 生成子节点并按启发式排序
+            const kids = generateEliteCandidates();
+            if (kids.length === 0) return evaluateEliteBoard();
+
+            for (const k of kids) {
+                if (isMaximizing) {
+                    gameState.board[k.row][k.col] = player;
+                } else {
+                    gameState.board[k.row][k.col] = player;
+                }
+                k.score = evaluateEliteMove(k.row, k.col);
+                gameState.board[k.row][k.col] = 0;
+            }
+
+            // 限制搜索宽度（优先探索最有希望的走法）
+            const width = depth >= 4 ? 6 : 10;
+            kids.sort((a, b) => b.score - a.score);
+            const limited = kids.slice(0, width);
+
+            if (isMaximizing) {
+                let maxScore = -Infinity;
+                for (const k of limited) {
+                    if (Date.now() - startTime > timeLimit) break;
+                    gameState.board[k.row][k.col] = player;
+                    const nextPlayer = player === 1 ? 2 : 1;
+                    const score = eliteSearch(depth - 1, alpha, beta, false, nextPlayer, startTime, timeLimit);
+                    gameState.board[k.row][k.col] = 0;
+                    if (score > maxScore) maxScore = score;
+                    if (score > alpha) alpha = score;
+                    if (beta <= alpha) break;
+                }
+                return maxScore;
+            } else {
+                let minScore = Infinity;
+                for (const k of limited) {
+                    if (Date.now() - startTime > timeLimit) break;
+                    gameState.board[k.row][k.col] = player;
+                    const nextPlayer = player === 1 ? 2 : 1;
+                    const score = eliteSearch(depth - 1, alpha, beta, true, nextPlayer, startTime, timeLimit);
+                    gameState.board[k.row][k.col] = 0;
+                    if (score < minScore) minScore = score;
+                    if (score < beta) beta = score;
+                    if (beta <= alpha) break;
+                }
+                return minScore;
+            }
+        }
+
+        // 精英局面评估
+        function evaluateEliteBoard() {
+            let score = 0;
+            const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+            const visited = new Set();
+
+            for (let i = 0; i < 15; i++) {
+                for (let j = 0; j < 15; j++) {
+                    if (gameState.board[i][j] !== 0) {
+                        const player = gameState.board[i][j];
+                        for (const [dx, dy] of dirs) {
+                            const key = i * 10000 + j * 100 + dx * 10 + dy;
+                            if (visited.has(key)) continue;
+                            visited.add(key);
+
+                            // 只统计每个方向的"起点"
+                            const pr = i - dx, pc = j - dy;
+                            if (pr >= 0 && pr < 15 && pc >= 0 && pc < 15 && gameState.board[pr][pc] === player) continue;
+
+                            const p = analyzeLinePattern(i, j, dx, dy, player);
+                            const val = getElitePatternValue(p);
+                            if (player === 2) {
+                                // 活四和活三额外奖励（进攻倾向）
+                                if (p.consecutive === 4 && !p.leftBlocked && !p.rightBlocked) score += val * 1.5;
+                                else score += val;
+                            } else {
+                                score -= val * 1.1;
+                            }
+                        }
+                    }
+                }
+            }
+            return score;
         }
         
         // 寻找直接获胜位置
@@ -1557,7 +1766,8 @@
             gameState.gameOver = false;
             gameState.moveHistory = [];
             gameState.moveCount = 0;
-            
+            gameState.lastMove = null;
+
             createBoard();
             updateUI();
         }
@@ -1584,6 +1794,18 @@
             
             gameState.currentPlayer = 1;
             updateUI();
+
+            // 重新标记上一步（如有）
+            document.querySelectorAll('.piece.last-move').forEach(el => el.classList.remove('last-move'));
+            if (gameState.moveHistory.length > 0) {
+                const prev = gameState.moveHistory[gameState.moveHistory.length - 1];
+                const prevCell = document.querySelector(`[data-row="${prev.row}"][data-col="${prev.col}"]`);
+                const prevPiece = prevCell ? prevCell.querySelector('.piece') : null;
+                if (prevPiece) prevPiece.classList.add('last-move');
+                gameState.lastMove = {row: prev.row, col: prev.col};
+            } else {
+                gameState.lastMove = null;
+            }
         }
         
         // 更新UI

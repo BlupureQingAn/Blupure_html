@@ -461,8 +461,11 @@
                 <input type="text" id="searchInput" placeholder="搜索图标..." autocomplete="off">
                 <button class="search-clear" id="searchClear">&times;</button>
             </div>
+            <button class="btn-download" id="cssDownloadBtn" style="background:linear-gradient(135deg,#10b981,#059669)">
+                <span class="fa fa-download"></span> 下载 CSS
+            </button>
             <button class="btn-download" id="downloadBtn">
-                <span class="fa fa-download"></span> 下载 ZIP
+                <span class="fa fa-file-archive-o"></span> 下载 ZIP
             </button>
         </div>
     </header>
@@ -757,9 +760,40 @@ renderTabs('__all__', '');
 renderGrid('__all__', '');
 
 // ============================================================
-// 4. 下载 ZIP — 含 CSS、字体文件、AI 使用指南 MD
+// 4. 一键下载 font-awesome.css
 // ============================================================
 var FA_CDN_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0';
+document.getElementById('cssDownloadBtn').addEventListener('click', handleCssDownload);
+
+async function handleCssDownload() {
+    var btn = document.getElementById('cssDownloadBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="fa fa-spinner fa-spin"></span> 下载中...';
+    try {
+        var resp = await fetch(FA_CDN_BASE + '/css/font-awesome.min.css');
+        var cssText = await resp.text();
+        var blob = new Blob([cssText], { type: 'text/css' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'font-awesome.min.css';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(url); }, 10000);
+        showToast('font-awesome.min.css 下载完成！');
+    } catch (err) {
+        console.error('CSS 下载失败:', err);
+        showToast('下载失败: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="fa fa-download"></span> 下载 CSS';
+    }
+}
+
+// ============================================================
+// 5. 下载 ZIP — 含 CSS、字体文件、AI 使用指南 MD
+// ============================================================
 document.getElementById('downloadBtn').addEventListener('click', handleDownload);
 
 async function handleDownload() {
