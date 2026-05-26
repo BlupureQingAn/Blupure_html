@@ -3160,7 +3160,12 @@ td:last-child {
     margin-left: 0.5rem;
     border-radius: 8px;
     outline: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
     transition: background-color 0.3s ease;
+}
+.theme-toggle::-moz-focus-inner {
+    border: 0;
 }
 .theme-toggle:focus-visible {
     outline: 2px solid #002FA7;
@@ -3168,9 +3173,11 @@ td:last-child {
 }
 .theme-toggle .theme-toggle__icon {
     stroke: #002FA7;
+    fill: none;
     width: 20px;
     height: 20px;
     transition: stroke 0.3s ease;
+    pointer-events: none;
 }
 .theme-toggle:hover {
     background-color: rgba(0, 47, 167, 0.08);
