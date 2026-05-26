@@ -3149,6 +3149,42 @@ td:last-child {
     transform: translateY(-100%);
 }
 
+/* Theme Toggle Button (Klein Blue) */
+.theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem 0.8rem;
+    display: flex;
+    align-items: center;
+    color: var(--text-soft);
+    transition: color 0.3s ease, background-color 0.3s ease;
+    margin-left: 0.5rem;
+    border-radius: 8px;
+}
+.theme-toggle:hover {
+    color: #002FA7;
+    background-color: rgba(0, 47, 167, 0.08);
+}
+.theme-toggle:active {
+    background-color: rgba(0, 47, 167, 0.15);
+}
+html.dark-mode .theme-toggle:hover {
+    color: #4D7CFF;
+    background-color: rgba(77, 124, 255, 0.12);
+}
+html.dark-mode .theme-toggle:active {
+    background-color: rgba(77, 124, 255, 0.2);
+}
+.theme-toggle__icon {
+    width: 20px;
+    height: 20px;
+}
+.theme-toggle__icon--moon { display: block; }
+.theme-toggle__icon--sun { display: none; }
+html.dark-mode .theme-toggle__icon--moon { display: none; }
+html.dark-mode .theme-toggle__icon--sun { display: block; }
+
 .s-header__content {
     display         : flex;
     align-items     : center;
