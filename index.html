@@ -36,6 +36,43 @@
             --pure-blue-alpha: rgba(0, 47, 167, 0.08);
             --text-dark: #111111;
             --text-soft: #555555;
+            --card-bg: #ffffff;
+            --section-bg-alt: #fafafb;
+            --shadow-card: rgba(0, 47, 167, 0.08);
+            --shadow-card-hover: rgba(0, 47, 167, 0.2);
+            --text-gradient-end: #444444;
+        }
+
+        /* 深色主题 - 跟随系统 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --pure-blue: #4D7CFF;
+                --pure-blue-hover: #6B8FFF;
+                --pure-blue-light: #0D1B3E;
+                --pure-blue-alpha: rgba(77, 124, 255, 0.15);
+                --text-dark: #E8E8E8;
+                --text-soft: #AAAAAA;
+                --card-bg: #1A1B2E;
+                --section-bg-alt: #12131E;
+                --shadow-card: rgba(0, 0, 0, 0.3);
+                --shadow-card-hover: rgba(0, 0, 0, 0.4);
+                --text-gradient-end: #BBBBBB;
+            }
+        }
+
+        /* 深色主题 - 手动切换 */
+        html.dark-mode {
+            --pure-blue: #4D7CFF;
+            --pure-blue-hover: #6B8FFF;
+            --pure-blue-light: #0D1B3E;
+            --pure-blue-alpha: rgba(77, 124, 255, 0.15);
+            --text-dark: #E8E8E8;
+            --text-soft: #AAAAAA;
+            --card-bg: #1A1B2E;
+            --section-bg-alt: #12131E;
+            --shadow-card: rgba(0, 0, 0, 0.3);
+            --shadow-card-hover: rgba(0, 0, 0, 0.4);
+            --text-gradient-end: #BBBBBB;
         }
 
         /* 基础元素重写 */
@@ -76,7 +113,7 @@
     min-height: 80vh;
     display: flex;
     align-items: center;
-    background: radial-gradient(circle at 50% 50%, rgba(0, 47, 167, 0.08) 0%, rgba(0, 119, 255, 0.04) 35%, transparent 60%);
+    background: radial-gradient(circle at 50% 50%, var(--pure-blue-alpha) 0%, rgba(0, 119, 255, 0.04) 35%, transparent 60%);
     margin-top: 2px;   /* 向下微调，对齐顶栏横线 */
     position: relative;
     z-index: 1;
@@ -141,10 +178,10 @@
 /* 3. 中文部分（欢迎来到 & 会客厅）独立样式 */
 .title-text, .title-text-alt {
     font-size: clamp(1.6rem, 2.8vw, 3.6rem);
-    background: linear-gradient(135deg, #111111 30%, #444444 100%);
+    background: linear-gradient(135deg, var(--text-dark) 30%, var(--text-gradient-end) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    color: #111111; /* 降级备用色 */
+    color: var(--text-dark); /* 降级备用色 */
     display: block;
     margin: 0;
     padding: 0;
@@ -211,11 +248,11 @@
 /* 中文文字的浮动 + 文字颜色 */
 .title-text .char__inner,
 .title-text-alt .char__inner {
-    background: linear-gradient(135deg, #111111 30%, #444444 100%);
+    background: linear-gradient(135deg, var(--text-dark) 30%, var(--text-gradient-end) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    color: #111111;
+    color: var(--text-dark);
 }
 
 /* Blupure 字母间距 */
@@ -235,7 +272,7 @@
 
 /* 调整介绍段落的字体大小、颜色与间距 */
 .intro-content .intro-content__desc.lead {
-    color: #888888 !important;       /* 改为灰色 */
+    color: var(--text-soft) !important;       /* 改为灰色 */
     font-size: 1.45rem !important;    /* 缩小字体 (原模板通常为 1.8rem 或更大) */
     margin-top: 12rem !important;    /* 增大上边距，与标题拉开距离 */
     line-height: 1.8;                 /* 稍微拉开行高，提升精致感 */
@@ -250,7 +287,7 @@
         .s-works {
             padding-top: 12rem;
             padding-bottom: 12rem;
-            background-color: #fafafb;
+            background-color: var(--section-bg-alt);
             border-top: 1px solid rgba(0, 47, 167, 0.05);
         }
         .s-works .section-title {
@@ -267,13 +304,13 @@
             font-weight: 600;
         }
         .works-subtitle .ws-hint {
-            color: #999;
+            color: var(--text-soft);
         }
         .s-works .lead {
             font-size: var(--text-lg);
         }
         .section-title {
-            color: #111111;
+            color: var(--text-dark);
         }
         .section-title::before {
             color: var(--pure-blue) !important;
@@ -303,7 +340,7 @@
             grid-column: 1 / -1;
             margin: 3rem 0 0.5rem 0;
             padding-bottom: 0.6rem;
-            border-bottom: 2px solid rgba(0, 47, 167, 0.08);
+            border-bottom: 2px solid var(--pure-blue-alpha);
         }
         .category-header:first-of-type { margin-top: 0; }
         .category-title {
@@ -338,7 +375,7 @@
             }
         }
         .portfolio-card {
-            background: #ffffff;
+            background: var(--card-bg);
             border: 1px solid rgba(0, 47, 167, 0.06);
             border-radius: 12px;
             overflow: hidden;
@@ -349,8 +386,8 @@
         }
         .portfolio-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0, 47, 167, 0.08);
-            border-color: rgba(0, 47, 167, 0.2);
+            box-shadow: 0 20px 40px var(--shadow-card);
+            border-color: var(--shadow-card-hover, rgba(0, 47, 167, 0.2));
         }
         .portfolio-card__media {
             display: block;
@@ -381,6 +418,9 @@
             opacity: 0;
             transition: opacity 0.4s ease;
             z-index: 1;
+        }
+        html.dark-mode .portfolio-card__media::before {
+            background-color: rgba(77, 124, 255, 0.75);
         }
         .portfolio-card:hover .portfolio-card__media::before {
             opacity: 1;
@@ -421,7 +461,7 @@
             font-weight: 600;
             margin: 0 0 10px 0;
             line-height: 1.4;
-            color: #111111;
+            color: var(--text-dark);
             transition: color 0.3s ease;
         }
         .portfolio-card:hover .portfolio-card__title {
@@ -430,7 +470,7 @@
         .portfolio-card__desc {
             font-size: 1.35rem;
             line-height: 1.6;
-            color: #666666;
+            color: var(--text-soft);
             margin: 0;
             display: -webkit-box;
             -webkit-line-clamp: 3;
@@ -464,22 +504,46 @@
         }
         .loading-text {
             font-size: 1.5rem;
-            color: #666666;
+            color: var(--text-soft);
             letter-spacing: 0.05em;
         }
 
         /* 错误/空状态增强 */
         .empty-state-message, .error-state-message {
-            background: #ffffff;
+            background: var(--card-bg);
             border-radius: 24px;
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.02);
         }
+
+        /* 主题切换按钮 */
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem 0.8rem;
+            display: flex;
+            align-items: center;
+            color: var(--text-soft);
+            transition: color 0.3s ease;
+            margin-left: 0.5rem;
+        }
+        .theme-toggle:hover {
+            color: var(--pure-blue);
+        }
+        .theme-toggle__icon {
+            width: 20px;
+            height: 20px;
+        }
+        .theme-toggle__icon--moon { display: block; }
+        .theme-toggle__icon--sun { display: none; }
+        html.dark-mode .theme-toggle__icon--moon { display: none; }
+        html.dark-mode .theme-toggle__icon--sun { display: block; }
 
         /* 页脚极简化 */
         .s-footer {
             padding-top: 8rem;
             padding-bottom: 8rem;
-            background-color: #ffffff;
+            background-color: var(--card-bg);
             border-top: 1px solid rgba(0, 47, 167, 0.05);
         }
         .s-footer .ss-copyright,
@@ -497,6 +561,39 @@
             font-weight: 700;
             color: var(--pure-blue);
             letter-spacing: 0.05em;
+        }
+
+        /* ===== 深色主题专属样式 ===== */
+        html.dark-mode .title-brand .char__inner {
+            color: hsl(220, 80%, calc(55% + var(--i) * 3.5%));
+            text-shadow: 0 0 20px rgba(77, 124, 255, 0.6), 0 0 40px rgba(77, 124, 255, 0.3);
+        }
+        html.dark-mode .title-brand .char::after {
+            color: rgba(77, 124, 255, 0.25);
+        }
+        html.dark-mode .title-text .char__inner,
+        html.dark-mode .title-text-alt .char__inner {
+            background: linear-gradient(135deg, var(--text-dark) 30%, var(--text-gradient-end) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: var(--text-dark);
+        }
+
+        /* intro 背景图深色叠加 */
+        html.dark-mode .s-intro::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 14, 30, 0.65);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* 平滑过渡 */
+        html.dark-mode,
+        html.dark-mode * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
     </style>
 </head>
@@ -535,8 +632,23 @@
                     <ul class="header-nav__links">
                         <li class="current"><a class="smoothscroll" href="#intro">会客厅</a></li>
                         <li><a class="smoothscroll" href="#works">作品汇集</a></li>
-                    </ul>               
-                </nav>        
+                    </ul>
+                    <button class="theme-toggle" id="theme-toggle" aria-label="切换深色/浅色主题">
+                        <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>               </nav>
             
             </div>
         </header>
@@ -795,7 +907,7 @@ function renderCard(metadata) {
                 // 展示加载错误 (网络/权限/限流等)
                 function showNetworkError(msg, detail = '') {
                     container.innerHTML = `
-                        <div class="loading-wrapper error-state-message" style="background: #fff; border-radius: 24px;">
+                        <div class="loading-wrapper error-state-message" style="background: var(--card-bg); border-radius: 24px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--pure-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -803,7 +915,7 @@ function renderCard(metadata) {
                             </svg>
                             <h3 style="color: #c0392b; margin: 0 0 1rem 0; font-weight: 600;">展厅检索异常</h3>
                             <p style="font-size: 1.4rem; max-width: 550px;">${msg}</p>
-                            ${detail ? `<p style="font-size: 1.2rem; color:#777;">${detail}</p>` : ''}
+                            ${detail ? `<p style="font-size: 1.2rem; color: var(--text-soft);">${detail}</p>` : ''}
                             <button id="retry-works-btn" style="margin-top: 2rem; background: var(--pure-blue); border: none; color: white; padding: 0.8rem 2rem; border-radius: 40px; font-weight: 500; cursor: pointer;">重新加载</button>
                         </div>
                     `;
@@ -813,13 +925,13 @@ function renderCard(metadata) {
                 
                 function showEmptyWorks() {
                     container.innerHTML = `
-                        <div class="loading-wrapper empty-state-message" style="background: #fff; border-radius: 24px; border: 1px dashed rgba(0,47,167,0.25);">
+                        <div class="loading-wrapper empty-state-message" style="background: var(--card-bg); border-radius: 24px; border: 1px dashed var(--pure-blue-alpha);">
                             <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--pure-blue)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px;">
                                 <rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>
                                 <line x1="12" y1="18" x2="12" y2="12"></line>
                                 <line x1="9" y1="15" x2="15" y2="15"></line>
                             </svg>
-                            <h3 style="color: #111; margin-top: 0;">暂无作品陈列</h3>
+                            <h3 style="color: var(--text-dark); margin-top: 0;">暂无作品陈列</h3>
                             <p style="max-width: 480px; font-size: 1.4rem;">请在仓库根目录创建 <strong style="color: var(--pure-blue);">/works</strong> 文件夹，并将您的 HTML 作品文件放入其中。系统会自动扫描并生成卡片，无需额外配置。</p>
                             <p style="font-size: 1.2rem; margin-top: 1.2rem;">✨ 提示: 每个作品支持自定义标题(title)、描述(meta name="description") 和封面(meta name="cover")</p>
                         </div>
@@ -986,6 +1098,46 @@ async function initPortfolio() {
             ]).then(function() {
                 // 再等 preloader 淡出动画结束（0.6s 延迟 + 0.3s 过渡）
                 setTimeout(splitTitleChars, 900);
+            });
+        })();
+    </script>
+
+    <!-- 深色主题切换逻辑 -->
+    <script>
+        (function() {
+            function getPreferredTheme() {
+                var stored = localStorage.getItem('blupure-theme');
+                if (stored) return stored;
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                }
+                try { localStorage.setItem('blupure-theme', theme); } catch(e) {}
+            }
+
+            applyTheme(getPreferredTheme());
+
+            try {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+                    if (!localStorage.getItem('blupure-theme')) {
+                        applyTheme(e.matches ? 'dark' : 'light');
+                    }
+                });
+            } catch(e) {}
+
+            document.addEventListener('DOMContentLoaded', function() {
+                var toggle = document.getElementById('theme-toggle');
+                if (toggle) {
+                    toggle.addEventListener('click', function() {
+                        var isDark = document.documentElement.classList.contains('dark-mode');
+                        applyTheme(isDark ? 'light' : 'dark');
+                    });
+                }
             });
         })();
     </script>
