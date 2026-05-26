@@ -232,7 +232,7 @@
         
         .board-container {
             position: relative;
-            padding: 20px;
+            padding: 8px;
             background: rgba(255,255,255,0.95);
             border-radius: 25px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -240,33 +240,121 @@
         
         .board {
             display: grid;
-            grid-template-columns: repeat(15, 1fr);
-            grid-template-rows: repeat(15, 1fr);
-            gap: 2px;
-            background: linear-gradient(135deg, #F7DC6F, #F8C471);
-            padding: 15px;
-            border-radius: 20px;
-            box-shadow: inset 0 4px 10px rgba(0,0,0,0.1);
+            grid-template-columns: repeat(15, 40px);
+            grid-template-rows: repeat(15, 40px);
+            background-color: #DCB35C;
+            background-image:
+                linear-gradient(rgba(0,0,0,0.28) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.28) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 20px 20px;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.12);
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
         }
-        
+
         .cell {
             width: 40px;
             height: 40px;
-            background: rgba(255,255,255,0.8);
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
             position: relative;
+            z-index: 3;
         }
-        
-        .cell:hover:not(.occupied) {
-            background: rgba(255,255,255,1);
-            transform: scale(1.1);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        .cell:hover .hover-highlight {
+            opacity: 1;
+        }
+        .cell.drag-over .hover-highlight {
+            opacity: 1;
+            background: radial-gradient(circle, rgba(0,0,0,0.08) 0%, transparent 70%);
+        }
+        /* 悬停预览显示当前玩家棋子颜色 */
+        .turn-black .cell:hover .hover-highlight {
+            background: radial-gradient(circle, rgba(45,52,54,0.2) 0%, transparent 70%);
+        }
+        .turn-white .cell:hover .hover-highlight {
+            background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%);
+        }
+
+        /* 星位标记 */
+        .star-point {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background: rgba(0,0,0,0.45);
+            border-radius: 50%;
+            z-index: 1;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        /* 悬停高亮 */
+        .hover-highlight {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.15s;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .hover-highlight.black-hint {
+            background: radial-gradient(circle, rgba(45,52,54,0.25) 0%, transparent 70%);
+        }
+        .hover-highlight.white-hint {
+            background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%);
+        }
+
+        /* 拖拽中的浮动棋子 */
+        .drag-ghost {
+            position: fixed;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+            transform: translate(-50%, -50%);
+            transition: width 0.1s, height 0.1s;
+        }
+        .drag-ghost.black-ghost {
+            background: linear-gradient(135deg, #2D3436, #636E72);
+        }
+        .drag-ghost.white-ghost {
+            background: linear-gradient(135deg, #FFFFFF, #DDD6FE);
+            border: 2px solid #E17055;
+        }
+
+        /* 松手放置提示 */
+        .release-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            z-index: 9998;
+            opacity: 0;
+            transition: all 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .release-hint.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
         
         .piece {
@@ -279,20 +367,18 @@
             font-size: 0.8rem;
             font-weight: bold;
             box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-            animation: piecePlace 0.5s ease-out;
+            animation: piecePlace 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
+            z-index: 4;
         }
 
         @keyframes piecePlace {
             0% {
-                transform: scale(0) rotate(180deg);
+                transform: scale(0);
                 opacity: 0;
             }
-            50% {
-                transform: scale(1.2) rotate(90deg);
-            }
             100% {
-                transform: scale(1) rotate(0deg);
+                transform: scale(1);
                 opacity: 1;
             }
         }
@@ -451,45 +537,71 @@
             .title {
                 font-size: 2rem;
             }
-            
+
             .cell {
                 width: 32px;
                 height: 32px;
             }
-            
-            .piece {
-                width: 26px;
-                height: 26px;
-                font-size: 0.7rem;
+            .board {
+                grid-template-columns: repeat(15, 32px);
+                grid-template-rows: repeat(15, 32px);
+                background-size: 32px 32px;
+                background-position: 16px 16px;
+                padding: 16px;
             }
-            
+            .hover-highlight {
+                width: 28px;
+                height: 28px;
+            }
+            .drag-ghost {
+                width: 28px;
+                height: 28px;
+            }
+            .star-point {
+                width: 6px;
+                height: 6px;
+            }
+
             .board {
                 padding: 10px;
             }
-            
+
             .controls {
                 flex-direction: column;
                 gap: 15px;
             }
-            
+
             .game-info {
                 flex-direction: column;
                 gap: 15px;
             }
         }
-        
+
         @media (max-width: 480px) {
             .cell {
                 width: 28px;
                 height: 28px;
             }
-            
-            .piece {
-                width: 22px;
-                height: 22px;
-                font-size: 0.6rem;
+            .board {
+                grid-template-columns: repeat(15, 28px);
+                grid-template-rows: repeat(15, 28px);
+                background-size: 28px 28px;
+                background-position: 14px 14px;
+                padding: 14px;
             }
-            
+            .hover-highlight {
+                width: 24px;
+                height: 24px;
+            }
+            .drag-ghost {
+                width: 24px;
+                height: 24px;
+            }
+            .star-point {
+                width: 5px;
+                height: 5px;
+            }
+
             .mode-btn, .action-btn {
                 padding: 10px 15px;
                 font-size: 0.9rem;
@@ -579,6 +691,18 @@
             moveCount: 0,
             lastMove: null // {row, col}
         };
+
+        // 拖拽状态
+        let dragState = {
+            active: false,
+            row: -1,
+            col: -1,
+            ghost: null,
+            confirmBar: null,
+            startX: 0,
+            startY: 0,
+            moved: false
+        };
         
         // 音效数据 (base64编码的简短音效)
         const sounds = {
@@ -587,25 +711,211 @@
         
         // 初始化游戏
         function initGame() {
+            var board = document.getElementById('gameBoard');
             createBoard();
+
+            // 一次性绑定拖拽事件（board 和 document 级均仅一次）
+            board.addEventListener('mousedown', onPointerDown);
+            board.addEventListener('touchstart', onPointerDown, { passive: true });
+            document.addEventListener('mousemove', onPointerMove);
+            document.addEventListener('mouseup', onPointerUp);
+            document.addEventListener('touchmove', onPointerMove, { passive: false });
+            document.addEventListener('touchend', onPointerUp);
+            document.addEventListener('touchcancel', onPointerUp);
+
             updateUI();
         }
         
+        // 星位（15×15 棋盘的天元和星位）
+        const STAR_POINTS = [
+            [3,3], [3,7], [3,11],
+            [7,3], [7,7], [7,11],
+            [11,3], [11,7], [11,11]
+        ];
+
         // 创建棋盘
         function createBoard() {
             const board = document.getElementById('gameBoard');
             board.innerHTML = '';
-            
+
             for (let i = 0; i < 15; i++) {
                 for (let j = 0; j < 15; j++) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
                     cell.dataset.row = i;
                     cell.dataset.col = j;
-                    cell.onclick = () => makeMove(i, j);
+
+                    // 悬停高亮（显示在棋子下方）
+                    const highlight = document.createElement('div');
+                    highlight.className = 'hover-highlight';
+                    cell.appendChild(highlight);
+
                     board.appendChild(cell);
                 }
             }
+
+            // 绘制星位
+            STAR_POINTS.forEach(function(pos) {
+                var r = pos[0], c = pos[1];
+                var cells = board.children;
+                var idx = r * 15 + c;
+                if (idx < cells.length) {
+                    var dot = document.createElement('div');
+                    dot.className = 'star-point';
+                    // 定位到格子中心
+                    var cellEl = cells[idx];
+                    cellEl.style.position = 'relative';
+                    cellEl.appendChild(dot);
+                }
+            });
+
+        }
+
+        function getCellFromPoint(clientX, clientY) {
+            var el = document.elementFromPoint(clientX, clientY);
+            if (el && el.classList.contains('cell')) {
+                return {
+                    row: parseInt(el.dataset.row),
+                    col: parseInt(el.dataset.col),
+                    el: el
+                };
+            }
+            if (el && el.closest) {
+                var cell = el.closest('.cell');
+                if (cell) {
+                    return {
+                        row: parseInt(cell.dataset.row),
+                        col: parseInt(cell.dataset.col),
+                        el: cell
+                    };
+                }
+            }
+            return null;
+        }
+
+        function onPointerDown(e) {
+            if (gameState.gameOver) return;
+            if (gameState.gameMode === 'pvc' && gameState.currentPlayer === 2) return;
+
+            var clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            var cellInfo = getCellFromPoint(clientX, clientY);
+            if (!cellInfo) return;
+            if (gameState.board[cellInfo.row][cellInfo.col] !== 0) return;
+
+            dragState.active = true;
+            dragState.row = cellInfo.row;
+            dragState.col = cellInfo.col;
+            dragState.startX = clientX;
+            dragState.startY = clientY;
+            dragState.moved = false;
+
+            // 创建浮动棋子
+            createGhost(cellInfo.row, cellInfo.col, clientX, clientY);
+
+            // 高亮当前格
+            cellInfo.el.classList.add('drag-over');
+
+            // 显示松手提示
+            showReleaseHint();
+        }
+
+        function onPointerMove(e) {
+            if (!dragState.active) return;
+
+            var clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+                e.preventDefault();
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            var dist = Math.sqrt(
+                Math.pow(clientX - dragState.startX, 2) +
+                Math.pow(clientY - dragState.startY, 2)
+            );
+            if (dist > 5) dragState.moved = true;
+
+            // 更新浮动棋子位置
+            if (dragState.ghost) {
+                dragState.ghost.style.left = clientX + 'px';
+                dragState.ghost.style.top = clientY + 'px';
+            }
+
+            // 找到当前悬停的格子
+            var cellInfo = getCellFromPoint(clientX, clientY);
+            if (!cellInfo) return;
+
+            document.querySelectorAll('.cell.drag-over').forEach(function(el) {
+                el.classList.remove('drag-over');
+            });
+
+            if (gameState.board[cellInfo.row][cellInfo.col] !== 0) return;
+
+            dragState.row = cellInfo.row;
+            dragState.col = cellInfo.col;
+            cellInfo.el.classList.add('drag-over');
+        }
+
+        function onPointerUp() {
+            if (!dragState.active) return;
+            dragState.active = false;
+
+            document.querySelectorAll('.cell.drag-over').forEach(function(el) {
+                el.classList.remove('drag-over');
+            });
+
+            if (dragState.ghost) {
+                dragState.ghost.remove();
+                dragState.ghost = null;
+            }
+
+            hideReleaseHint();
+
+            var r = dragState.row, c = dragState.col;
+            dragState.row = -1;
+            dragState.col = -1;
+
+            if (r >= 0 && c >= 0 && gameState.board[r][c] === 0) {
+                makeMove(r, c);
+            }
+        }
+
+        // 创建浮动棋子
+        function createGhost(row, col, x, y) {
+            if (dragState.ghost) dragState.ghost.remove();
+            var ghost = document.createElement('div');
+            var player = gameState.currentPlayer;
+            ghost.className = 'drag-ghost ' + (player === 1 ? 'black-ghost' : 'white-ghost');
+            ghost.style.left = x + 'px';
+            ghost.style.top = y + 'px';
+            document.body.appendChild(ghost);
+            dragState.ghost = ghost;
+        }
+
+        // 松手提示
+        var releaseHintEl = null;
+        function showReleaseHint() {
+            if (!releaseHintEl) {
+                releaseHintEl = document.createElement('div');
+                releaseHintEl.className = 'release-hint';
+                releaseHintEl.textContent = '↑ 松手落子';
+                document.body.appendChild(releaseHintEl);
+            }
+            releaseHintEl.classList.add('show');
+        }
+        function hideReleaseHint() {
+            if (releaseHintEl) releaseHintEl.classList.remove('show');
         }
         
         // 设置游戏模式
@@ -1786,10 +2096,11 @@
                 gameState.board[lastMove.row][lastMove.col] = 0;
                 gameState.moveCount--;
                 
-                // 更新UI
+                // 更新UI — 只移除棋子，保留悬停高亮
                 const cell = document.querySelector(`[data-row="${lastMove.row}"][data-col="${lastMove.col}"]`);
                 cell.classList.remove('occupied');
-                cell.innerHTML = '';
+                var piece = cell.querySelector('.piece');
+                if (piece) piece.remove();
             }
             
             gameState.currentPlayer = 1;
@@ -1813,10 +2124,15 @@
             // 更新玩家信息
             const player1Info = document.getElementById('player1Info');
             const player2Info = document.getElementById('player2Info');
-            
+
             player1Info.classList.toggle('active', gameState.currentPlayer === 1);
             player2Info.classList.toggle('active', gameState.currentPlayer === 2);
-            
+
+            // 更新棋盘 hover 预览颜色
+            const board = document.getElementById('gameBoard');
+            board.classList.toggle('turn-black', gameState.currentPlayer === 1);
+            board.classList.toggle('turn-white', gameState.currentPlayer === 2);
+
             // 更新玩家2名称
             const player2Name = player2Info.querySelector('.player-name');
             if (gameState.gameMode === 'pvc') {
