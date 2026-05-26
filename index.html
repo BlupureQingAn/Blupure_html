@@ -179,9 +179,14 @@
     display: inline-block;
 }
 
-/* 中文文字的浮动 */
+/* 中文文字的浮动 + 文字颜色 */
 .title-text .char__inner,
 .title-text-alt .char__inner {
+    background: linear-gradient(135deg, #111111 30%, #444444 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: #111111;
     animation: charFloat 3s ease-in-out infinite;
     animation-delay: calc(var(--i) * 0.07s + 1.55s);
 }
