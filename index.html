@@ -145,10 +145,10 @@
     padding: 0;
 }
 .title-text {
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.2rem;
 }
 .title-text-alt {
-    margin-top: 2rem;
+    margin-top: 0.8rem;
 }
 
 /* 4. 专属品牌词（Blupure）流光发光样式 */
@@ -159,7 +159,7 @@
     font-style: normal;
     letter-spacing: -0.01em;
     display: block;
-    margin: 2rem 0;
+    margin: 0.6rem 0;
     padding: 0;
     line-height: 1.1;
 
@@ -171,8 +171,8 @@
 /* 5. 逐字掉落 + 浮动动画 */
 .char {
     display: inline-block;
-    animation: charFall 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) both;
-    animation-delay: calc(var(--i) * 0.12s + 1s);
+    animation: charFall 1s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    animation-delay: calc(var(--i) * 0.35s + 1s);
 }
 
 .char__inner {
@@ -188,7 +188,7 @@
     background-clip: text;
     color: #111111;
     animation: charFloat 3s ease-in-out infinite;
-    animation-delay: calc(var(--i) * 0.12s + 1.9s);
+    animation-delay: calc(var(--i) * 0.35s + 2s);
 }
 
 /* Blupure 渐变+流光+浮动 */
@@ -200,7 +200,7 @@
     background-clip: text;
     animation: charFloat 3s ease-in-out infinite,
                streamGradient 4s linear infinite;
-    animation-delay: calc(var(--i) * 0.12s + 1.9s), 0s;
+    animation-delay: calc(var(--i) * 0.35s + 2s), 0s;
 }
 
 /* 调整介绍段落的字体大小、颜色与间距 */
