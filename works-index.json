@@ -18,7 +18,7 @@
   {
     "title": "PDF无损压缩",
     "description": "在线PDF无损压缩工具，无需上传服务器，在浏览器端本地完成PDF压缩，保护文件隐私安全。",
-    "coverImg": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500'%3E%3Crect width='800' height='500' fill='%23002FA7'/%3E%3Cpath d='M0,350 L800,280' stroke='%23FFFFFF' stroke-width='1.2' fill='none' opacity='0.15'/%3E%3Ccircle cx='680' cy='100' r='180' fill='%23001F75' opacity='0.5'/%3E%3Ccircle cx='120' cy='400' r='140' fill='%23001A60' opacity='0.4'/%3E%3Ctext x='8%25' y='85%25' fill='%23FFFFFF' font-family='Inter,system-ui' font-size='34' font-weight='800'%3EPDF无损压缩%3C/text%3E%3Ctext x='8%25' y='75%25' fill='%23FFFFFF' font-family='Inter,system-ui' font-size='16' opacity='0.6'%3EBlupure · 作品集%3C/text%3E%3C/svg%3E",
+    "coverImg": "",
     "category": "实用工具",
     "fileName": "PDF无损压缩.html",
     "workUrl": "works/PDF无损压缩.html"
@@ -26,7 +26,7 @@
   {
     "title": "长图转pdf",
     "description": "将长图片转换为标准PDF文档，支持预览和自定义页面尺寸，便捷高效。",
-    "coverImg": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500'%3E%3Crect width='800' height='500' fill='%23002FA7'/%3E%3Cpath d='M0,350 L800,280' stroke='%23FFFFFF' stroke-width='1.2' fill='none' opacity='0.15'/%3E%3Ccircle cx='680' cy='100' r='180' fill='%23001F75' opacity='0.5'/%3E%3Ccircle cx='120' cy='400' r='140' fill='%23001A60' opacity='0.4'/%3E%3Ctext x='8%25' y='85%25' fill='%23FFFFFF' font-family='Inter,system-ui' font-size='34' font-weight='800'%3E长图转pdf%3C/text%3E%3Ctext x='8%25' y='75%25' fill='%23FFFFFF' font-family='Inter,system-ui' font-size='16' opacity='0.6'%3EBlupure · 作品集%3C/text%3E%3C/svg%3E",
+    "coverImg": "",
     "category": "实用工具",
     "fileName": "长图转pdf.html",
     "workUrl": "works/长图转pdf.html"
@@ -34,7 +34,7 @@
   {
     "title": "pdf-image-converter",
     "description": "PDF与图片互转工具，支持PDF转图片和图片转PDF，完全在浏览器本地完成。",
-    "coverImg": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500'%3E%3Crect width='800' height='500' fill='%23002FA7'/%3E%3Cpath d='M0,350 L800,280' stroke='%23FFFFFF' stroke-width='1.2' fill='none' opacity='0.15'/%3E%3Ccircle cx='680' cy='100' r='180' fill='%23001F75' opacity='0.5'/%3E%3Ccircle cx='120' cy='400' r='140' fill='%23001A60' opacity='0.4'/%3E%3Ctext x='8%25' y='85%25' fill='%23FFFFFF' font-family='Inter,system-ui' font-size='34' font-weight='800'%3Epdf-image-converter%3C/text%3E%3Ctext x='8%25' y='75%25' fill='%23FFFFFF' font-family='Inter,system-ui' font-size='16' opacity='0.6'%3EBlupure · 作品集%3C/text%3E%3C/svg%3E",
+    "coverImg": "",
     "category": "实用工具",
     "fileName": "pdf-image-converter.html",
     "workUrl": "works/pdf-image-converter.html"
@@ -42,7 +42,7 @@
   {
     "title": "Font Awesome 4.7 图标大全",
     "description": "Font Awesome 4.7 图标完整集合，分类浏览、搜索、一键复制，支持下载 ZIP 含 AI 使用指南。",
-    "coverImg": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500'%3E%3Crect width='800' height='500' fill='%232c3e50'/%3E%3Ctext x='40' y='250' font-family='sans-serif' font-size='36' fill='%23fff'%3EFontAwesome 4.7%3C/text%3E%3C/svg%3E",
+    "coverImg": "",
     "category": "图标资源",
     "fileName": "fontawesome.html",
     "workUrl": "works/fontawesome.html"
@@ -50,7 +50,7 @@
   {
     "title": "萌趣抽奖屋",
     "description": "萌趣风格的抽奖互动游戏，点击抽取随机奖品，可爱卡通界面设计，支持多种奖品配置。",
-    "coverImg": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500'%3E%3Crect width='800' height='500' fill='%23FFB6C1'/%3E%3Ctext x='40' y='250' font-family='sans-serif' font-size='40' fill='%23fff'%3E萌趣抽奖屋%3C/text%3E%3C/svg%3E",
+    "coverImg": "",
     "category": "互动游戏",
     "fileName": "萌趣抽奖屋.html",
     "workUrl": "works/萌趣抽奖屋.html"
@@ -58,7 +58,7 @@
   {
     "title": "🎮 卡通五子棋对战",
     "description": "卡通风格五子棋对战游戏，支持双人轮流对战，萌趣棋子与棋盘设计，胜负判定自动完成。",
-    "coverImg": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500'%3E%3Crect width='800' height='500' fill='%2398FB98'/%3E%3Ctext x='40' y='250' font-family='sans-serif' font-size='40' fill='%23333'%3E五子棋对战%3C/text%3E%3C/svg%3E",
+    "coverImg": "",
     "category": "互动游戏",
     "fileName": "五子棋.html",
     "workUrl": "works/五子棋.html"
