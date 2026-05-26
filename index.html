@@ -170,39 +170,32 @@
     white-space: nowrap;
     line-height: 1.1;
     text-align: center;
-    position: relative;
 }
-
-/* Blupure 晕染背景：偏移的底层文字 */
-.title-brand::after {
-    content: "Blupure";
-    position: absolute;
-    top: 0.06em;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    font-family: inherit;
-    font-size: inherit;
-    font-weight: inherit;
-    letter-spacing: 0.15em;
-    color: rgba(0, 47, 167, 0.3);
-    filter: blur(6px);
-    z-index: -1;
-    pointer-events: none;
-    opacity: 0;
-    animation: shadowFadeIn 0.8s ease-out forwards;
-    animation-delay: 5s;
-}
-
-/* 5. 逐字掉落 + 浮动动画（两个动画同元素，无闪烁切换） */
 .char {
     display: inline-block;
+    position: relative;
     animation:
         charFall 1s cubic-bezier(0.22, 0.61, 0.36, 1) both,
         charFloat 3s ease-in-out infinite;
     animation-delay:
         calc(var(--i) * 0.35s + 0.5s),
         calc(var(--i) * 0.35s + 1.5s);
+}
+
+/* Blupure 逐字晕影：每个字母掉落完毕后淡入跟随 */
+.title-brand .char::after {
+    content: attr(data-char);
+    position: absolute;
+    top: 0.06em;
+    left: 0;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    color: rgba(0, 47, 167, 0.15);
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    animation: shadowFadeIn 0.4s ease-out calc(var(--i) * 0.35s + 1.5s) forwards;
 }
 
 .char__inner {
@@ -903,7 +896,7 @@ async function initPortfolio() {
                         if (ch === ' ') {
                             html += ' ';
                         } else {
-                            html += '<span class="char" style="--i: ' + index + '">' +
+                            html += '<span class="char" style="--i: ' + index + '" data-char="' + ch + '">' +
                                     '<span class="char__inner">' + ch + '</span>' +
                                     '</span>';
                             index++;
