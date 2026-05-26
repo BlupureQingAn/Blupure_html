@@ -167,11 +167,15 @@
     text-align: center;
 }
 
-/* 5. 逐字掉落 + 浮动动画（transform 触发 GPU 合成，流畅不卡顿） */
+/* 5. 逐字掉落 + 浮动动画（两个动画同元素，无闪烁切换） */
 .char {
     display: inline-block;
-    animation: charFall 1s cubic-bezier(0.22, 0.61, 0.36, 1) both;
-    animation-delay: calc(var(--i) * 0.35s + 0.5s);
+    animation:
+        charFall 1s cubic-bezier(0.22, 0.61, 0.36, 1) both,
+        charFloat 3s ease-in-out infinite;
+    animation-delay:
+        calc(var(--i) * 0.35s + 0.5s),
+        calc(var(--i) * 0.35s + 1.5s);
 }
 
 .char__inner {
@@ -186,8 +190,6 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     color: #111111;
-    animation: charFloat 3s ease-in-out infinite;
-    animation-delay: calc(var(--i) * 0.35s + 1.5s);
 }
 
 /* Blupure 字母间距 */
@@ -202,11 +204,9 @@
     margin-right: 0;
 }
 
-/* Blupure 逐字 HSL 深→浅 + 彩虹发光阴影 */
+/* Blupure 逐字 HSL 深→浅 + 克莱因蓝光晕 */
 .title-brand .char__inner {
-    color: hsl(220, 100%, calc(32% + var(--i) * 5%));
-    animation: charFloat 3s ease-in-out infinite;
-    animation-delay: calc(var(--i) * 0.35s + 1.5s);
+    color: hsl(220, 100%, calc(20% + var(--i) * 4.5%));
     text-shadow: 0 0 12px rgba(0, 47, 167, 0.4);
 }
 
