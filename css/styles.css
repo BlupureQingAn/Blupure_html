@@ -3152,6 +3152,7 @@ td:last-child {
 /* Theme Toggle Button (Klein Blue) */
 .theme-toggle {
     background: none;
+    background-color: transparent;
     border: none;
     cursor: pointer;
     padding: 0.5rem 0.8rem;
@@ -3160,12 +3161,15 @@ td:last-child {
     margin-left: 0.5rem;
     border-radius: 8px;
     outline: none;
+    box-shadow: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    transition: background-color 0.3s ease;
-}
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background-color 0.2s ease;
 .theme-toggle::-moz-focus-inner {
     border: 0;
+    padding: 0;
 }
 .theme-toggle:focus-visible {
     outline: 2px solid #002FA7;
@@ -3176,7 +3180,6 @@ td:last-child {
     fill: none;
     width: 20px;
     height: 20px;
-    transition: stroke 0.3s ease;
     pointer-events: none;
 }
 .theme-toggle:hover {
