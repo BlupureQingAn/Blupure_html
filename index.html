@@ -137,6 +137,7 @@
 
     display: block;
     width: 100%;
+    visibility: hidden;
 }
 
 /* 3. 中文部分（欢迎来到 & 会客厅）独立样式 */
@@ -918,6 +919,9 @@ async function initPortfolio() {
                     }
                     el.innerHTML = html;
                 });
+                // 拆字完成后显示标题，防止闪烁
+                var title = document.querySelector('.intro-title-styled');
+                if (title) title.style.visibility = 'visible';
             }
 
             // 等待字体加载完成 + 页面资源加载完成（此时 preloader 开始淡出）
