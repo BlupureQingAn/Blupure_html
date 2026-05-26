@@ -110,7 +110,7 @@
 @keyframes charFall {
     0%   { opacity: 0; transform: translateY(-80px); }
     60%  { opacity: 1; transform: translateY(6px); }
-    80%  { opacity: 0; transform: translateY(-3px); }
+    80%  { opacity: 1; transform: translateY(-3px); }
     100% { opacity: 1; transform: translateY(0); }
 }
 
@@ -119,6 +119,11 @@
     0%   { transform: translateY(0); }
     50%  { transform: translateY(-10px); }
     100% { transform: translateY(0); }
+}
+
+/* 晕影淡入（等掉落动画全部结束后出现） */
+@keyframes shadowFadeIn {
+    to { opacity: 1; }
 }
 
 /* 2. 标题整体容器样式（负责全局字体、字号和浮动动画） */
@@ -168,11 +173,11 @@
     position: relative;
 }
 
-/* Blupure 晕染背景：偏移模糊的底层文字 */
+/* Blupure 晕染背景：偏移的底层文字 */
 .title-brand::after {
     content: "Blupure";
     position: absolute;
-    top: 0.12em;
+    top: 0.06em;
     left: 0;
     width: 100%;
     text-align: center;
@@ -180,10 +185,12 @@
     font-size: inherit;
     font-weight: inherit;
     letter-spacing: 0.15em;
-    color: rgba(0, 47, 167, 0.2);
-    filter: blur(10px);
+    color: rgba(0, 47, 167, 0.35);
     z-index: -1;
     pointer-events: none;
+    opacity: 0;
+    animation: shadowFadeIn 0.8s ease-out forwards;
+    animation-delay: 5s;
 }
 
 /* 5. 逐字掉落 + 浮动动画（两个动画同元素，无闪烁切换） */
