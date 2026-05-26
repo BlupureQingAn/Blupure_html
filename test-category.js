@@ -8,14 +8,14 @@ const path = require('path');
 // --- 测试 1: 验证每个作品文件的 meta category ---
 const WORKS_DIR = path.join(__dirname, 'works');
 const EXPECTED_CATEGORIES = {
-    '福尔摩斯探案集_互动文游.html': '互动文游',
-    '飘_互动文游.html': '互动文游',
+    '福尔摩斯探案集_互动文游.html': '互动游戏',
+    '飘_互动文游.html': '互动游戏',
     'PDF无损压缩.html': '实用工具',
     '长图转pdf.html': '实用工具',
     'pdf-image-converter.html': '实用工具',
     'fontawesome.html': '图标资源',
-    '萌趣抽奖屋.html': '互动文游',
-    '五子棋.html': '互动文游',
+    '萌趣抽奖屋.html': '互动游戏',
+    '五子棋.html': '互动游戏',
     'md_docx.html': '实用工具',
     'pdf_image.html': '实用工具',
 };
