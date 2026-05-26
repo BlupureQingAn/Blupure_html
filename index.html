@@ -106,6 +106,21 @@
     100% { background-position: 0% 50%; }
 }
 
+/* 逐字掉落动画 */
+@keyframes charFall {
+    0%   { opacity: 0; transform: translateY(-80px); }
+    60%  { opacity: 1; transform: translateY(6px); }
+    80%  { transform: translateY(-3px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* 逐字浮动动画（掉落后每个字独立浮动） */
+@keyframes charFloat {
+    0%   { transform: translateY(0px) rotate(0deg); }
+    50%  { transform: translateY(-10px) rotate(0.5deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
+
 /* 2. 标题整体容器样式（负责全局字体、字号和浮动动画） */
 .intro-title-styled {
     font-size: clamp(4.5rem, 8.5vw, 9.5rem);
@@ -116,7 +131,6 @@
     margin-bottom: 2.5rem;
 
     display: inline-block;
-    animation: floatAnimation 6s ease-in-out infinite;
 }
 
 /* 3. 中文部分（欢迎来到 & 会客厅）独立样式 */
@@ -130,6 +144,12 @@
     margin: 0;
     padding: 0;
 }
+.title-text {
+    margin-bottom: 2.5rem;
+}
+.title-text-alt {
+    margin-top: 2rem;
+}
 
 /* 4. 专属品牌词（Blupure）流光发光样式 */
 .title-brand {
@@ -139,22 +159,43 @@
     font-style: normal;
     letter-spacing: -0.01em;
     display: block;
-    margin: 0;
+    margin: 2rem 0;
     padding: 0;
     line-height: 1.1;
-    
-    /* 亮眼液态流光渐变 */
+
+    /* 霓虹发光阴影（留在父容器） */
+    filter: drop-shadow(0 4px 15px rgba(0, 119, 255, 0.45))
+            drop-shadow(0 1px 2px rgba(0, 47, 167, 0.3));
+}
+
+/* 5. 逐字掉落 + 浮动动画 */
+.char {
+    display: inline-block;
+    animation: charFall 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    animation-delay: calc(var(--i) * 0.07s + 1s);
+}
+
+.char__inner {
+    display: inline-block;
+}
+
+/* 中文文字的浮动 */
+.title-text .char__inner,
+.title-text-alt .char__inner {
+    animation: charFloat 3s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 0.07s + 1.55s);
+}
+
+/* Blupure 渐变+流光+浮动 */
+.title-brand .char__inner {
     background: linear-gradient(90deg, #002FA7 0%, #0077FF 35%, #00F0FF 70%, #002FA7 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    
-    /* 流光渐变动画 */
-    animation: streamGradient 4s linear infinite;
-    
-    /* 霓虹发光阴影 */
-    filter: drop-shadow(0 4px 15px rgba(0, 119, 255, 0.45)) 
-            drop-shadow(0 1px 2px rgba(0, 47, 167, 0.3));
+    background-clip: text;
+    animation: charFloat 3s ease-in-out infinite,
+               streamGradient 4s linear infinite;
+    animation-delay: calc(var(--i) * 0.07s + 1.55s), 0s;
 }
 
 /* 调整介绍段落的字体大小、颜色与间距 */
@@ -791,6 +832,35 @@ async function initPortfolio() {
 }
                 
                 initPortfolio();
+            });
+        })();
+    </script>
+
+    <!-- 标题逐字拆包：掉落 + 浮动动画 -->
+    <script>
+        (function() {
+            document.addEventListener('DOMContentLoaded', function() {
+                var selectors = ['.title-text', '.title-brand', '.title-text-alt'];
+                var index = 0;
+
+                selectors.forEach(function(sel) {
+                    var el = document.querySelector(sel);
+                    if (!el) return;
+                    var text = el.textContent || '';
+                    var html = '';
+                    for (var i = 0; i < text.length; i++) {
+                        var ch = text[i];
+                        if (ch === ' ') {
+                            html += ' ';
+                        } else {
+                            html += '<span class="char" style="--i: ' + index + '">' +
+                                    '<span class="char__inner">' + ch + '</span>' +
+                                    '</span>';
+                            index++;
+                        }
+                    }
+                    el.innerHTML = html;
+                });
             });
         })();
     </script>
