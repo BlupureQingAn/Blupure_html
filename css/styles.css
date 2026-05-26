@@ -3155,26 +3155,38 @@ td:last-child {
     border: none;
     cursor: pointer;
     padding: 0.5rem 0.8rem;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    color: #002FA7;
-    transition: color 0.3s ease, background-color 0.3s ease;
     margin-left: 0.5rem;
     border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+.theme-toggle .theme-toggle__icon {
+    stroke: #002FA7;
+    width: 20px;
+    height: 20px;
+    transition: stroke 0.3s ease;
 }
 .theme-toggle:hover {
-    color: #001F70;
     background-color: rgba(0, 47, 167, 0.08);
+}
+.theme-toggle:hover .theme-toggle__icon {
+    stroke: #001F70;
 }
 .theme-toggle:active {
     background-color: rgba(0, 47, 167, 0.18);
 }
-html.dark-mode .theme-toggle {
-    color: #4D7CFF;
+html.dark-mode .theme-toggle .theme-toggle__icon {
+    stroke: #4D7CFF;
+}
+html.dark-mode .theme-toggle:hover .theme-toggle__icon {
+    stroke: #6B8FFF;
 }
 html.dark-mode .theme-toggle:hover {
-    color: #6B8FFF;
     background-color: rgba(77, 124, 255, 0.12);
+}
+html.dark-mode .theme-toggle:active {
+    background-color: rgba(77, 124, 255, 0.22);
 }
 html:not(.dark-mode) .s-header.is-visible {
     background-color: rgba(255, 255, 255, 0.88);
