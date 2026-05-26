@@ -3475,7 +3475,7 @@ td:last-child {
     background-image        : url(../images/intro-bg.png);
     background-repeat       : no-repeat;
     background-position     : center top;
-    background-size         : cover;
+    background-size         : 100% auto;
     z-index                 : 2;
     height                  : auto;
     position                : relative;
@@ -4807,28 +4807,6 @@ button.modal__close-btn:hover {
  * Waldo template color variable overrides for dark theme.
  * Applied via prefers-color-scheme (auto) and html.dark-mode (manual).
  * =================================================================== */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --color-bg: var(--color-neutral-950);
-        --color-bg-inverse: var(--color-neutral-50);
-        --color-text: var(--color-neutral-150);
-        --color-text-bold: var(--color-neutral-100);
-        --color-text-light: var(--color-neutral-450);
-        --color-headings: var(--color-neutral-100);
-        --color-border: var(--color-neutral-750);
-        --color-bg-neutral: var(--color-neutral-800);
-        --color-white: var(--color-neutral-950);
-        --color-black: var(--color-neutral-50);
-    }
-
-    .s-header.is-visible {
-        background-color: rgba(249, 249, 249, 0.08);
-        backdrop-filter: blur(120px);
-        -webkit-backdrop-filter: blur(120px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-}
-
 html.dark-mode {
     --color-bg: var(--color-neutral-950);
     --color-bg-inverse: var(--color-neutral-50);
