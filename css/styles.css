@@ -3475,7 +3475,7 @@ td:last-child {
     background-image        : url(../images/intro-bg.png);
     background-repeat       : no-repeat;
     background-position     : center top;
-    background-size         : contain;
+    background-size         : cover;
     z-index                 : 2;
     height                  : auto;
     position                : relative;
