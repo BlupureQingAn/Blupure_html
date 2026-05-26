@@ -246,6 +246,128 @@
             transform: scale(1);
         }
 
+        /* Detail Popover */
+        .detail-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(2px);
+            z-index: 9998;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .detail-overlay.show { display: flex; }
+        .detail-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px 44px;
+            max-width: 420px;
+            width: 90vw;
+            text-align: center;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+            animation: detailIn 0.25s cubic-bezier(0.16,1,0.3,1);
+            position: relative;
+        }
+        @keyframes detailIn {
+            from { opacity: 0; transform: scale(0.9) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .detail-card .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: color 0.2s;
+        }
+        .detail-card .close-btn:hover { color: var(--text); }
+        .detail-card .preview-icon {
+            font-size: 4rem !important;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+        .detail-card .preview-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .detail-card .preview-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+        .detail-card .copy-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .detail-card .copy-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 18px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            font-family: monospace;
+        }
+        .detail-card .copy-btn:hover {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .detail-card .copy-btn .action-label {
+            color: var(--text-muted);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+        .detail-card .copy-btn .code {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .detail-card .copy-btn .check-mark {
+            color: var(--green);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .detail-card .copy-btn .check-mark.show { opacity: 1; }
+        .detail-card .usage-tip {
+            margin-top: 16px;
+            padding: 10px 14px;
+            background: rgba(74,158,255,0.06);
+            border-radius: 8px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-align: left;
+            line-height: 1.6;
+        }
+        .detail-card .usage-tip code {
+            color: var(--accent);
+            background: rgba(74,158,255,0.1);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+        @media (max-width: 768px) {
+            .detail-card { padding: 28px 20px; }
+            .detail-card .preview-icon { font-size: 3rem !important; }
+        }
+
         /* Empty */
         .empty-state {
             grid-column: 1 / -1;
@@ -506,21 +628,81 @@ function renderGrid(category, filter) {
         el.className = 'icon-item';
         el.innerHTML = '<i class="fa ' + name + '" aria-hidden="true"></i><span class="label">' + name.replace('fa-', '') + '</span><span class="copy-badge">已复制</span>';
 
-        var badge = el.querySelector('.copy-badge');
-        el.addEventListener('click', function() {
-            var cls = name;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(cls).catch(function() { fallbackCopy(cls); });
-            } else {
-                fallbackCopy(cls);
-            }
-            badge.classList.add('show');
-            showToast('已复制: ' + cls);
-            setTimeout(function() { badge.classList.remove('show'); }, 1200);
+        el.addEventListener('click', function(e) {
+            e.stopPropagation();
+            showIconDetail(name);
         });
 
         grid.appendChild(el);
     });
+}
+
+function showIconDetail(name) {
+    var overlay = document.getElementById('detailOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'detailOverlay';
+        overlay.className = 'detail-overlay';
+        overlay.innerHTML = '<div class="detail-card" id="detailCard">'
+            + '<button class="close-btn" id="detailClose">&times;</button>'
+            + '<div class="preview-icon" id="detailIcon"></div>'
+            + '<div class="preview-name" id="detailName"></div>'
+            + '<div class="preview-hint">点击下方按钮复制</div>'
+            + '<div class="copy-actions">'
+            + '<button class="copy-btn" id="copyHtml"><span class="action-label">HTML</span><span class="code" id="htmlCode"></span><span class="check-mark" id="htmlCheck">&#10003;</span></button>'
+            + '<button class="copy-btn" id="copyClass"><span class="action-label">类名</span><span class="code" id="classCode"></span><span class="check-mark" id="classCheck">&#10003;</span></button>'
+            + '</div>'
+            + '<div class="usage-tip">将 <code>font-awesome.css</code> 引入后，把上面的 HTML 代码粘贴到需要显示图标的位置即可。</div>'
+            + '</div>';
+        document.body.appendChild(overlay);
+
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) closeDetail();
+        });
+        document.getElementById('detailClose').addEventListener('click', closeDetail);
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeDetail();
+        });
+    }
+
+    var shortName = name.replace('fa-', '');
+    var htmlSnippet = '<i class="fa ' + name + '"></i>';
+
+    document.getElementById('detailIcon').className = 'fa ' + name + ' preview-icon';
+    document.getElementById('detailName').textContent = name;
+    document.getElementById('htmlCode').textContent = htmlSnippet;
+    document.getElementById('classCode').textContent = name;
+
+    // Reset check marks
+    document.getElementById('htmlCheck').classList.remove('show');
+    document.getElementById('classCheck').classList.remove('show');
+
+    // Copy HTML
+    document.getElementById('copyHtml').onclick = function() {
+        doCopy(htmlSnippet, document.getElementById('htmlCheck'), '已复制 HTML 代码');
+    };
+    // Copy Class
+    document.getElementById('copyClass').onclick = function() {
+        doCopy(name, document.getElementById('classCheck'), '已复制类名: ' + name);
+    };
+
+    overlay.classList.add('show');
+}
+
+function closeDetail() {
+    var overlay = document.getElementById('detailOverlay');
+    if (overlay) overlay.classList.remove('show');
+}
+
+function doCopy(text, checkEl, toastMsg) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(function() { fallbackCopy(text); });
+    } else {
+        fallbackCopy(text);
+    }
+    checkEl.classList.add('show');
+    showToast(toastMsg);
+    setTimeout(function() { checkEl.classList.remove('show'); }, 1500);
 }
 
 function fallbackCopy(text) {
