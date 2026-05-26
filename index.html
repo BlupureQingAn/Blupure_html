@@ -106,11 +106,9 @@
     100% { background-position: 0% 50%; }
 }
 
-/* 逐字掉落动画 */
+/* 逐字掉落动画（从屏幕上方丝滑落下） */
 @keyframes charFall {
-    0%   { opacity: 0; transform: translateY(-80px); }
-    60%  { opacity: 1; transform: translateY(6px); }
-    80%  { opacity: 1; transform: translateY(-3px); }
+    0%   { opacity: 0; transform: translateY(-150vh); }
     100% { opacity: 1; transform: translateY(0); }
 }
 
@@ -175,12 +173,17 @@
 .char {
     display: inline-block;
     position: relative;
+    animation: charFall 0.8s cubic-bezier(0.15, 0.85, 0.35, 1) both;
+    animation-delay: calc(var(--i) * 0.08s + 0.5s);
+}
+/* 只有 Blupure 字母保留浮动动画 */
+.title-brand .char {
     animation:
-        charFall 1s cubic-bezier(0.22, 0.61, 0.36, 1) both,
+        charFall 0.8s cubic-bezier(0.15, 0.85, 0.35, 1) both,
         charFloat 3s ease-in-out infinite;
     animation-delay:
-        calc(var(--i) * 0.35s + 0.5s),
-        calc(var(--i) * 0.35s + 1.5s);
+        calc(var(--i) * 0.08s + 0.5s),
+        calc(var(--i) * 0.08s + 1.3s);
 }
 
 /* Blupure 逐字晕影：每个字母掉落完毕后淡入跟随 */
@@ -197,7 +200,7 @@
     z-index: -1;
     pointer-events: none;
     opacity: 0;
-    animation: shadowFadeIn 0.4s ease-out calc(var(--i) * 0.35s + 1.5s) forwards;
+    animation: shadowFadeIn 0.3s ease-out calc(var(--i) * 0.08s + 0.9s) forwards;
 }
 
 .char__inner {
@@ -273,6 +276,16 @@
         }
         .section-title::before {
             color: var(--pure-blue) !important;
+        }
+
+        /* 卡片入场动画：从下方升起并淡入 */
+        @keyframes cardEnter {
+            0%   { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .portfolio-card {
+            animation: cardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation-delay: calc(var(--card-i) * 0.08s);
         }
 
         /* 作品网格基础设计（保持 PC 端多列排版） */
@@ -813,126 +826,117 @@ function renderCard(metadata) {
                 }
                 
                 // 主要入口: 调用 GitHub API 获取 works 目录内容并渲染
+function renderWorks(allMetas) {
+    const CATEGORY_ORDER = ['互动游戏', '实用工具', '参考文档', '图标资源'];
+    const CATEGORY_LABELS = { '互动游戏': '互动游戏', '实用工具': '实用工具', '参考文档': '参考文档', '图标资源': '图标资源' };
+
+    const groups = {};
+    for (const meta of allMetas) {
+        const cat = meta.category || '其他';
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(meta);
+    }
+
+    container.innerHTML = '';
+    var cardIdx = 0;
+    for (const cat of CATEGORY_ORDER) {
+        const items = groups[cat];
+        if (!items || items.length === 0) continue;
+        const header = document.createElement('div');
+        header.className = 'category-header';
+        header.innerHTML = '<h3 class="category-title">' + (CATEGORY_LABELS[cat] || cat) + '</h3>';
+        container.appendChild(header);
+        items.forEach(function(meta) {
+            var card = renderCard(meta);
+            card.style.setProperty('--card-i', cardIdx);
+            cardIdx++;
+            container.appendChild(card);
+        });
+    }
+
+    // 图片加载错误后备
+    container.querySelectorAll('.portfolio-card__img').forEach(img => {
+        img.addEventListener('error', function() {
+            if (this.dataset.fallbackSet) return;
+            this.dataset.fallbackSet = 'true';
+            const parentCard = this.closest('.portfolio-card');
+            let fallbackTitle = 'Blupure作品';
+            if (parentCard) {
+                const titleEl = parentCard.querySelector('.portfolio-card__title a');
+                if (titleEl) fallbackTitle = titleEl.innerText;
+            }
+            this.src = generatePureBlueCover(fallbackTitle);
+        });
+    });
+}
+
 async function initPortfolio() {
+    // 优先加载 works-index.json（同站加载，国内无需代理）
+    try {
+        const indexResp = await fetch('works-index.json');
+        if (indexResp.ok) {
+            const indexData = await indexResp.json();
+            if (indexData && indexData.length > 0) {
+                renderWorks(indexData);
+                return;
+            }
+        }
+    } catch (e) {
+        console.log('works-index.json 加载失败，降级到 GitHub API', e);
+    }
+
+    // 降级: 走 GitHub API
     const { owner, repo } = getRepositoryInfo();
-    
     if (!owner || !repo) {
         showNetworkError('未检测到 GitHub 仓库信息');
         return;
     }
-    
     const apiEndpoint = `https://api.github.com/repos/${owner}/${repo}/contents/works`;
     try {
         const response = await fetch(apiEndpoint, {
-    headers: {
-        'Accept': 'application/vnd.github.v3+json',
-        'Authorization': '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'   // 替换成真实 token
-    }
-});
-        
-        if (response.status === 404) {
-            showEmptyWorks();
-            return;
-        }
+            headers: { 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (response.status === 404) { showEmptyWorks(); return; }
         if (!response.ok) {
-            if (response.status === 403) {
-                showNetworkError('GitHub API 请求频率受限', '您可以稍后重试。');
-            } else {
-                showNetworkError(`无法获取作品目录 (${response.status})`);
-            }
+            if (response.status === 403) showNetworkError('GitHub API 请求频率受限', '您可以稍后重试。');
+            else showNetworkError('无法获取作品目录 (' + response.status + ')');
             return;
         }
-        
         const files = await response.json();
-        if (!Array.isArray(files) || files.length === 0) {
-            showEmptyWorks();
-            return;
-        }
-        
-        // 1. 分离 HTML 文件和图片文件
+        if (!Array.isArray(files) || files.length === 0) { showEmptyWorks(); return; }
         const htmlFiles = files.filter(f => f.name && f.name.endsWith('.html') && f.type === 'file');
-        if (htmlFiles.length === 0) {
-            showEmptyWorks();
-            return;
-        }
-        
-        // 2. 构建 文件名(无扩展名) -> 图片URL 的映射
+        if (htmlFiles.length === 0) { showEmptyWorks(); return; }
+
         const imageMap = new Map();
-        const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
-        files.forEach(file => {
-            const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-            if (imageExtensions.includes(ext) && file.type === 'file') {
-                const baseName = file.name.replace(/\.[^/.]+$/, ''); // 去掉扩展名
-                imageMap.set(baseName, file.download_url);
+        const imageExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+        files.forEach(f => {
+            const ext = f.name.substring(f.name.lastIndexOf('.')).toLowerCase();
+            if (imageExts.includes(ext) && f.type === 'file') {
+                imageMap.set(f.name.replace(/\.[^/.]+$/, ''), f.download_url);
             }
         });
-        
-        // 清空容器
+
         container.innerHTML = '';
-        
-        // 3. 收集所有作品元数据
         const allMetas = [];
         for (const fileItem of htmlFiles) {
-            const htmlBaseName = fileItem.name.replace(/\.html$/i, '');
-            const sameNameCover = imageMap.get(htmlBaseName) || '';
+            const baseName = fileItem.name.replace(/\.html$/i, '');
+            const cover = imageMap.get(baseName) || '';
             try {
-                const meta = await parseWorkMetadata(fileItem, sameNameCover);
+                const meta = await parseWorkMetadata(fileItem, cover);
                 allMetas.push(meta);
             } catch (err) {
-                console.warn(`处理作品 ${fileItem.name} 时出错:`, err);
                 allMetas.push({
                     title: fileItem.name.replace('.html', ''),
                     description: '点击进入查看完整数字创作内容。',
-                    coverImg: sameNameCover || generatePureBlueCover(fileItem.name.replace('.html', '')),
+                    coverImg: cover || generatePureBlueCover(fileItem.name.replace('.html', '')),
                     category: '',
                     valid: true,
                     fileName: fileItem.name,
-                    workUrl: `works/${fileItem.name}`
+                    workUrl: 'works/' + fileItem.name
                 });
             }
         }
-
-        // 4. 按分类分组渲染
-        const CATEGORY_ORDER = ['互动游戏', '实用工具', '参考文档', '图标资源'];
-        const CATEGORY_LABELS = { '互动游戏': '互动游戏', '实用工具': '实用工具', '参考文档': '参考文档', '图标资源': '图标资源' };
-
-        const groups = {};
-        for (const meta of allMetas) {
-            const cat = meta.category || '其他';
-            if (!groups[cat]) groups[cat] = [];
-            groups[cat].push(meta);
-        }
-
-        container.innerHTML = '';
-        for (const cat of CATEGORY_ORDER) {
-            const items = groups[cat];
-            if (!items || items.length === 0) continue;
-
-            const header = document.createElement('div');
-            header.className = 'category-header';
-            header.innerHTML = '<h3 class="category-title">' + (CATEGORY_LABELS[cat] || cat) + '</h3>';
-            container.appendChild(header);
-
-            items.forEach(meta => container.appendChild(renderCard(meta)));
-        }
-        
-        // 图片加载错误后备（保持不变）
-        const allImgs = container.querySelectorAll('.portfolio-card__img');
-        allImgs.forEach(img => {
-            img.addEventListener('error', function(e) {
-                if (!this.dataset.fallbackSet) {
-                    this.dataset.fallbackSet = 'true';
-                    const parentCard = this.closest('.portfolio-card');
-                    let fallbackTitle = 'Blupure作品';
-                    if (parentCard) {
-                        const titleEl = parentCard.querySelector('.portfolio-card__title a');
-                        if (titleEl) fallbackTitle = titleEl.innerText;
-                    }
-                    this.src = generatePureBlueCover(fallbackTitle);
-                }
-            });
-        });
-        
+        renderWorks(allMetas);
     } catch (err) {
         console.error('作品加载严重错误:', err);
         showNetworkError('网络请求异常或跨域问题', '请检查网络连接或 GitHub API 可用性。您也可以稍后刷新页面重试。');
