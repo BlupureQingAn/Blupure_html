@@ -13,6 +13,12 @@
     <script>
         document.documentElement.classList.remove('no-js');
         document.documentElement.classList.add('js');
+        (function(){
+            var t = localStorage.getItem('blupure-theme');
+            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark-mode');
+            }
+        })();
     </script>
 
     <link rel="stylesheet" href="../css/vendor.css">
@@ -41,22 +47,6 @@
             --shadow-card: rgba(0, 47, 167, 0.08);
             --shadow-card-hover: rgba(0, 47, 167, 0.2);
             --text-gradient-end: #444444;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --pure-blue: #4D7CFF;
-                --pure-blue-hover: #6B8FFF;
-                --pure-blue-light: #0D1B3E;
-                --pure-blue-alpha: rgba(77, 124, 255, 0.15);
-                --text-dark: #E8E8E8;
-                --text-soft: #AAAAAA;
-                --card-bg: #1A1B2E;
-                --section-bg-alt: #12131E;
-                --shadow-card: rgba(0, 0, 0, 0.3);
-                --shadow-card-hover: rgba(0, 0, 0, 0.4);
-                --text-gradient-end: #BBBBBB;
-            }
         }
 
         html.dark-mode {

@@ -8,6 +8,12 @@
     <script>
         document.documentElement.classList.remove('no-js');
         document.documentElement.classList.add('js');
+        (function(){
+            var t = localStorage.getItem('blupure-theme');
+            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark-mode');
+            }
+        })();
     </script>
 
     <!-- 延续原模板 CSS
@@ -44,24 +50,7 @@
             --text-gradient-end: #444444;
         }
 
-        /* 深色主题 - 跟随系统 */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --pure-blue: #4D7CFF;
-                --pure-blue-hover: #6B8FFF;
-                --pure-blue-light: #0D1B3E;
-                --pure-blue-alpha: rgba(77, 124, 255, 0.15);
-                --text-dark: #E8E8E8;
-                --text-soft: #AAAAAA;
-                --card-bg: #1A1B2E;
-                --section-bg-alt: #12131E;
-                --shadow-card: rgba(0, 0, 0, 0.3);
-                --shadow-card-hover: rgba(0, 0, 0, 0.4);
-                --text-gradient-end: #BBBBBB;
-            }
-        }
-
-        /* 深色主题 - 手动切换 */
+        /* 深色主题（JS 控制，无条件跟随用户选择） */
         html.dark-mode {
             --pure-blue: #4D7CFF;
             --pure-blue-hover: #6B8FFF;
@@ -784,7 +773,7 @@
                 // 辅助函数: 生成高质优雅 SVG 占位 (Blupure风格)
                 function generatePureBlueCover(titleText) {
                     const safeTitle = titleText.substring(0, 28);
-                    return `data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"><rect width="100%" height="100%" fill="%23002FA7"/><path d="M0 350 L800 280" stroke="%23FFFFFF" stroke-width="1.2" fill="none" opacity="0.15"/><circle cx="680" cy="100" r="180" fill="%23001F75" opacity="0.5"/><circle cx="120" cy="400" r="140" fill="%23001A60" opacity="0.4"/><text x="8%" y="85%" fill="%23FFFFFF" font-family="'Inter',system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" letter-spacing="0.02em" opacity="0.95">${esc(safeTitle)}</text><text x="8%" y="75%" fill="%23FFFFFF" font-family="'Inter',system-ui" font-size="16" font-weight="400" opacity="0.6">Blupure · 作品集</text></svg>`;
+                    return `data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"><rect width="100%" height="100%" fill="%23002FA7"/><path d="M0 350 L800 280" stroke="%23FFFFFF" stroke-width="1.2" fill="none" opacity="0.15"/><circle cx="680" cy="100" r="180" fill="%23001F75" opacity="0.5"/><circle cx="120" cy="400" r="140" fill="%23001A60" opacity="0.4"/><text x="8%" y="85%" fill="%23FFFFFF" font-family="'Inter',system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" letter-spacing="0.02em" opacity="0.95">${escapeXml(safeTitle)}</text><text x="8%" y="75%" fill="%23FFFFFF" font-family="'Inter',system-ui" font-size="16" font-weight="400" opacity="0.6">Blupure · 作品集</text></svg>`;
                 }
 
                 function escapeXml(str) {
@@ -1107,12 +1096,14 @@ async function initPortfolio() {
                 var safeTitle = (titleText || 'Blupure').substring(0, 28);
                 return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
                     '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">' +
-                    '<rect width="100%" height="100%" fill="#002FA7"/>' +
-                    '<path d="M0 350 L800 280" stroke="#FFFFFF" stroke-width="1.2" fill="none" opacity="0.15"/>' +
-                    '<circle cx="680" cy="100" r="180" fill="#001F75" opacity="0.5"/>' +
-                    '<circle cx="120" cy="400" r="140" fill="#001A60" opacity="0.4"/>' +
+                    '<rect width="100%" height="100%" fill="#0D1B3D"/>' +
+                    '<path d="M0 360 L200 240 L400 340 L600 200 L800 310" stroke="#FFFFFF" stroke-width="1.5" fill="none" opacity="0.12"/>' +
+                    '<path d="M0 390 L180 280 L380 370 L580 240 L800 340" stroke="#FFFFFF" stroke-width="0.8" fill="none" opacity="0.08"/>' +
+                    '<line x1="620" y1="80" x2="750" y2="80" stroke="#4D7CFF" stroke-width="3" opacity="0.35"/>' +
+                    '<line x1="660" y1="105" x2="750" y2="105" stroke="#4D7CFF" stroke-width="2" opacity="0.2"/>' +
+                    '<line x1="690" y1="130" x2="750" y2="130" stroke="#4D7CFF" stroke-width="1" opacity="0.12"/>' +
                     '<text x="8%" y="85%" fill="#FFFFFF" font-family="\'Inter\',system-ui" font-size="34" font-weight="800" letter-spacing="0.02em" opacity="0.95">' + esc(safeTitle) + '</text>' +
-                    '<text x="8%" y="75%" fill="#FFFFFF" font-family="\'Inter\',system-ui" font-size="16" font-weight="400" opacity="0.6">Blupure &middot; 博客</text>' +
+                    '<text x="8%" y="75%" fill="#FFFFFF" font-family="\'Inter\',system-ui" font-size="16" font-weight="400" opacity="0.6">Blupure &middot; 文章</text>' +
                     '</svg>'
                 );
             }
