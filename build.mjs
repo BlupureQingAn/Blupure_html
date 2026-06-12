@@ -15,8 +15,13 @@ import { glob } from 'glob';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BLOG_DIR = path.join(__dirname, 'blog');
+const WORKS_DIR = path.join(__dirname, 'works');
 const TEMPLATE_PATH = path.join(__dirname, 'templates', 'blog-post.html');
 const INDEX_PATH = path.join(__dirname, 'blog-index.json');
+const WORKS_INDEX_PATH = path.join(__dirname, 'works-index.json');
+
+const IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+const CATEGORY_ORDER = ['互动游戏', '实用工具', '参考文档', '图标资源'];
 
 function esc(str) {
   if (!str) return '';
@@ -40,6 +45,91 @@ function tagsHtml(tags) {
   return `<div class="blog-post__tags">${tags.map(t =>
     `<span class="blog-post__tag">${esc(t)}</span>`
   ).join('')}</div>`;
+}
+
+async function buildWorks() {
+  console.log('Building works index...\n');
+
+  await mkdir(WORKS_DIR, { recursive: true });
+
+  // Gather .html files and image files
+  const htmlFiles = await glob('*.html', { cwd: WORKS_DIR });
+  const allFiles = await glob('*', { cwd: WORKS_DIR });
+
+  // Map image files by base name (e.g. 福尔摩斯探案集_互动文游.png)
+  const imageMap = new Map();
+  for (const f of allFiles) {
+    const ext = path.extname(f).toLowerCase();
+    if (IMAGE_EXTS.includes(ext)) {
+      const base = path.basename(f, ext);
+      imageMap.set(base, `works/${f}`);
+    }
+  }
+
+  console.log(`Found ${htmlFiles.length} work(s)\n`);
+
+  const works = [];
+
+  for (const htmlFile of htmlFiles) {
+    try {
+      const raw = await readFile(path.join(WORKS_DIR, htmlFile), 'utf-8');
+      const baseName = htmlFile.replace(/\.html$/i, '');
+
+      // Title from <title> tag, fallback to filename
+      const titleMatch = raw.match(/<title>([^<]*)<\/title>/i);
+      const title = titleMatch
+        ? titleMatch[1].trim()
+        : baseName.replace(/[-_]/g, ' ');
+
+      // Description from <meta name="description"> or og:description
+      let description = '';
+      const descMatch = raw.match(/<meta\s+name="description"\s+content="([^"]*)"[^>]*\/?>/i)
+        || raw.match(/<meta\s+property="og:description"\s+content="([^"]*)"[^>]*\/?>/i)
+        || raw.match(/<meta\s+content="([^"]*)"\s+name="description"[^>]*\/?>/i);
+      if (descMatch) description = descMatch[1].trim();
+
+      // Cover: same-name image > <meta name="cover"> > <meta property="og:image">
+      let coverImg = imageMap.get(baseName) || '';
+      if (!coverImg) {
+        const coverMatch = raw.match(/<meta\s+name="cover"\s+content="([^"]*)"[^>]*\/?>/i)
+          || raw.match(/<meta\s+property="og:image"\s+content="([^"]*)"[^>]*\/?>/i);
+        if (coverMatch) coverImg = coverMatch[1].trim();
+      }
+
+      // Category from <meta name="category">
+      let category = '';
+      const catMatch = raw.match(/<meta\s+name="category"\s+content="([^"]*)"[^>]*\/?>/i);
+      if (catMatch) category = catMatch[1].trim();
+
+      works.push({
+        title,
+        description: description || '独立创作的数字化项目，点击卡片即刻探索沉浸空间。',
+        coverImg,
+        category,
+        fileName: htmlFile,
+        workUrl: `works/${htmlFile}`,
+      });
+
+      console.log(`  OK  ${htmlFile} — ${title}`);
+    } catch (err) {
+      console.error(`  FAIL ${htmlFile}: ${err.message}`);
+    }
+  }
+
+  // Sort by category order, then by filename
+  const catOrder = Object.fromEntries(CATEGORY_ORDER.map((c, i) => [c, i]));
+  works.sort((a, b) => {
+    const oa = catOrder[a.category] ?? Infinity;
+    const ob = catOrder[b.category] ?? Infinity;
+    if (oa !== ob) return oa - ob;
+    return a.fileName.localeCompare(b.fileName);
+  });
+
+  await writeFile(WORKS_INDEX_PATH, JSON.stringify(works, null, 2), 'utf-8');
+  console.log(`\nIndex: works-index.json (${works.length} works)`);
+
+  // Cleanup orphaned entries: the index is rebuilt from scratch, so
+  // files deleted from works/ are automatically removed from the index.
 }
 
 async function main() {
@@ -155,6 +245,9 @@ async function main() {
     }
     if (cleaned > 0) console.log(`Cleaned ${cleaned} orphaned file(s)`);
   }
+
+  // Build works index
+  await buildWorks();
 
   console.log('\nDone.');
 }
