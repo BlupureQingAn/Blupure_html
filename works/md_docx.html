@@ -1053,7 +1053,7 @@
                 'leqslant': '⩽', 'geqslant': '⩾', 'll': '≪', 'gg': '≫',
                 'approx': '≈', 'simeq': '≃', 'cong': '≅', 'equiv': '≡',
                 'sim': '∼', 'propto': '∝', 'models': '⊧',
-                'subset': '⊂', 'supset': '⊃', 'subseteq': '⊆', 'supseteq': '⊇',
+                'mid': '∣', 'subset': '⊂', 'supset': '⊃', 'subseteq': '⊆', 'supseteq': '⊇',
                 'subsetneq': '⊊', 'supsetneq': '⊋', 'in': '∈', 'notin': '∉',
                 'ni': '∋', 'owns': '∋',
                 // 运算符
@@ -1111,12 +1111,17 @@
                     'bmatrix': '[', 'pmatrix': '(', 'vmatrix': '|', 'Vmatrix': '∥',
                     'Bmatrix': '{', 'matrix': ''
                 };
-                return (brackets[env] !== undefined ? brackets[env] : '') +
-                       content.trim() +
-                       (brackets[env] !== undefined ? { '[': ']', '(': ')', '|': '|', '∥': '∥', '{': '}' , '': ''}[brackets[env]] : '');
+                var left = brackets[env] !== undefined ? brackets[env] : '';
+                var right = brackets[env] !== undefined ? { '[': ']', '(': ')', '|': '|', '∥': '∥', '{': '}' , '': ''}[brackets[env]] : '';
+                // Bmatrix 的花括号用占位符保护，防止被第十二步清除
+                if (left === '{') { left = '##LB##'; right = '##RB##'; }
+                // 替换 & 列分隔符为空格（矩阵、cases、align等环境的列分隔符在纯文本中无意义）
+                content = content.replace(/\s*&\s*/g, ' ');
+                return left + content.trim() + right;
             });
             // 同时处理 \begin{env*}...\end{env*}（带星号的环境，如 align*）
             expr = expr.replace(/\\begin\{(\w+)\*\}([\s\S]*?)\\end\{\1\*\}/g, function(m, env, content) {
+                content = content.replace(/\s*&\s*/g, ' ');
                 return content.trim();
             });
 
@@ -1150,8 +1155,8 @@
                 '8': '₈', '9': '₉',
                 '+': '₊', '-': '₋', '=': '₌', '(': '₍', ')': '₎',
                 'a': 'ₐ', 'e': 'ₑ', 'i': 'ᵢ', 'j': 'ⱼ',
-                'k': 'ₕ', 'l': 'ₖ', 'm': 'ₗ', 'n': 'ₘ',
-                'o': 'ₒ', 'p': 'ₙ', 'r': 'ᵣ', 's': 'ₛ',
+                'k': 'ₖ', 'l': 'ₗ', 'm': 'ₘ', 'n': 'ₙ',
+                'o': 'ₒ', 'p': 'ₚ', 'r': 'ᵣ', 's': 'ₛ',
                 't': 'ₜ', 'u': 'ᵤ', 'v': 'ᵥ', 'x': 'ₓ'
             };
             expr = expr.replace(/_(.)/g, function(m, c) {
@@ -1186,12 +1191,30 @@
             // 第十步：\text{...} → 去掉 \text 保留内容
             expr = expr.replace(/\\text\{([^}]*)\}/g, function(m, x) { return x; });
 
+            // 第10.5步：\mathrm{...} → 去掉 \mathrm 保留内容（同 \text）
+            expr = expr.replace(/\\mathrm\{([^}]*)\}/g, function(m, x) { return x; });
+
             // 第十一步：行分隔符 \\ → 换行符（makeRun 会按 \n 拆成多个 run 并插入 <w:br/>）
             expr = expr.replace(/\\\\/g, '\n');
 
-            // 第十二步：清理多余的花括号
+            // 保护 LaTeX 花括号转义（\{ \} \lbrace \rbrace → 应输出为 { }）
+            expr = expr.replace(/\\\{/g, '##LB##');
+            expr = expr.replace(/\\\}/g, '##RB##');
+            expr = expr.replace(/\\lbrace/g, '##LB##');
+            expr = expr.replace(/\\rbrace/g, '##RB##');
+            // 处理 LaTeX 间距命令（\, \; \: \;  → 空格或清理）
+            expr = expr.replace(/\\,/g, ' ');
+            expr = expr.replace(/\\;/g, '  ');
+            expr = expr.replace(/\\:/g, '  ');
+            expr = expr.replace(/\\!/g, '');
+
+            // 第十二步：清理多余的花括号（注意：被保护的 ##LB##/##RB## 不受影响）
             expr = expr.replace(/\{([^}]*)\}/g, function(m, x) { return x; });
             expr = expr.replace(/\\/g, '');
+
+            // 恢复被保护的花括号
+            expr = expr.replace(/##LB##/g, '{');
+            expr = expr.replace(/##RB##/g, '}');
 
             // 第十三步：清理多余括号（如 ^(x) 中的括号可以在数字上标时去掉）
             expr = expr.trim();
