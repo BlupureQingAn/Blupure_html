@@ -994,6 +994,12 @@
                 mathBlocks.push({ id: id, expr: match.trim(), type: 'block' });
                 return id;
             });
+            // 处理 \begin{...*}...\end{...*} 带星号环境（align*, gather* 等）
+            processed = processed.replace(/\\begin\{(\w+)\*\}([\s\S]*?)\\end\{\1\*\}/g, function(match, env, expr) {
+                const id = '@@MATH_B_' + mathBlocks.length + '@@';
+                mathBlocks.push({ id: id, expr: match.trim(), type: 'block' });
+                return id;
+            });
             // 再处理 $...$ 行内公式（避开已替换的 $$）
             processed = processed.replace(/(?<!\$)\$([^\n$]+?)\$(?!\$)/g, function(match, expr) {
                 const id = '@@MATH_I_' + mathBlocks.length + '@@';
@@ -1038,7 +1044,7 @@
                 'sum': '∑', 'prod': '∏', 'int': '∫', 'iint': '∬',
                 'iiint': '∭', 'oint': '∮', 'infty': '∞', 'partial': '∂',
                 'nabla': '∇', 'exists': '∃', 'forall': '∀', 'emptyset': '∅',
-                'varnothing': '∅', 'nabla': '∇', 'surd': '√', 'sqrt': '√',
+                'varnothing': '∅', 'surd': '√', 'sqrt': '√',
                 // 关系符号
                 'neq': '≠', 'ne': '≠', 'leq': '≤', 'geq': '≥',
                 'leqslant': '⩽', 'geqslant': '⩾', 'll': '≪', 'gg': '≫',
@@ -1072,8 +1078,7 @@
                 'bot': '⊥', 'flat': '♭', 'natural': '♮', 'sharp': '♯',
                 'clubsuit': '♣', 'diamondsuit': '♢', 'heartsuit': '♡', 'spadesuit': '♠',
                 'neg': '¬', 'lnot': '¬', 'prime': '′', 'backprime': '‵',
-                'ell': 'ℓ', 'hbar': 'ℏ', 'imath': 'ı', 'jmath': 'ȷ',
-                'ell': 'ℓ', 'imath': 'ı',
+                'imath': 'ı', 'jmath': 'ȷ',
                 // 函数名
                 'sin': 'sin', 'cos': 'cos', 'tan': 'tan', 'cot': 'cot', 'sec': 'sec', 'csc': 'csc',
                 'log': 'log', 'ln': 'ln', 'lg': 'lg', 'exp': 'exp', 'det': 'det', 'dim': 'dim',
@@ -1083,10 +1088,6 @@
                 'quad': '    ', 'qquad': '        ', ';': '  ', ' ': ' ', '!': '',
                 ':': '  ', ',': ' '
             };
-
-            // 按命令长度降序排序，避免短命令覆盖长命令
-            var cmds = Object.keys(map).sort(function(a, b) { return b.length - a.length; });
-
             // 第一步：\frac{a}{b} → a/b
             expr = expr.replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, function(m, num, den) {
                 return '(' + num + ')/(' + den + ')';
@@ -1137,7 +1138,7 @@
                 return superscripts[c] || '^' + c;
             });
 
-            // 第五步：下标 x_{...}
+            // 第六步：下标 x_{...}
             expr = expr.replace(/_\{(.*?)\}/g, function(m, s) { return '_(' + s + ')'; });
             // 下标单个字符（只处理字母数字）
             var subscripts = {
@@ -1154,7 +1155,7 @@
                 return subscripts[c] || '_' + c;
             });
 
-            // 第六步：简单修饰符
+            // 第七步：简单修饰符
             expr = expr.replace(/\\hat\{([^}]*)\}/g, function(m, x) { return '̂' + x; });
             expr = expr.replace(/\\bar\{([^}]*)\}/g, function(m, x) { return '̄' + x; });
             expr = expr.replace(/\\tilde\{([^}]*)\}/g, function(m, x) { return '̃' + x; });
@@ -1162,7 +1163,7 @@
             expr = expr.replace(/\\dot\{([^}]*)\}/g, function(m, x) { return '̇' + x; });
             expr = expr.replace(/\\ddot\{([^}]*)\}/g, function(m, x) { return '̈' + x; });
 
-            // 第七步：mathbb{} → 黑板粗体
+            // 第八步：mathbb{} → 黑板粗体
             expr = expr.replace(/\\mathbb\{([A-Za-z])\}/g, function(m, x) {
                 var bb = {
                     'A': '𝔸', 'B': '𝔹', 'C': 'ℂ', 'D': '𝔻',
@@ -1176,17 +1177,20 @@
                 return bb[x] || x;
             });
 
-            // 第八步：mathcal → 手写体（实际用斜体）
+            // 第九步：mathcal → 手写体（实际用斜体）
             expr = expr.replace(/\\mathcal\{([^}]*)\}/g, function(m, x) { return x; });
 
-            // 第九步：\text{...} → 去掉 \text 保留内容
+            // 第十步：\text{...} → 去掉 \text 保留内容
             expr = expr.replace(/\\text\{([^}]*)\}/g, function(m, x) { return x; });
 
-            // 第十步：清理多余的花括号
+            // 第十一步：行分隔符 \\ → 换行符（makeRun 会按 \n 拆成多个 run 并插入 <w:br/>）
+            expr = expr.replace(/\\\\/g, '\n');
+
+            // 第十二步：清理多余的花括号
             expr = expr.replace(/\{([^}]*)\}/g, function(m, x) { return x; });
             expr = expr.replace(/\\/g, '');
 
-            // 第十一步：清理多余括号（如 ^(x) 中的括号可以在数字上标时去掉）
+            // 第十三步：清理多余括号（如 ^(x) 中的括号可以在数字上标时去掉）
             return expr.trim();
         }
 
