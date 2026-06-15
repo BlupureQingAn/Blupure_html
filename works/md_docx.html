@@ -988,10 +988,10 @@
                 mathBlocks.push({ id: id, expr: expr.trim(), type: 'block' });
                 return id;
             });
-            // 处理 \begin{...}...\end{...} 环境
+            // 处理 \begin{...}...\end{...} 环境（存储完整表达式，含 begin/end 标签）
             processed = processed.replace(/\\begin\{(\w+)\}([\s\S]*?)\\end\{\1\}/g, function(match, env, expr) {
                 const id = '@@MATH_B_' + mathBlocks.length + '@@';
-                mathBlocks.push({ id: id, expr: expr.trim(), type: 'block' });
+                mathBlocks.push({ id: id, expr: match.trim(), type: 'block' });
                 return id;
             });
             // 再处理 $...$ 行内公式（避开已替换的 $$）
@@ -1005,11 +1005,14 @@
 
         function resolveMath(text, mathBlocks) {
             if (!mathBlocks || !mathBlocks.length) return text;
+            // 先解析所有嵌套占位符，还原原始 LaTeX 表达式
+            // （外层 $...$ 可能包含 \begin{bmatrix}...\end{bmatrix} 等环境，
+            //  它们被 preprocessMath 分别提取为不同 id，需先还原嵌套关系）
             for (var i = 0; i < mathBlocks.length; i++) {
-                var mb = mathBlocks[i];
-                text = text.split(mb.id).join(latexToUnicode(mb.expr));
+                text = text.split(mathBlocks[i].id).join(mathBlocks[i].expr);
             }
-            return text;
+            // 统一将 LaTeX 命令转为 Unicode
+            return latexToUnicode(text);
         }
 
         // ===== LaTeX → Unicode 转换 =====
@@ -1097,12 +1100,28 @@
                 return '√(' + x + ')';
             });
 
-            // 第三步：替换命令 \cmd
+            // 第三步：处理 \begin{...}...\end{...} 环境
+            // （在通用命令替换之前，避免 \begin 被当作未知命令）
+            expr = expr.replace(/\\begin\{(\w+)\}([\s\S]*?)\\end\{\1\}/g, function(m, env, content) {
+                var brackets = {
+                    'bmatrix': '[', 'pmatrix': '(', 'vmatrix': '|', 'Vmatrix': '∥',
+                    'Bmatrix': '{', 'matrix': ''
+                };
+                return (brackets[env] !== undefined ? brackets[env] : '') +
+                       content.trim() +
+                       (brackets[env] !== undefined ? { '[': ']', '(': ')', '|': '|', '∥': '∥', '{': '}' , '': ''}[brackets[env]] : '');
+            });
+            // 同时处理 \begin{env*}...\end{env*}（带星号的环境，如 align*）
+            expr = expr.replace(/\\begin\{(\w+)\*\}([\s\S]*?)\\end\{\1\*\}/g, function(m, env, content) {
+                return content.trim();
+            });
+
+            // 第四步：替换命令 \cmd
             expr = expr.replace(/\\([a-zA-Z]+)/g, function(match, cmd) {
                 return map[cmd] !== undefined ? map[cmd] : match;
             });
 
-            // 第四步：上标 x^{...} 和 x^char
+            // 第五步：上标 x^{...} 和 x^char
             expr = expr.replace(/\^\{([^}]*)\}/g, function(m, s) {
                 return '^(' + s + ')';
             });
