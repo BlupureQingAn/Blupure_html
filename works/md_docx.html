@@ -978,31 +978,31 @@
             const mathBlocks = [];
             // 先处理 $$...$$ 块级公式
             let processed = markdown.replace(/\$\$([\s\S]*?)\$\$/g, function(match, expr) {
-                const id = '@@MATH_B_' + mathBlocks.length + '@@';
+                const id = '@@MATH-B-' + mathBlocks.length + '@@';
                 mathBlocks.push({ id: id, expr: expr.trim(), type: 'block' });
                 return id;
             });
             // 处理 \[...\] 块级公式
             processed = processed.replace(/\\\[([\s\S]*?)\\\]/g, function(match, expr) {
-                const id = '@@MATH_B_' + mathBlocks.length + '@@';
+                const id = '@@MATH-B-' + mathBlocks.length + '@@';
                 mathBlocks.push({ id: id, expr: expr.trim(), type: 'block' });
                 return id;
             });
             // 处理 \begin{...}...\end{...} 环境（存储完整表达式，含 begin/end 标签）
             processed = processed.replace(/\\begin\{(\w+)\}([\s\S]*?)\\end\{\1\}/g, function(match, env, expr) {
-                const id = '@@MATH_B_' + mathBlocks.length + '@@';
+                const id = '@@MATH-B-' + mathBlocks.length + '@@';
                 mathBlocks.push({ id: id, expr: match.trim(), type: 'block' });
                 return id;
             });
             // 处理 \begin{...*}...\end{...*} 带星号环境（align*, gather* 等）
             processed = processed.replace(/\\begin\{(\w+)\*\}([\s\S]*?)\\end\{\1\*\}/g, function(match, env, expr) {
-                const id = '@@MATH_B_' + mathBlocks.length + '@@';
+                const id = '@@MATH-B-' + mathBlocks.length + '@@';
                 mathBlocks.push({ id: id, expr: match.trim(), type: 'block' });
                 return id;
             });
             // 再处理 $...$ 行内公式（避开已替换的 $$）
             processed = processed.replace(/(?<!\$)\$([^\n$]+?)\$(?!\$)/g, function(match, expr) {
-                const id = '@@MATH_I_' + mathBlocks.length + '@@';
+                const id = '@@MATH-I-' + mathBlocks.length + '@@';
                 mathBlocks.push({ id: id, expr: expr.trim(), type: 'inline' });
                 return id;
             });
@@ -1194,7 +1194,10 @@
             expr = expr.replace(/\\/g, '');
 
             // 第十三步：清理多余括号（如 ^(x) 中的括号可以在数字上标时去掉）
-            return expr.trim();
+            expr = expr.trim();
+            // 安全网：清理任何残留的 @@MATH...@@ 占位符
+            expr = expr.replace(/@@MATH-[BI]-\d+@@/g, '');
+            return expr;
         }
 
         // ===== 行内 Token 渲染 =====
