@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <script src="https://unpkg.com/mammoth@1.5.1/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
@@ -433,6 +434,9 @@
                     <button class="btn btn-success" onclick="convertToDocx()">
                         🚀 转换为 Word 文档
                     </button>
+                    <button class="btn" onclick="exportToPdf()" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);">
+                        📄 导出 PDF
+                    </button>
                     <button class="btn" onclick="downloadSampleMd()" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
                         📥 下载示例文件
                     </button>
@@ -618,189 +622,8 @@
             }
         }
 
-        // 将 HTML 转换为 DOCX 元素
-        async function parseHtmlToDocxElements(html) {
-            const elements = [];
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const body = doc.body;
-
-            for (const child of body.children) {
-                const element = await convertElementToDocx(child);
-                if (Array.isArray(element)) {
-                    elements.push(...element);
-                } else if (element) {
-                    elements.push(element);
-                }
-            }
-
-            return elements.length > 0 ? elements : [
-                new docx.Paragraph({
-                    children: [new docx.TextRun("转换的文档内容")]
-                })
-            ];
-        }
-
-        // 转换单个 HTML 元素为 DOCX
-        async function convertElementToDocx(element) {
-            const tagName = element.tagName.toLowerCase();
-            const text = element.textContent || '';
-
-            try {
-                switch (tagName) {
-                    case 'h1':
-                        return new docx.Paragraph({
-                            children: [new docx.TextRun({ text: text, bold: true, size: 48 })],
-                            heading: docx.HeadingLevel.HEADING_1
-                        });
-                    case 'h2':
-                        return new docx.Paragraph({
-                            children: [new docx.TextRun({ text: text, bold: true, size: 36 })],
-                            heading: docx.HeadingLevel.HEADING_2
-                        });
-                    case 'h3':
-                        return new docx.Paragraph({
-                            children: [new docx.TextRun({ text: text, bold: true, size: 28 })],
-                            heading: docx.HeadingLevel.HEADING_3
-                        });
-                    case 'p':
-                        if (text.trim()) {
-                            return new docx.Paragraph({
-                                children: [new docx.TextRun(text)]
-                            });
-                        }
-                        return null;
-                    case 'ul':
-                    case 'ol':
-                        const listItems = [];
-                        for (const li of element.children) {
-                            if (li.tagName.toLowerCase() === 'li') {
-                                listItems.push(new docx.Paragraph({
-                                    children: [new docx.TextRun(li.textContent)],
-                                    bullet: { level: 0 }
-                                }));
-                            }
-                        }
-                        return listItems;
-                    case 'blockquote':
-                        return new docx.Paragraph({
-                            children: [new docx.TextRun({ text: text, italics: true })],
-                            indent: { left: 720 }
-                        });
-                    case 'strong':
-                    case 'b':
-                        return new docx.Paragraph({
-                            children: [new docx.TextRun({ text: text, bold: true })]
-                        });
-                    case 'em':
-                    case 'i':
-                        return new docx.Paragraph({
-                            children: [new docx.TextRun({ text: text, italics: true })]
-                        });
-                    case 'code':
-                        return new docx.Paragraph({
-                            children: [new docx.TextRun({ 
-                                text: text, 
-                                font: { name: "Courier New" },
-                                color: "666666"
-                            })]
-                        });
-                    default:
-                        if (text.trim()) {
-                            return new docx.Paragraph({
-                                children: [new docx.TextRun(text)]
-                            });
-                        }
-                        return null;
-                }
-            } catch (error) {
-                console.warn('转换元素时出错:', error, element);
-                // 降级处理：返回纯文本段落
-                if (text.trim()) {
-                    return new docx.Paragraph({
-                        children: [new docx.TextRun(text)]
-                    });
-                }
-                return null;
-            }
-        }
-
-        // 简化的 Markdown 转 DOCX 方案
-        function createSimpleDocxFromMarkdown(markdown) {
-            const lines = markdown.split('\n');
-            const elements = [];
-            
-            for (const line of lines) {
-                const trimmedLine = line.trim();
-                if (!trimmedLine) {
-                    // 添加空段落保持格式
-                    elements.push(new docx.Paragraph({
-                        children: [new docx.TextRun(" ")]
-                    }));
-                    continue;
-                }
-                
-                try {
-                    if (trimmedLine.startsWith('# ')) {
-                        elements.push(new docx.Paragraph({
-                            children: [new docx.TextRun({ 
-                                text: trimmedLine.substring(2), 
-                                bold: true, 
-                                size: 48 
-                            })],
-                            heading: docx.HeadingLevel.HEADING_1
-                        }));
-                    } else if (trimmedLine.startsWith('## ')) {
-                        elements.push(new docx.Paragraph({
-                            children: [new docx.TextRun({ 
-                                text: trimmedLine.substring(3), 
-                                bold: true, 
-                                size: 36 
-                            })],
-                            heading: docx.HeadingLevel.HEADING_2
-                        }));
-                    } else if (trimmedLine.startsWith('### ')) {
-                        elements.push(new docx.Paragraph({
-                            children: [new docx.TextRun({ 
-                                text: trimmedLine.substring(4), 
-                                bold: true, 
-                                size: 28 
-                            })],
-                            heading: docx.HeadingLevel.HEADING_3
-                        }));
-                    } else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
-                        elements.push(new docx.Paragraph({
-                            children: [new docx.TextRun(trimmedLine.substring(2))],
-                            bullet: { level: 0 }
-                        }));
-                    } else if (trimmedLine.startsWith('> ')) {
-                        elements.push(new docx.Paragraph({
-                            children: [new docx.TextRun({ 
-                                text: trimmedLine.substring(2), 
-                                italics: true 
-                            })],
-                            indent: { left: 720 }
-                        }));
-                    } else {
-                        elements.push(new docx.Paragraph({
-                            children: [new docx.TextRun(trimmedLine)]
-                        }));
-                    }
-                } catch (error) {
-                    console.warn('处理行时出错:', error, line);
-                    // 降级为普通段落
-                    elements.push(new docx.Paragraph({
-                        children: [new docx.TextRun(trimmedLine)]
-                    }));
-                }
-            }
-            
-            return elements.length > 0 ? elements : [
-                new docx.Paragraph({
-                    children: [new docx.TextRun("文档内容")]
-                })
-            ];
-        }
+        // 简化的 Word 兼容 HTML 方案（备用）
+        // （已弃用，保留供参考）
 
         // 浏览器兼容的Word文档导出方案
         async function exportAsCompatibleDoc(markdown) {
@@ -826,10 +649,82 @@
                 URL.revokeObjectURL(url);
                 
                 showToast('🎉 已导出为真正的Word文档！');
-                
+
             } catch (error) {
                 console.error('导出失败:', error);
                 showToast(`❌ 导出失败：${error.message}`, 'error');
+            }
+        }
+
+        // ===== PDF 导出 =====
+        async function exportToPdf() {
+            const markdown = document.getElementById('markdownInput').value.trim();
+            if (!markdown) {
+                showToast('❌ 请先输入 Markdown 内容！', 'error');
+                return;
+            }
+
+            if (typeof html2pdf === 'undefined') {
+                showToast('❌ PDF 库未加载，请刷新页面重试', 'error');
+                return;
+            }
+
+            toggleLoading(true);
+            document.querySelector('#loading .loading-text').textContent = '📄 正在生成 PDF...';
+
+            try {
+                const html = marked.parse(markdown);
+
+                const container = document.createElement('div');
+                container.style.cssText = 'padding:40px 50px;font-family:\'Times New Roman\',SimSun,serif;font-size:12pt;line-height:1.8;color:#000;background:#fff;';
+                container.innerHTML = html;
+
+                const style = document.createElement('style');
+                style.textContent = [
+                    'h1{font-size:24pt;font-weight:bold;margin:18pt 0 10pt;}',
+                    'h2{font-size:18pt;font-weight:bold;margin:16pt 0 8pt;}',
+                    'h3{font-size:14pt;font-weight:bold;margin:14pt 0 6pt;}',
+                    'h4{font-size:12pt;font-weight:bold;margin:12pt 0 6pt;}',
+                    'h5,h6{font-size:11pt;font-weight:bold;margin:10pt 0 6pt;}',
+                    'p{margin:6pt 0;text-align:justify;}',
+                    'ul,ol{margin:6pt 0;padding-left:36pt;}',
+                    'li{margin:3pt 0;}',
+                    'blockquote{margin:6pt 36pt;padding-left:12pt;border-left:3px solid #ccc;font-style:italic;}',
+                    'code{font-family:\'Courier New\',monospace;background:#f5f5f5;padding:1pt 4pt;font-size:10pt;color:#000;}',
+                    'pre{font-family:\'Courier New\',monospace;background:#f5f5f5;padding:12pt;margin:6pt 0;white-space:pre-wrap;font-size:10pt;}',
+                    'table{border-collapse:collapse;width:100%;margin:6pt 0;}',
+                    'th,td{border:1px solid #ccc;padding:6pt;text-align:left;font-size:11pt;}',
+                    'th{background:#f0f0f0;font-weight:bold;}',
+                    'hr{border:none;border-top:1px solid #ccc;margin:12pt 0;}',
+                    'img{max-width:100%;}',
+                    'strong,b{font-weight:bold;}',
+                    'em,i{font-style:italic;}'
+                ].join('');
+                container.appendChild(style);
+
+                document.body.appendChild(container);
+
+                await html2pdf()
+                    .set({
+                        margin: [10, 10, 10, 10],
+                        filename: 'document.pdf',
+                        image: { type: 'jpeg', quality: 0.95 },
+                        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                    })
+                    .from(container)
+                    .save();
+
+                document.body.removeChild(container);
+                showToast('🎉 PDF 导出成功！');
+
+            } catch (error) {
+                console.error('PDF 导出失败:', error);
+                showToast('❌ PDF 导出失败：' + error.message, 'error');
+            } finally {
+                document.querySelector('#loading .loading-text').textContent = '🎪 正在施展魔法转换中...';
+                toggleLoading(false);
             }
         }
 
@@ -1017,7 +912,6 @@
             <w:rFonts w:asciiTheme="majorHAnsi" w:eastAsiaTheme="majorEastAsia" w:hAnsiTheme="majorHAnsi" w:cstheme="majorBidi"/>
             <w:b/>
             <w:bCs/>
-            <w:color w:val="2F5496" w:themeColor="accent1" w:themeShade="BF"/>
             <w:sz w:val="32"/>
             <w:szCs w:val="32"/>
         </w:rPr>
@@ -1037,7 +931,6 @@
             <w:rFonts w:asciiTheme="majorHAnsi" w:eastAsiaTheme="majorEastAsia" w:hAnsiTheme="majorHAnsi" w:cstheme="majorBidi"/>
             <w:b/>
             <w:bCs/>
-            <w:color w:val="2F5496" w:themeColor="accent1" w:themeShade="BF"/>
             <w:sz w:val="26"/>
             <w:szCs w:val="26"/>
         </w:rPr>
@@ -1053,214 +946,290 @@
             return blob;
         }
 
-        // 将Markdown转换为Word XML
-        function convertMarkdownToWordXML(markdown) {
-            const lines = markdown.split('\n');
-            let paragraphs = '';
-            
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i];
-                const trimmedLine = line.trim();
-                
-                if (!trimmedLine) {
-                    // 空行
-                    paragraphs += `
-                    <w:p>
-                        <w:pPr></w:pPr>
-                    </w:p>`;
-                    continue;
-                }
-                
-                if (trimmedLine.startsWith('# ')) {
-                    // H1标题
-                    paragraphs += `
-                    <w:p>
-                        <w:pPr>
-                            <w:pStyle w:val="Heading1"/>
-                        </w:pPr>
-                        <w:r>
-                            <w:t>${escapeXml(trimmedLine.substring(2))}</w:t>
-                        </w:r>
-                    </w:p>`;
-                } else if (trimmedLine.startsWith('## ')) {
-                    // H2标题
-                    paragraphs += `
-                    <w:p>
-                        <w:pPr>
-                            <w:pStyle w:val="Heading2"/>
-                        </w:pPr>
-                        <w:r>
-                            <w:t>${escapeXml(trimmedLine.substring(3))}</w:t>
-                        </w:r>
-                    </w:p>`;
-                } else if (trimmedLine.startsWith('### ')) {
-                    // H3标题
-                    paragraphs += `
-                    <w:p>
-                        <w:pPr></w:pPr>
-                        <w:r>
-                            <w:rPr>
-                                <w:b/>
-                                <w:sz w:val="28"/>
-                            </w:rPr>
-                            <w:t>${escapeXml(trimmedLine.substring(4))}</w:t>
-                        </w:r>
-                    </w:p>`;
-                } else if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
-                    // 列表项
-                    paragraphs += `
-                    <w:p>
-                        <w:pPr>
-                            <w:pStyle w:val="ListParagraph"/>
-                            <w:ind w:left="720"/>
-                        </w:pPr>
-                        <w:r>
-                            <w:t>• ${escapeXml(trimmedLine.substring(2))}</w:t>
-                        </w:r>
-                    </w:p>`;
-                } else if (trimmedLine.startsWith('> ')) {
-                    // 引用
-                    paragraphs += `
-                    <w:p>
-                        <w:pPr>
-                            <w:ind w:left="720"/>
-                        </w:pPr>
-                        <w:r>
-                            <w:rPr>
-                                <w:i/>
-                                <w:color w:val="666666"/>
-                            </w:rPr>
-                            <w:t>${escapeXml(trimmedLine.substring(2))}</w:t>
-                        </w:r>
-                    </w:p>`;
-                } else {
-                    // 普通段落，处理内联格式
-                    const runs = parseInlineFormatting(trimmedLine);
-                    paragraphs += `
-                    <w:p>
-                        <w:pPr></w:pPr>
-                        ${runs}
-                    </w:p>`;
-                }
-            }
-            
-            return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-    <w:body>
-        ${paragraphs}
-        <w:sectPr>
-            <w:pgSz w:w="12240" w:h="15840"/>
-            <w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800" w:header="708" w:footer="708" w:gutter="0"/>
-            <w:cols w:space="708"/>
-            <w:docGrid w:linePitch="360"/>
-        </w:sectPr>
-    </w:body>
-</w:document>`;
+        // ===== 数学公式预处理 =====
+        function preprocessMath(markdown) {
+            const mathBlocks = [];
+            // 先处理 $$...$$ 块级公式
+            let processed = markdown.replace(/\$\$([\s\S]*?)\$\$/g, function(match, expr) {
+                const id = '@@MATH_B_' + mathBlocks.length + '@@';
+                mathBlocks.push({ id: id, expr: expr.trim(), type: 'block' });
+                return id;
+            });
+            // 再处理 $...$ 行内公式（避开已替换的 $$）
+            processed = processed.replace(/(?<!\$)\$([^\n$]+?)\$(?!\$)/g, function(match, expr) {
+                const id = '@@MATH_I_' + mathBlocks.length + '@@';
+                mathBlocks.push({ id: id, expr: expr.trim(), type: 'inline' });
+                return id;
+            });
+            return { processedMd: processed, mathBlocks: mathBlocks };
         }
 
-        // 解析内联格式（粗体、斜体、代码）
-        function parseInlineFormatting(text) {
-            let runs = '';
-            let currentPos = 0;
-            
-            // 简化处理：先处理粗体，再处理斜体，最后处理代码
-            const parts = [];
-            let remaining = text;
-            
-            // 分割文本并标记格式
-            while (remaining.length > 0) {
-                let found = false;
-                
-                // 查找粗体 **text**
-                const boldMatch = remaining.match(/\*\*(.*?)\*\*/);
-                if (boldMatch) {
-                    const beforeBold = remaining.substring(0, boldMatch.index);
-                    if (beforeBold) {
-                        parts.push({ text: beforeBold, format: 'normal' });
-                    }
-                    parts.push({ text: boldMatch[1], format: 'bold' });
-                    remaining = remaining.substring(boldMatch.index + boldMatch[0].length);
-                    found = true;
-                }
-                
-                // 查找斜体 *text*
-                else {
-                    const italicMatch = remaining.match(/\*([^*]+?)\*/);
-                    if (italicMatch) {
-                        const beforeItalic = remaining.substring(0, italicMatch.index);
-                        if (beforeItalic) {
-                            parts.push({ text: beforeItalic, format: 'normal' });
-                        }
-                        parts.push({ text: italicMatch[1], format: 'italic' });
-                        remaining = remaining.substring(italicMatch.index + italicMatch[0].length);
-                        found = true;
-                    }
-                }
-                
-                // 查找代码 `text`
-                if (!found) {
-                    const codeMatch = remaining.match(/`([^`]+?)`/);
-                    if (codeMatch) {
-                        const beforeCode = remaining.substring(0, codeMatch.index);
-                        if (beforeCode) {
-                            parts.push({ text: beforeCode, format: 'normal' });
-                        }
-                        parts.push({ text: codeMatch[1], format: 'code' });
-                        remaining = remaining.substring(codeMatch.index + codeMatch[0].length);
-                        found = true;
-                    }
-                }
-                
-                if (!found) {
-                    parts.push({ text: remaining, format: 'normal' });
-                    break;
-                }
+        function resolveMath(text, mathBlocks) {
+            if (!mathBlocks || !mathBlocks.length) return text;
+            for (var i = 0; i < mathBlocks.length; i++) {
+                var mb = mathBlocks[i];
+                text = text.split(mb.id).join(mb.expr);
             }
-            
-            // 生成Word XML runs
-            for (const part of parts) {
-                if (!part.text) continue;
-                
-                switch (part.format) {
-                    case 'bold':
-                        runs += `
-                        <w:r>
-                            <w:rPr>
-                                <w:b/>
-                            </w:rPr>
-                            <w:t>${escapeXml(part.text)}</w:t>
-                        </w:r>`;
-                        break;
-                    case 'italic':
-                        runs += `
-                        <w:r>
-                            <w:rPr>
-                                <w:i/>
-                            </w:rPr>
-                            <w:t>${escapeXml(part.text)}</w:t>
-                        </w:r>`;
-                        break;
-                    case 'code':
-                        runs += `
-                        <w:r>
-                            <w:rPr>
-                                <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New"/>
-                                <w:color w:val="C7254E"/>
-                                <w:shd w:val="clear" w:color="auto" w:fill="F9F2F4"/>
-                            </w:rPr>
-                            <w:t>${escapeXml(part.text)}</w:t>
-                        </w:r>`;
-                        break;
-                    default:
-                        runs += `
-                        <w:r>
-                            <w:t>${escapeXml(part.text)}</w:t>
-                        </w:r>`;
-                        break;
+            return text;
+        }
+
+        // ===== 行内 Token 渲染 =====
+        function renderInlineToken(token, mathBlocks, inheritedFormat) {
+            var format = {};
+            for (var k in inheritedFormat) format[k] = inheritedFormat[k];
+
+            switch (token.type) {
+                case 'text': {
+                    var t = resolveMath(token.text, mathBlocks);
+                    return t ? makeRun(t, format) : '';
                 }
+                case 'strong': {
+                    format.bold = true;
+                    if (token.tokens && token.tokens.length) {
+                        var arr = token.tokens.map(function(t) { return renderInlineToken(t, mathBlocks, format); }).filter(Boolean);
+                        return arr.join('\n');
+                    }
+                    return makeRun(resolveMath(token.text || '', mathBlocks), format);
+                }
+                case 'em': {
+                    format.italic = true;
+                    if (token.tokens && token.tokens.length) {
+                        var arr = token.tokens.map(function(t) { return renderInlineToken(t, mathBlocks, format); }).filter(Boolean);
+                        return arr.join('\n');
+                    }
+                    return makeRun(resolveMath(token.text || '', mathBlocks), format);
+                }
+                case 'codespan':
+                    return makeRun(resolveMath(token.text, mathBlocks), { monospace: true, bgColor: 'F9F2F4' });
+                case 'link':
+                    return makeRun(resolveMath(token.text || '', mathBlocks), { underline: true });
+                case 'image':
+                    return makeRun(resolveMath(token.text || '', mathBlocks), { italic: true });
+                case 'del': {
+                    format.strikethrough = true;
+                    if (token.tokens && token.tokens.length) {
+                        var arr = token.tokens.map(function(t) { return renderInlineToken(t, mathBlocks, format); }).filter(Boolean);
+                        return arr.join('\n');
+                    }
+                    return makeRun(resolveMath(token.text || '', mathBlocks), format);
+                }
+                case 'br':
+                    return '<w:r><w:br/></w:r>';
+                default:
+                    var raw = resolveMath(token.raw || token.text || '', mathBlocks);
+                    return raw ? makeRun(raw, format) : '';
             }
-            
+        }
+
+        function makeRun(text, format) {
+            if (format === void 0) format = {};
+            if (!text) return '';
+            var parts = text.split('\n');
+            var runs = '';
+            for (var i = 0; i < parts.length; i++) {
+                var escapedText = escapeXml(parts[i]);
+                var rPr = [];
+                if (format.bold) rPr.push('<w:b/>');
+                if (format.italic) rPr.push('<w:i/>');
+                if (format.strikethrough) rPr.push('<w:strike/>');
+                if (format.underline) rPr.push('<w:u w:val="single"/>');
+                if (format.monospace) {
+                    rPr.push('<w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:eastAsia="SimSun"/>');
+                    rPr.push('<w:sz w:val="20"/>');
+                }
+                if (format.color) rPr.push('<w:color w:val="' + format.color + '"/>');
+                if (format.bgColor) rPr.push('<w:shd w:val="clear" w:color="auto" w:fill="' + format.bgColor + '"/>');
+                if (format.size) rPr.push('<w:sz w:val="' + format.size + '"/>');
+                // 数学公式用斜体+深蓝色+等宽字体
+                if (format.math) {
+                    rPr.push('<w:i/>');
+                    if (!rPr.some(function(p) { return p.indexOf('rFonts') >= 0; })) {
+                        rPr.push('<w:rFonts w:ascii="Consolas" w:hAnsi="Consolas" w:eastAsia="SimSun"/>');
+                    }
+                }
+                var rPrXml = rPr.length ? '\n                            <w:rPr>' + rPr.join('\n                                ') + '\n                            </w:rPr>' : '';
+                if (i > 0) runs += '\n                        <w:r><w:br/></w:r>';
+                runs += '\n                        <w:r>' + rPrXml + '\n                            <w:t>' + (escapedText || ' ') + '</w:t>\n                        </w:r>';
+            }
             return runs;
+        }
+
+        // ===== 块级 Token 转换 =====
+        function convertBlockTokens(tokens, mathBlocks) {
+            var xml = '';
+            for (var t = 0; t < tokens.length; t++) {
+                xml += convertBlockToken(tokens[t], mathBlocks, 0);
+            }
+            return xml;
+        }
+
+        function convertBlockToken(token, mathBlocks, listLevel) {
+            var type = token.type;
+
+            if (type === 'heading') {
+                var depth = token.depth || 1;
+                var sizes = { '1': '36', '2': '28', '3': '24', '4': '22', '5': '20', '6': '20' };
+                var size = sizes[depth] || '24';
+                var styleId = depth <= 2 ? 'Heading' + depth : null;
+                if (styleId) {
+                    var inlineXml = token.tokens
+                        ? token.tokens.map(function(t) { return renderInlineToken(t, mathBlocks, {}); }).filter(Boolean).join('\n')
+                        : makeRun(escapeXml(resolveMath(token.text || '', mathBlocks)), { bold: true, size: size });
+                    return '<w:p>\n                            <w:pPr>\n                                <w:pStyle w:val="' + styleId + '"/>\n                            </w:pPr>\n                            ' + inlineXml + '\n                        </w:p>';
+                } else {
+                    var inlineXml = token.tokens
+                        ? token.tokens.map(function(t) { return renderInlineToken(t, mathBlocks, { bold: true, size: size }); }).filter(Boolean).join('\n')
+                        : makeRun(escapeXml(resolveMath(token.text || '', mathBlocks)), { bold: true, size: size });
+                    return '<w:p>\n                            <w:pPr>\n                                <w:keepNext/>\n                                <w:keepLines/>\n                                <w:spacing w:before="240" w:after="120"/>\n                            </w:pPr>\n                            ' + inlineXml + '\n                        </w:p>';
+                }
+            }
+
+            if (type === 'paragraph') {
+                var inlineXml = token.tokens && token.tokens.length
+                    ? token.tokens.map(function(t) { return renderInlineToken(t, mathBlocks, {}); }).filter(Boolean).join('\n')
+                    : makeRun(escapeXml(resolveMath(token.text || '', mathBlocks)), {});
+                return '<w:p>\n                            <w:pPr/>\n                            ' + inlineXml + '\n                        </w:p>';
+            }
+
+            if (type === 'list') {
+                return convertList(token, mathBlocks, listLevel);
+            }
+
+            if (type === 'code') {
+                return convertCode(token);
+            }
+
+            if (type === 'table') {
+                return convertTable(token, mathBlocks);
+            }
+
+            if (type === 'blockquote') {
+                return convertBlockquote(token, mathBlocks, listLevel);
+            }
+
+            if (type === 'hr') {
+                return '<w:p>\n                            <w:pPr>\n                                <w:pBdr>\n                                    <w:bottom w:val="single" w:sz="6" w:space="1" w:color="CCCCCC"/>\n                                </w:pBdr>\n                                <w:spacing w:before="200" w:after="200"/>\n                            </w:pPr>\n                        </w:p>';
+            }
+
+            if (type === 'space') {
+                return '<w:p><w:pPr/></w:p>';
+            }
+
+            return '';
+        }
+
+        function convertList(token, mathBlocks, level) {
+            var xml = '';
+            var isOrdered = token.ordered;
+            var index = token.start || 1;
+            for (var i = 0; i < token.items.length; i++) {
+                var item = token.items[i];
+                for (var j = 0; j < (item.tokens || []).length; j++) {
+                    var t = item.tokens[j];
+                    if (t.type === 'text' || t.type === 'paragraph') {
+                        var prefix = isOrdered ? index + '. ' : '• ';
+                        var inlineXml = t.tokens && t.tokens.length
+                            ? t.tokens.map(function(tt) { return renderInlineToken(tt, mathBlocks, {}); }).filter(Boolean).join('\n')
+                            : makeRun(escapeXml(resolveMath(t.text || '', mathBlocks)), {});
+                        xml += '<w:p>\n                                <w:pPr>\n                                    <w:ind w:left="' + (Math.min(level + 1, 9) * 720) + '"/>\n                                    <w:spacing w:before="60" w:after="60"/>\n                                </w:pPr>\n                                <w:r><w:t>' + escapeXml(prefix) + '</w:t></w:r>\n                                ' + inlineXml + '\n                            </w:p>';
+                    } else if (t.type === 'list') {
+                        xml += convertList(t, mathBlocks, level + 1);
+                    }
+                }
+                if (isOrdered) index++;
+            }
+            return xml;
+        }
+
+        function convertCode(token) {
+            var lines = token.text.split('\n');
+            var runs = '';
+            for (var i = 0; i < lines.length; i++) {
+                if (i > 0) {
+                    runs += '\n                            <w:r>\n                                <w:rPr>\n                                    <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New"/>\n                                    <w:sz w:val="18"/>\n                                </w:rPr>\n                                <w:br/>\n                            </w:r>';
+                }
+                var escapedLine = escapeXml(lines[i]);
+                runs += '\n                            <w:r>\n                                <w:rPr>\n                                    <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:eastAsia="SimSun"/>\n                                    <w:sz w:val="18"/>\n                                    <w:szCs w:val="18"/>\n                                </w:rPr>\n                                <w:t>' + (escapedLine || ' ') + '</w:t>\n                            </w:r>';
+            }
+            return '<w:p>\n                            <w:pPr>\n                                <w:shd w:val="clear" w:color="auto" w:fill="F5F5F5"/>\n                                <w:ind w:left="480"/>\n                                <w:spacing w:before="160" w:after="160"/>\n                                <w:keepLines/>\n                            </w:pPr>\n                            ' + runs + '\n                        </w:p>';
+        }
+
+        function convertTable(token, mathBlocks) {
+            var cols = token.header.length;
+            var usableWidth = 5472;
+            var colWidth = Math.floor(usableWidth / cols);
+            var xml = '<w:tbl>\n                            <w:tblPr>\n                                <w:tblW w:w="5000" w:type="pct"/>\n                                <w:tblBorders>\n                                    <w:top w:val="single" w:sz="4" w:space="0" w:color="CCCCCC"/>\n                                    <w:left w:val="single" w:sz="4" w:space="0" w:color="CCCCCC"/>\n                                    <w:bottom w:val="single" w:sz="4" w:space="0" w:color="CCCCCC"/>\n                                    <w:right w:val="single" w:sz="4" w:space="0" w:color="CCCCCC"/>\n                                    <w:insideH w:val="single" w:sz="4" w:space="0" w:color="CCCCCC"/>\n                                    <w:insideV w:val="single" w:sz="4" w:space="0" w:color="CCCCCC"/>\n                                </w:tblBorders>\n                            </w:tblPr>\n                            <w:tblGrid>';
+            for (var i = 0; i < cols; i++) {
+                xml += '\n                                <w:gridCol w:w="' + colWidth + '"/>';
+            }
+            xml += '\n                            </w:tblGrid>';
+
+            // 表头行
+            xml += '\n                            <w:tr>\n                                <w:trPr>\n                                    <w:trHeight w:val="400"/>\n                                </w:trPr>';
+            for (var i = 0; i < token.header.length; i++) {
+                var cell = token.header[i];
+                var cellText = cell.tokens && cell.tokens.length
+                    ? cell.tokens.map(function(t) { return renderInlineToken(t, mathBlocks, { bold: true }); }).filter(Boolean).join('\n')
+                    : makeRun(escapeXml(cell.text || ''), { bold: true });
+                xml += '\n                                <w:tc>\n                                    <w:tcPr>\n                                        <w:shd w:val="clear" w:color="auto" w:fill="F0F0F0"/>\n                                    </w:tcPr>\n                                    <w:p>\n                                        ' + cellText + '\n                                    </w:p>\n                                </w:tc>';
+            }
+            xml += '\n                            </w:tr>';
+
+            // 数据行
+            for (var r = 0; r < token.rows.length; r++) {
+                var row = token.rows[r];
+                xml += '\n                            <w:tr>';
+                for (var c = 0; c < row.length; c++) {
+                    var cell = row[c];
+                    var cellText = cell.tokens && cell.tokens.length
+                        ? cell.tokens.map(function(t) { return renderInlineToken(t, mathBlocks, {}); }).filter(Boolean).join('\n')
+                        : makeRun(escapeXml(cell.text || ''), {});
+                    xml += '\n                                <w:tc>\n                                    <w:tcPr/>\n                                    <w:p>\n                                        ' + cellText + '\n                                    </w:p>\n                                </w:tc>';
+                }
+                xml += '\n                            </w:tr>';
+            }
+            xml += '\n                        </w:tbl>';
+            return xml;
+        }
+
+        function convertBlockquote(token, mathBlocks, listLevel) {
+            var innerXml = '';
+            for (var t = 0; t < (token.tokens || []).length; t++) {
+                innerXml += convertBlockToken(token.tokens[t], mathBlocks, listLevel);
+            }
+            innerXml = innerXml.replace(/<w:p>/g, '<w:p__modified__>');
+            innerXml = innerXml.replace(/__modified__>/g, '><w:pPr><w:ind w:left="960"/><w:spacing w:before="80" w:after="80"/><w:rPr><w:i/></w:rPr></w:pPr>');
+            return innerXml;
+        }
+
+        // ===== 主入口：将 Markdown 转换为 Word XML =====
+        function convertMarkdownToWordXML(markdown) {
+            var result = preprocessMath(markdown);
+            var processedMd = result.processedMd;
+            var mathBlocks = result.mathBlocks;
+            var tokens;
+            try {
+                tokens = marked.lexer(processedMd);
+            } catch (e) {
+                console.warn('Marked parse failed, using fallback:', e);
+                return fallbackConvert(markdown);
+            }
+            var bodyContent = convertBlockTokens(tokens, mathBlocks);
+            return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">\n    <w:body>\n        ' + bodyContent + '\n        <w:sectPr>\n            <w:pgSz w:w="12240" w:h="15840"/>\n            <w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800" w:header="708" w:footer="708" w:gutter="0"/>\n            <w:cols w:space="708"/>\n            <w:docGrid w:linePitch="360"/>\n        </w:sectPr>\n    </w:body>\n</w:document>';
+        }
+
+        function fallbackConvert(markdown) {
+            var lines = markdown.split('\n');
+            var paragraphs = '';
+            for (var i = 0; i < lines.length; i++) {
+                var trimmed = lines[i].trim();
+                if (!trimmed) {
+                    paragraphs += '\n                    <w:p><w:pPr/></w:p>';
+                    continue;
+                }
+                paragraphs += '\n                    <w:p>\n                            <w:pPr/>\n                            <w:r>\n                                <w:t>' + escapeXml(trimmed) + '</w:t>\n                            </w:r>\n                        </w:p>';
+            }
+            return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">\n    <w:body>\n        ' + paragraphs + '\n        <w:sectPr>\n            <w:pgSz w:w="12240" w:h="15840"/>\n            <w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800" w:header="708" w:footer="708" w:gutter="0"/>\n            <w:cols w:space="708"/>\n            <w:docGrid w:linePitch="360"/>\n        </w:sectPr>\n    </w:body>\n</w:document>';
         }
 
         // XML特殊字符转义
@@ -1421,7 +1390,8 @@ function hello() {
             const libs = {
                 'Marked.js (Markdown解析)': typeof marked !== 'undefined',
                 'JSZip (文件压缩)': typeof JSZip !== 'undefined',
-                'Mammoth.js (DOCX解析)': typeof mammoth !== 'undefined'
+                'Mammoth.js (DOCX解析)': typeof mammoth !== 'undefined',
+                'html2pdf.js (PDF导出)': typeof html2pdf !== 'undefined'
             };
             
             console.log('库加载状态:', libs);
