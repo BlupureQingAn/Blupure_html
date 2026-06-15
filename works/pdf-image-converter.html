@@ -377,6 +377,22 @@
             background: var(--primary-purple);
         }
 
+        .size-select {
+            border: 2px solid var(--primary-blue);
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 0.85rem;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            color: var(--gray-medium);
+            background: var(--white);
+            outline: none;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+        .size-select:focus {
+            border-color: var(--primary-purple);
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -486,6 +502,38 @@
                 <div class="image-list" id="imageList" style="display: none;">
                     <div style="text-align: center; color: var(--gray-medium); margin-bottom: 10px;">
                         📚 已选择的图片 (可拖拽排序)
+                    </div>
+                </div>
+
+                <div class="options-group">
+                    <div class="options-title">📐 页面尺寸</div>
+                    <div class="option-item">
+                        <input type="radio" id="sizeOriginal" name="pageSize" value="original" checked>
+                        <label for="sizeOriginal">原图比例</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="radio" id="sizeA4" name="pageSize" value="a4">
+                        <label for="sizeA4">A4</label>
+                        <select id="a4Orientation" class="size-select">
+                            <option value="portrait">竖版</option>
+                            <option value="landscape">横版</option>
+                        </select>
+                    </div>
+                    <div class="option-item">
+                        <input type="radio" id="sizeA3" name="pageSize" value="a3">
+                        <label for="sizeA3">A3</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="radio" id="size169" name="pageSize" value="16:9">
+                        <label for="size169">16:9 宽屏</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="radio" id="size43" name="pageSize" value="4:3">
+                        <label for="size43">4:3 标准</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="radio" id="sizeLetter" name="pageSize" value="letter">
+                        <label for="sizeLetter">US Letter</label>
                     </div>
                 </div>
 
@@ -892,27 +940,51 @@
             }
         }
 
+        // 页面尺寸常量表（单位: pt，1pt = 1/72 inch）
+        const PAGE_SIZES = {
+            'a4_portrait': [595.276, 841.89],
+            'a4_landscape': [841.89, 595.276],
+            'a3': [841.89, 1190.55],
+            '16:9': [960, 540],
+            '4:3': [800, 600],
+            'letter': [612, 792],
+        };
+
+        function getPageSize() {
+            const selected = document.querySelector('input[name="pageSize"]:checked').value;
+
+            if (selected === 'original') {
+                return 'original';
+            } else if (selected === 'a4') {
+                const orientation = document.getElementById('a4Orientation').value;
+                return PAGE_SIZES[`a4_${orientation}`];
+            } else {
+                return PAGE_SIZES[selected];
+            }
+        }
+
         async function convertImagesToPdf() {
             if (selectedImages.length === 0) {
                 showMessage('请先选择图片文件 🖼️', 'error');
                 return;
             }
-            
+
             showLoading(true);
             convertedFiles = [];
-            
+
             try {
                 // 检查PDF-lib是否加载
                 if (typeof PDFLib === 'undefined') {
                     throw new Error('PDF生成库未加载，请刷新页面重试');
                 }
-                
+
                 const pdfDoc = await PDFLib.PDFDocument.create();
-                
+                const pageSizeOption = getPageSize();
+
                 for (let imageFile of selectedImages) {
                     const imageBytes = await imageFile.arrayBuffer();
                     let image;
-                    
+
                     if (imageFile.type === 'image/jpeg' || imageFile.type === 'image/jpg') {
                         image = await pdfDoc.embedJpg(imageBytes);
                     } else if (imageFile.type === 'image/png') {
@@ -922,64 +994,83 @@
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
                         const img = new Image();
-                        
+
                         await new Promise((resolve, reject) => {
                             img.onload = resolve;
                             img.onerror = reject;
                             img.src = URL.createObjectURL(imageFile);
                         });
-                        
+
                         canvas.width = img.width;
                         canvas.height = img.height;
                         ctx.drawImage(img, 0, 0);
-                        
+
                         const pngBlob = await new Promise(resolve => {
                             canvas.toBlob(resolve, 'image/png');
                         });
-                        
+
                         const pngBytes = await pngBlob.arrayBuffer();
                         image = await pdfDoc.embedPng(pngBytes);
                     }
-                    
-                    const page = pdfDoc.addPage();
-                    const { width, height } = page.getSize();
-                    
-                    // 计算图片缩放比例，保持宽高比
-                    const imageAspectRatio = image.width / image.height;
-                    const pageAspectRatio = width / height;
-                    
-                    let drawWidth, drawHeight;
-                    if (imageAspectRatio > pageAspectRatio) {
-                        drawWidth = width - 40; // 留边距
-                        drawHeight = drawWidth / imageAspectRatio;
+
+                    // 计算页面尺寸
+                    let pageWidth, pageHeight;
+                    let isOriginalMode = false;
+
+                    if (pageSizeOption === 'original') {
+                        // 原图比例：固定宽度，高度按图片比例计算
+                        isOriginalMode = true;
+                        pageWidth = 595.276;
+                        pageHeight = pageWidth / (image.width / image.height);
                     } else {
-                        drawHeight = height - 40; // 留边距
-                        drawWidth = drawHeight * imageAspectRatio;
+                        [pageWidth, pageHeight] = pageSizeOption;
                     }
-                    
-                    const x = (width - drawWidth) / 2;
-                    const y = (height - drawHeight) / 2;
-                    
-                    page.drawImage(image, {
-                        x: x,
-                        y: y,
-                        width: drawWidth,
-                        height: drawHeight,
-                    });
+
+                    const page = pdfDoc.addPage([pageWidth, pageHeight]);
+
+                    if (isOriginalMode) {
+                        // 原图比例：图片无缝铺满整页（宽高比完全匹配）
+                        page.drawImage(image, {
+                            x: 0,
+                            y: 0,
+                            width: pageWidth,
+                            height: pageHeight,
+                        });
+                    } else {
+                        // 标准尺寸：居中缩放，保持宽高比
+                        const imageAspectRatio = image.width / image.height;
+                        const pageAspectRatio = pageWidth / pageHeight;
+
+                        let drawWidth, drawHeight;
+                        if (imageAspectRatio > pageAspectRatio) {
+                            drawWidth = pageWidth - 40;
+                            drawHeight = drawWidth / imageAspectRatio;
+                        } else {
+                            drawHeight = pageHeight - 40;
+                            drawWidth = drawHeight * imageAspectRatio;
+                        }
+
+                        page.drawImage(image, {
+                            x: (pageWidth - drawWidth) / 2,
+                            y: (pageHeight - drawHeight) / 2,
+                            width: drawWidth,
+                            height: drawHeight,
+                        });
+                    }
                 }
-                
+
                 const pdfBytes = await pdfDoc.save();
                 const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-                
+
                 convertedFiles.push({
                     blob: blob,
                     name: 'converted_images.pdf',
                     url: URL.createObjectURL(blob)
                 });
-                
+
                 showPreview();
                 showMessage(`成功生成PDF文件 🎉`, 'success');
-                
+
             } catch (error) {
                 console.error('转换失败:', error);
                 showMessage(`转换失败: ${error.message} 😢`, 'error');
