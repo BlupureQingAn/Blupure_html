@@ -1011,12 +1011,15 @@
 
         function resolveMath(text, mathBlocks) {
             if (!mathBlocks || !mathBlocks.length) return text;
-            // 先解析所有嵌套占位符，还原原始 LaTeX 表达式
-            // （外层 $...$ 可能包含 \begin{bmatrix}...\end{bmatrix} 等环境，
-            //  它们被 preprocessMath 分别提取为不同 id，需先还原嵌套关系）
-            for (var i = 0; i < mathBlocks.length; i++) {
-                text = text.split(mathBlocks[i].id).join(mathBlocks[i].expr);
-            }
+            // 多重解析嵌套占位符。如外层 $...$ 包裹了 \begin{bmatrix}...\end{bmatrix}，
+            // 它们被分别提取为不同 id，需多轮替换直到所有占位符都被还原
+            var prev;
+            do {
+                prev = text;
+                for (var i = 0; i < mathBlocks.length; i++) {
+                    text = text.split(mathBlocks[i].id).join(mathBlocks[i].expr);
+                }
+            } while (text !== prev);
             // 统一将 LaTeX 命令转为 Unicode
             return latexToUnicode(text);
         }
